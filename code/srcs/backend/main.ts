@@ -11,7 +11,7 @@ const fastify = Fastify({
 
 // Enregistrer le plugin pour les fichiers statiques
 fastify.register(fastifyStatic, {
-  root: path.join(__dirname, '../static'),
+  root: path.join(__dirname, '../../static'),
   prefix: '/', // Indique que les fichiers sont servis à la racine de l'URL
 });
 
@@ -23,7 +23,7 @@ fastify.get('/', (request, reply) => {
 // Lancer le serveur
 const start = async () => {
   try {
-    await fastify.listen({ port: 3000 });
+    await fastify.listen({ port: 3000, host: '0.0.0.0' });
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);

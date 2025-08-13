@@ -1,9 +1,18 @@
-FROM node:22-alpine
+FROM node:20
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY ./srcs/backend backend
+COPY ./srcs/static static
+COPY ./Docker/backFastify/conf/  .
+
+RUN useradd -m appuser
+
+RUN chown -R appuser:appuser /app
+RUN chown -R appuser:appuser ./
+
+USER appuser
 
 RUN npm install
 
-CMD [ "npm", "run", "dev" ]
+EXPOSE 3000
