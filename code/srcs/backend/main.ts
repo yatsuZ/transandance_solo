@@ -11,7 +11,7 @@ const fastify = Fastify({
 
 // Enregistrer le plugin pour les fichiers statiques
 fastify.register(fastifyStatic, {
-  root: path.join(__dirname, '../../static'),
+  root: path.join(__dirname, './../../static'),
   prefix: '/', // Indique que les fichiers sont servis à la racine de l'URL
 });
 
