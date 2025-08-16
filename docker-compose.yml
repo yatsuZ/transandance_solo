@@ -3,14 +3,14 @@ services:
     image: game_project_img
     build:
       context: .
-      dockerfile: Docker/backFastify/Dockerfile
+      dockerfile: code/Docker/backFastify/Dockerfile
       
     ports:
       - "3000:3000"
     command:  sh -c "npm run build && npm run dev"
 
     volumes:
-      - ./srcs/:/srcs/
+      - ./code/srcs/:/app/srcs/
 
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000"]

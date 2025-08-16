@@ -2,9 +2,9 @@ FROM node:20
 
 WORKDIR /app
 
-COPY ./srcs/backend backend
-COPY ./srcs/static static
-COPY ./Docker/backFastify/conf/  .
+COPY ./code/srcs/backend backend
+COPY ./code/srcs/static static
+COPY ./code/*.json  .
 
 RUN useradd -m appuser
 
