@@ -3,8 +3,9 @@ import path from 'path';
 import fastifyStatic from '@fastify/static';
 import chalk from 'chalk';
 
+// test
 console.log(chalk.magenta("\nPremier ticket : servir la page depuis un docker\n"));
-
+console.log("Je suis dans le contenaire");
 const fastify = Fastify({
   logger: true, // Active les logs pour faciliter le débogage
 });

@@ -8,7 +8,10 @@
     "start": "node dist/srcs/backend/main.js",
     "dev": "npm run build && npm run start | pino-pretty --colorize",
     "dev:watch": "ts-node-dev --respawn --transpile-only backend/main.ts | pino-pretty --colorize",
-	"clean": "rm -rf ./dist"
+	"clean": "rm -rf ./dist",
+    "redev": "npm run clean; npm run build && npm run start | pino-pretty --colorize",
+    "redev:watch": "npm run clean; ts-node-dev --respawn --transpile-only backend/main.ts | pino-pretty --colorize"
+
   },
   "keywords": [],
   "author": "",

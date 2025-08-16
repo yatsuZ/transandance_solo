@@ -10,7 +10,7 @@ services:
     command:  sh -c "npm run build && npm run dev"
 
     volumes:
-      - ./code/srcs/:/app/srcs/
+      - ./code/:/app/
 
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000"]

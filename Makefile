@@ -17,7 +17,7 @@ NC     = \033[0m # No Color
 # Variables
 PORT             = 3000
 PROJECT_NAME     = transandance
-DOCKER_COMPOSE   := docker-compose
+DOCKER_COMPOSE   := docker compose
 COMPOSE_FILE     := ./docker-compose.yml
 DC               := $(DOCKER_COMPOSE) -f $(COMPOSE_FILE)
 IMG_NAME         = game_project_img
