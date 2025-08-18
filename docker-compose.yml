@@ -1,0 +1,22 @@
+services:
+  game:
+    image: game_project_img
+    build:
+      context: .
+      dockerfile: code/Docker/backFastify/Dockerfile
+      
+    ports:
+      - "3000:3000"
+    command:  sh -c "npm run build && npm run dev"
+
+    volumes:
+      - ./code/:/app/
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      retries: 3
+      start_period: 10s
+      timeout: 10s
+    container_name: game_project_cont
+    user: appuser
