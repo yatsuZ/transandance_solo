@@ -1,24 +1,51 @@
 import Fastify from 'fastify';
 import path from 'path';
 import fastifyStatic from '@fastify/static';
+import fastifyView from '@fastify/view';
+import ejs from 'ejs';
 import chalk from 'chalk';
 
-console.log(chalk.magenta("\nPremier ticket : servir la page depuis un docker\n"));
+console.log(chalk.magenta("\nServeur démarré avec Fastify + EJS\n"));
+
+// Divisé en plusieur fichier
+// 1. config fastify
 
 const fastify = Fastify({
-  logger: true, // Active les logs pour faciliter le débogage
+  logger: true,
 });
 
-// Enregistrer le plugin pour les fichiers statiques
+// Plugin EJS
+fastify.register(fastifyView, {
+  engine: { ejs },
+  root: path.join(__dirname, './../../static/views'),
+});
+
+// Fichiers statiques (CSS / JS / images)
 fastify.register(fastifyStatic, {
   root: path.join(__dirname, './../../static'),
-  prefix: '/', // Indique que les fichiers sont servis à la racine de l'URL
+  prefix: '/static/', // accès via /static/css/style.css ou /static/js/app.js
 });
 
-// Déclarer une route pour la page d'accueil (optionnel si tu utilises le plugin statique)
-fastify.get('/', (request, reply) => {
-  reply.sendFile('index.html');
+// 2. Faire les routes
+
+// Routes pour SPA
+fastify.get('/', async (request, reply) => {
+  return reply.view('main.ejs', { title: 'Accueil' });
 });
+
+fastify.get('/match', async (request, reply) => {
+  return reply.view('match.ejs', { title: 'Match' });
+});
+
+fastify.get('/tournament', async (request, reply) => {
+  return reply.view('tournament.ejs', { title: 'Tournoi' });
+});
+
+fastify.get('/result', async (request, reply) => {
+  return reply.view('result.ejs', { title: 'Résultat' });
+});
+
+// 3. ft qui demare tout
 
 // Lancer le serveur
 const start = async () => {
