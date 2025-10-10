@@ -1,9 +1,19 @@
 <%- include('partials/header') %>
 
-<div class="container">
-  <h1><%= title %></h1>
-  <button><a href="/match" data-link>Jouer un match</a></button>
-  <button><a href="/tournament" data-link>Créer un tournoi</a></button>
+<div id="pagesAccueil" class="page active">
+  <%- include('pages/accueil', { title: "Accueil" }) %>
+</div>
+
+<div id="pagesMatch" class="page hidden">
+  <%- include('pages/match', { title: "Match" }) %>
+</div>
+
+<div id="pagesTournament" class="page hidden">
+  <%- include('pages/tournament', { title: "Tournoi" }) %>
+</div>
+
+<div id="pagesResult" class="page hidden">
+  <%- include('pages/result', { title: "Résultat" }) %>
 </div>
 
 <%- include('partials/footer') %>

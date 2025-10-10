@@ -1,0 +1,6 @@
+.page.hidden {
+  display: none;
+}
+.page.active {
+  display: block;
+}

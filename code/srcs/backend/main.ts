@@ -29,20 +29,9 @@ fastify.register(fastifyStatic, {
 // 2. Faire les routes
 
 // Routes pour SPA
+
 fastify.get('/', async (request, reply) => {
   return reply.view('main.ejs', { title: 'Accueil' });
-});
-
-fastify.get('/match', async (request, reply) => {
-  return reply.view('match.ejs', { title: 'Match' });
-});
-
-fastify.get('/tournament', async (request, reply) => {
-  return reply.view('tournament.ejs', { title: 'Tournoi' });
-});
-
-fastify.get('/result', async (request, reply) => {
-  return reply.view('result.ejs', { title: 'Résultat' });
 });
 
 // 3. ft qui demare tout

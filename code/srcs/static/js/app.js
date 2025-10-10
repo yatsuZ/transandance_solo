@@ -1,27 +1,27 @@
-document.addEventListener('DOMContentLoaded', () => { 
-  const container = document.getElementById('app');
+document.addEventListener("DOMContentLoaded", () => {
 
-  // Event delegation : on écoute tout le body
-  document.body.addEventListener('click', async (e) => {
-    const link = e.target.closest('a[data-link]');
-    if (!link) return; // pas un lien data-link
+  document.body.addEventListener("click", async (e) => {
+    const link = e.target.closest("a[data-link]");
+    if (!link) return;
 
     e.preventDefault();
-    const url = link.getAttribute('href');
+    const pageName = link.getAttribute("data-link"); // ex: "match"
 
-    // fetch de la vue
-    const res = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
-    const html = await res.text();
-
-    // remplace le contenu du container
-    container.innerHTML = html;
-
-    // anime.js animation
-    anime({
-      targets: '#app .container',
-      opacity: [0, 1],
-      translateY: [-20, 0],
-      duration: 500
+    // cacher toutes les pages
+    document.querySelectorAll(".page").forEach(p => {
+      p.classList.add("hidden");
+      p.classList.remove("active");
     });
+
+    // montrer la bonne page
+    const targetId = "pages" + pageName.charAt(0).toUpperCase() + pageName.slice(1);
+    console.log("targetId == ", targetId);
+    const targetPage = document.getElementById(targetId);
+
+    if (targetPage) {
+      targetPage.classList.remove("hidden");
+      targetPage.classList.add("active");
+    }
+
   });
 });
