@@ -15,13 +15,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // montrer la bonne page
     const targetId = "pages" + pageName.charAt(0).toUpperCase() + pageName.slice(1);
-    console.log("targetId == ", targetId);
+    // console.log("targetId == ", targetId);
     const targetPage = document.getElementById(targetId);
 
     if (targetPage) {
       targetPage.classList.remove("hidden");
       targetPage.classList.add("active");
     }
-
+    // anime.js animation
+    anime({
+      targets: '#app .container',
+      opacity: [0, 1],
+      translateY: [-20, 0],
+      duration: 500
+    });
   });
 });
