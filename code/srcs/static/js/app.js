@@ -1,3 +1,14 @@
+const music = document.getElementById('arcade-music');
+const btn = document.getElementById('music-btn');
+
+btn.addEventListener('click', () => {
+  if (music.paused) {
+    music.play();
+  } else {
+    music.pause();
+  }
+});
+
 document.addEventListener("DOMContentLoaded", () => {
 
   document.body.addEventListener("click", async (e) => {

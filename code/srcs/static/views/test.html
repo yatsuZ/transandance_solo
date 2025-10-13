@@ -1,22 +1,21 @@
-.page.hidden {
-  display: none;
-}
-.page.active {
-  display: block;
-}
+<div class="arcade-container">
+  <div class="grid-bg"></div>
+  <div class="arcade-screen">
+    <h1 >PONG</h1>
+    <div class="screen-content">
+      <!-- Ici ton contenu (SPA, pages, etc.) -->
+      <button id="music-btn">⏯️ Play / Pause</button>
+    </div>
+  </div>
+</div>
 
-html, body, #app, .arcade-container {
-  height: 100%;
-}
+<!-- Musique -->
+<audio id="arcade-music" loop>
+  <source src="./../util/Arcade_music.mp3" type="audio/mpeg">
+  Votre navigateur ne supporte pas la lecture audio.
+</audio>
 
-.arcade-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-
-/*****************************************************/
+<style>
 body {
   margin: 0;
   background: radial-gradient(circle at center, #000 40%, #111 100%);
@@ -52,7 +51,6 @@ body {
   height: 90%;
   margin: 50px auto;
   background: #000;
-  /* ou #98ff00 */
   border: 10px solid #ffcc00;
   border-radius: 12px;
   box-shadow: 0 0 50px rgba(255, 204, 0, 0.4);
@@ -94,3 +92,18 @@ body {
 #music-btn:active {
   transform: scale(0.95);
 }
+</style>
+
+<script>
+// Gestion du Play/Pause
+const music = document.getElementById('arcade-music');
+const btn = document.getElementById('music-btn');
+
+btn.addEventListener('click', () => {
+  if (music.paused) {
+    music.play();
+  } else {
+    music.pause();
+  }
+});
+</script>
