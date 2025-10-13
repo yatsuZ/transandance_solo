@@ -4,8 +4,11 @@ import fastifyStatic from '@fastify/static';
 import fastifyView from '@fastify/view';
 import ejs from 'ejs';
 import chalk from 'chalk';
+import os from 'os';
+import qrcode from 'qrcode-terminal';
 
-console.log(chalk.magenta("\nServeur démarré avec Fastify + EJS\n"));
+console.log(chalk.magenta("\n🚀 Serveur démarré avec Fastify + EJS\n"));
+
 
 // Divisé en plusieur fichier
 // 1. config fastify
@@ -23,23 +26,44 @@ fastify.register(fastifyView, {
 // Fichiers statiques (CSS / JS / images)
 fastify.register(fastifyStatic, {
   root: path.join(__dirname, './../../static'),
-  prefix: '/static/', // accès via /static/css/style.css ou /static/js/app.js
+  prefix: '/static/',
 });
 
-// 2. Faire les routes
-
-// Routes pour SPA
-
+// 2. Routes
 fastify.get('/', async (request, reply) => {
   return reply.view('main.ejs', { title: 'Accueil' });
 });
 
-// 3. ft qui demare tout
+// 3. Fonction pour récupérer l'adresse IP locale
+function getLocalIP(): string {
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name] || []) {
+      if (iface.family === 'IPv4' && !iface.internal) {
+        return iface.address;
+      }
+    }
+  }
+  return 'localhost';
+}
 
-// Lancer le serveur
+// 4. Démarrer le serveur
 const start = async () => {
   try {
-    await fastify.listen({ port: 3000, host: '0.0.0.0' });
+    const port = 3000;
+    const host = '0.0.0.0';
+
+    await fastify.listen({ port, host });
+
+  const hostIP = process.env.HOST_IP || getLocalIP(); // fallback si hors Docker
+  const localURL = `http://${hostIP}:${port}`;
+
+    console.log(chalk.cyanBright(`\n🌐 Accessible sur ton PC : http://localhost:${port}`));
+    console.log(chalk.greenBright(`📱 Scan ce QR code pour ouvrir sur ton téléphone :`));
+    console.log(chalk.yellowBright(`(${localURL})\n`));
+
+    // Générer le QR code
+    qrcode.generate(localURL, { small: true });
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);
