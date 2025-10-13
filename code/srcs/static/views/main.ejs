@@ -1,11 +1,5 @@
 <%- include('partials/header') %>
 
-<div class="arcade-container">
-  <div class="grid-bg"></div>
-    <div class="arcade-screen">
-      <div class="screen-content">
-
-
 <div id="pagesAccueil" class="page active">
   <%- include('pages/accueil', { title: "Accueil" }) %>
 </div>
@@ -22,16 +16,5 @@
   <%- include('pages/result', { title: "Résultat" }) %>
 </div>
 
-<button id="music-btn">⏯️ Play / Pause</button>
-
-    </div>
-  </div>
-</div>
-
-<!-- Musique -->
-<audio id="arcade-music" loop>
-  <source src="./static/util/music/Arcade_music.mp3" type="audio/mpeg">
-  Votre navigateur ne supporte pas la lecture audio.
-</audio>
 
 <%- include('partials/footer') %>
