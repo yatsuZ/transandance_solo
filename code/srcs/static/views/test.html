@@ -1,12 +1,43 @@
 <div class="arcade-container">
   <div class="grid-bg"></div>
   <div class="arcade-screen">
-    <h1 >PONG</h1>
+    <h1 class="arcade-title">PONG</h1>
     <div class="screen-content">
       <!-- Ici ton contenu (SPA, pages, etc.) -->
-      <button id="music-btn">⏯️ Play / Pause</button>
+      <nav class="icon-bar">
+        <button id="icon-sound" class="icon" aria-label="Activer / désactiver le son">
+          <img src="./../util/icon/son_on.png" alt="">
+        </button>
+        <button id="icon-settings" class="icon" aria-label="Paramètres">
+          <img src="./../util/icon/engrenage.png" alt="">
+        </button>
+      </nav>
     </div>
   </div>
+</div>
+
+<!-- Pop-up pour lancer la musique -->
+<div id="music-popup" style="
+    position: fixed; 
+    top: 0; left: 0; right: 0; bottom: 0; 
+    background: rgba(0,0,0,0.85); 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    z-index: 999; 
+    color: #fff; 
+    font-family: 'Joystix Monospace';
+    flex-direction: column;
+">
+  <p>Cliquez pour lancer la musique !</p>
+  <button id="start-music" style="
+      padding: 15px 30px; 
+      font-size: 16px; 
+      background: #ffcc00; 
+      border: none; 
+      cursor: pointer; 
+      border-radius: 8px;
+  ">PLAY</button>
 </div>
 
 <!-- Musique -->
@@ -68,7 +99,7 @@ body {
                  1px  1px 0 #fff;
   padding: 20px;
   margin: 0;
-  border-bottom: 2px solid rgba(255,255,255,0.1);
+  border-bottom: 2px solid rgb(0, 255, 55);
 }
 
 .screen-content {
@@ -76,34 +107,75 @@ body {
   text-align: center;
 }
 
-/* === Bouton Play/Pause === */
-#music-btn {
-  background: #ffcc00;
-  color: #000;
-  font-family: "Joystix Monospace", monospace;
-  border: none;
-  padding: 15px 30px;
-  cursor: pointer;
-  border-radius: 8px;
-  box-shadow: 0 0 15px rgba(255,204,0,0.5);
-  font-size: 16px;
-  transition: transform 0.1s;
+
+/* === Icônes (son + engrenage) === */
+.icon-bar {
+  position: absolute;   /* garde absolute comme avant */
+  bottom: 20px;
+  right: 30px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  z-index: 10;
 }
-#music-btn:active {
-  transform: scale(0.95);
+
+.icon {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.icon img {
+  width: 100%;
+  height: 100%;
+  filter: invert(1) brightness(1.5);
+  transition: transform 0.2s, filter 0.3s;
+}
+
+.icon:hover img {
+  transform: scale(1.2);
+  filter: invert(1) brightness(2) drop-shadow(0 0 6px #ffcc00);
 }
 </style>
 
 <script>
-// Gestion du Play/Pause
 const music = document.getElementById('arcade-music');
-const btn = document.getElementById('music-btn');
+const iconSound = document.getElementById('icon-sound');
+const iconSettings = document.getElementById('icon-settings');
+const popup = document.getElementById('music-popup');
+const startBtn = document.getElementById('start-music');
 
-btn.addEventListener('click', () => {
-  if (music.paused) {
+let isPlaying = localStorage.getItem('isPlaying') === 'true';
+
+// Quand l’utilisateur clique sur le bouton du pop-up
+startBtn.addEventListener('click', () => {
+  music.play().then(() => {
+    isPlaying = true;
+    iconSound.src = './../util/icon/son_on.png';
+    localStorage.setItem('isPlaying', isPlaying);
+    popup.style.display = 'none'; // on cache le pop-up
+  }).catch(err => console.log("Erreur lecture musique :", err));
+});
+
+// Clic sur icône son pour play/pause
+iconSound.addEventListener('click', () => {
+  if (!isPlaying) {
     music.play();
+    isPlaying = true;
+    iconSound.src = './../util/icon/son_on.png';
   } else {
     music.pause();
+    isPlaying = false;
+    iconSound.src = './../util/icon/son_off.png';
   }
+  localStorage.setItem('isPlaying', isPlaying);
+});
+
+// Clic sur engrenage
+iconSettings.addEventListener('click', () => {
+  alert("⚙️ Paramètres à venir !");
 });
 </script>
