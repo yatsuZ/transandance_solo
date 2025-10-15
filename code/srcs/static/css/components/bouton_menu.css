@@ -1,0 +1,87 @@
+.menu-buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 30px; /* espace entre les boutons */
+  align-items: center;
+  justify-content: space-around;
+  flex: auto;
+}
+
+.menu-buttons button {
+  position: relative;
+  background: black;
+  color: rgb(255, 255, 255);
+  padding: 20px 40px;
+  font-size: 1.4rem;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s ease;
+
+  min-width: 300px;
+}
+
+/* Coins du bouton (pseudo-éléments pour les angles) */
+.menu-buttons button::before,
+.menu-buttons button::after,
+.menu-buttons button .corner-top-right,
+.menu-buttons button .corner-bottom-left {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  box-sizing: border-box;
+  pointer-events: none;
+  transition: transform 0.3s ease, border-color 0.3s ease;
+  transform-origin: center;
+}
+
+.menu-buttons button::before {
+  top: 0;
+  left: 0;
+  border-top: 2px solid rgb(255, 255, 255);
+  border-left: 2px solid rgb(255, 255, 255);
+}
+
+.menu-buttons button::after {
+  bottom: 0;
+  right: 0;
+  border-bottom: 2px solid rgb(255, 255, 255);
+  border-right: 2px solid rgb(255, 255, 255);
+}
+
+.menu-buttons button .corner-top-right {
+  top: 0;
+  right: 0;
+  border-top: 2px solid rgb(255, 255, 255);
+  border-right: 2px solid rgb(255, 255, 255);
+}
+
+.menu-buttons button .corner-bottom-left {
+  bottom: 0;
+  left: 0;
+  border-bottom: 2px solid rgb(255, 255, 255);
+  border-left: 2px solid rgb(255, 255, 255);
+}
+
+/* HOOOVER */
+/* Hover : inversion et zoom */
+
+.menu-buttons button:hover {
+  transform: scale(1.05);
+  background: white;
+  color: rgb(0, 0, 0);
+  box-shadow: 
+    0 0 5px rgb(162, 0, 255),
+    0 0 10px rgb(0, 68, 255),
+    0 0 20px rgb(0,255,76),
+    0 0 40px rgb(251, 255, 0);
+}
+
+.menu-buttons button:hover::before,
+.menu-buttons button:hover::after,
+.menu-buttons button:hover .corner-top-right,
+.menu-buttons button:hover .corner-bottom-left {
+  transform: scale(3);
+  border-color: white;
+}
+

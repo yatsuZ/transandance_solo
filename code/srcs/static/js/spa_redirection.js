@@ -6,7 +6,7 @@ export function initSPA() {
 
     document.body.addEventListener("click", async (e) => {
 
-      const link = e.target.closest("a[data-link]");
+      const link = e.target.closest("button[data-link]");
       if (!link) return;
 
       e.preventDefault();

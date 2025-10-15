@@ -1,40 +1,12 @@
+@import url('./bouton_menu.css');
+
 /* Menu */
 .menu-wrapper {
   flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.menu-buttons {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
-  justify-items: center;
-  width: 100%;
-  max-width: 600px;
-}
-
-.menu-buttons button {
-  background: linear-gradient(135deg, #FF00FF, #00FFFF);
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  padding: 20px 30px;
-  font-size: 1.2rem;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.menu-buttons button:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 20px rgba(255, 0, 255, 0.4);
-}
-
-.menu-buttons a {
-  color: inherit;
-  text-decoration: none;
-  display: block;
+  /* border-bottom: 2px solid rgb(0,255,76); */
 }
 
 .nav-wrapper {

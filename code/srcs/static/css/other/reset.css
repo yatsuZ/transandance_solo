@@ -44,3 +44,7 @@ button, input, select, textarea {
 html, body {
   height: 100%;
 }
+
+h1, p {
+  margin: 1.5em;
+}
