@@ -1,0 +1,14 @@
+/* Header */
+.arcade-header {
+  width: 100%;
+  text-align: center;
+  border-bottom: 2px solid rgb(0,255,76);
+  padding: 20px 0;
+}
+
+.arcade-title {
+  margin: 0;
+  padding-top: 10px;
+  color: #000;
+  text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
+}

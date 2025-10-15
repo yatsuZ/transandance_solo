@@ -1,0 +1,20 @@
+/* Pop-up musique */
+#music-popup {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  z-index: 999;
+  color: #fff;
+}
+
+#start-music {
+  padding: 15px 30px;
+  font-size: 16px;
+  background: #ffcc00;
+  border-radius: 8px;
+  cursor: pointer;
+}

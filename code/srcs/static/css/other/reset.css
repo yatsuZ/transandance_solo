@@ -1,0 +1,46 @@
+/* =========================
+   === Reset CSS ===
+   ========================= */
+
+/* Supprime les marges et paddings par défaut */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Corrige la taille de police par défaut */
+html {
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Enlève la déco des liens, des listes, etc. */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+ul, ol {
+  list-style: none;
+}
+
+/* Images et médias adaptatifs */
+img, video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Boutons et inputs sans styles natifs */
+button, input, select, textarea {
+  font: inherit;
+  background: none;
+  border: none;
+  outline: none;
+}
+
+/* Assure une hauteur correcte pour le body */
+html, body {
+  height: 100%;
+}
