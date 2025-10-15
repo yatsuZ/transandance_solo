@@ -1,4 +1,6 @@
-/* === Police === */
+/* =========================
+   === Fonts / Typographie ===
+   ========================= */
 @font-face {
   font-family: "Joystix Mono";
   src: url("./../util/fonts/joystix_monospace.woff2") format("woff2"),
@@ -8,11 +10,6 @@
   font-display: swap;
 }
 
-/* === Pages SPA === */
-.page.hidden { display: none; }
-.page.active { display: block; }
-
-/* === Full height === */
 html, body, #app, .arcade-container {
   height: 100%;
   margin: 0;
@@ -22,13 +19,21 @@ html, body, #app, .arcade-container {
   overflow: hidden;
 }
 
-/* === Arcade container centré === */
+/* =========================
+   === Pages SPA ===
+   ========================= */
+.page.hidden { display: none; }
+.page.active { display: flex; flex-direction: column; height: 100%; }
+
+/* =========================
+   === Arcade Container ===
+   ========================= */
 .arcade-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100%;
   width: 100%;
+  height: 100%;
   position: relative;
 }
 
@@ -51,7 +56,9 @@ html, body, #app, .arcade-container {
   to   { background-position: 50px 50px; }
 }
 
-/* === Arcade Screen === */
+/* =========================
+   === Arcade Screen ===
+   ========================= */
 .arcade-screen {
   position: relative;
   width: 90%;
@@ -62,26 +69,21 @@ html, body, #app, .arcade-container {
   box-shadow: 0 0 50px rgba(255, 204, 0, 0.4);
 
   display: flex;
-  flex-direction: column;  /* header en haut, menu au centre, footer en bas */
+  flex-direction: column;
   z-index: 1;
 }
 
-.screen-content {
-  display: flex;
-  flex-direction: column; /* header en haut, menu au centre */
-  height: 100%;           /* prend toute la hauteur de arcade-screen */
-}
-#pagesAccueil {
-  display: flex;
-  flex-direction: column; /* header en haut, menu au centre */
-  height: 100%;           /* prend toute la hauteur de arcade-screen */
-}
+.screen-content,
+.page,
 .container {
   display: flex;
-  flex-direction: column; /* header en haut, menu au centre */
-  height: 100%;           /* prend toute la hauteur de arcade-screen */
+  flex-direction: column;
+  height: 100%;
 }
-/* === Header === */
+
+/* =========================
+   === Header ===
+   ========================= */
 .arcade-header {
   width: 100%;
   text-align: center;
@@ -100,12 +102,14 @@ html, body, #app, .arcade-container {
        1px  1px 0 #fff;
 }
 
-/* === Menu central === */
+/* =========================
+   === Menu central ===
+   ========================= */
 .menu-wrapper {
-  flex: 1;                 /* prend tout l’espace restant */
+  flex: 1;
   display: flex;
-  justify-content: center;  /* centré horizontalement */
-  align-items: center;      /* centré verticalement */
+  justify-content: center;
+  align-items: center;
 }
 
 .menu-buttons {
@@ -139,12 +143,14 @@ html, body, #app, .arcade-container {
   display: block;
 }
 
-/* === Icônes / navigation en bas === */
+/* =========================
+   === Navigation / Icônes ===
+   ========================= */
 .nav-wrapper {
   display: flex;
-  justify-content: flex-end; /* place la barre à droite */
+  justify-content: flex-end;
   align-items: center;
-  padding: 20px 30px;        /* espace autour */
+  padding: 20px 30px;
 }
 
 .icon-bar {
@@ -156,10 +162,10 @@ html, body, #app, .arcade-container {
 .icon {
   width: 40px;
   height: 40px;
-  padding: 0;
   border: none;
   background: none;
   cursor: pointer;
+  padding: 0;
 }
 
 .icon img {
@@ -174,11 +180,12 @@ html, body, #app, .arcade-container {
   filter: invert(1) brightness(2) drop-shadow(0 0 6px #ffcc00);
 }
 
-
-/* === Pop-up musique === */
+/* =========================
+   === Pop-up musique ===
+   ========================= */
 #music-popup {
   position: fixed;
-  top:0; left:0; right:0; bottom:0;
+  inset: 0;
   background: rgba(0,0,0,0.85);
   display: flex;
   justify-content: center;
@@ -194,7 +201,7 @@ html, body, #app, .arcade-container {
   font-size: 16px;
   background: #ffcc00;
   border: none;
-  cursor: pointer;
   border-radius: 8px;
+  cursor: pointer;
   font-family: 'Joystix Mono';
 }
