@@ -2,19 +2,61 @@
 #music-popup {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.85);
+  background: rgba(0, 0, 0, 0.85);
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
   z-index: 999;
   color: #fff;
+  text-align: center; /* Assure que le texte dans le pop-up est centré */
 }
 
-#start-music {
+#music-popup p {
+  margin-bottom: 20px; /* Un peu d'espace entre le texte et les boutons */
+}
+
+.button-container {
+  display: flex;
+  gap: 20px;  /* Espace entre les boutons */
+  width: max-content;  /* La largeur de la div sera ajustée à celle de son contenu (texte dans <p>) */
+}
+
+#start-music, #dont-start-music {
   padding: 15px 30px;
   font-size: 16px;
-  background: #ffcc00;
-  border-radius: 8px;
+  border-radius: 83x;
   cursor: pointer;
+  min-width: 140px;  /* La même largeur minimale pour chaque bouton */
+  text-align: center; /* Centrer le texte à l'intérieur des boutons */
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease, border-radius 0.3s ease;
+  border: none; /* Ajouté pour éviter un flash de bordure si non défini */
+  transform: scale(1); /* Pour permettre un retour fluide à la taille normale */
+  box-shadow: none;    /* Pour permettre un retour fluide de l’effet néon */
+}
+
+
+#start-music {
+  background: #ffcc00;
+}
+
+#dont-start-music {
+  background: #00ff95;
+}
+
+#start-music:hover, #dont-start-music:hover {
+  border: 5px solid #000;
+  border-radius : 3px;
+}
+
+#start-music:hover {
+  background: #e6b800;  /* Couleur au survol du bouton PLAY */
+  transform: scale(1.05);  /* Légère augmentation de taille */
+  box-shadow: 0 0 15px #ffe100, 0 0 30px #ffe100, 0 0 45px #ffe100;
+}
+
+#dont-start-music:hover {
+  background: #00cc7a;  /* Couleur au survol du bouton Non merci */
+  transform: scale(1.05);  /* Légère augmentation de taille */
+  box-shadow: 0 0 15px #00ffb3, 0 0 30px #00ffb3, 0 0 45px #00ffb3;
 }

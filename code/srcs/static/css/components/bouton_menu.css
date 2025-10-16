@@ -4,6 +4,10 @@
   gap: 30px; /* espace entre les boutons */
   align-items: center;
   justify-content: space-around;
+
+  /* flex-wrap: wrap; */
+  /* justify-content: center;*/
+
   flex: auto;
 }
 
@@ -16,8 +20,11 @@
   cursor: pointer;
   border: none;
   transition: all 0.3s ease;
+  width: 100%;
+  max-width: 300px;
+  min-width: unset;
 
-  min-width: 300px;
+  /* min-width: 300px; */
 }
 
 /* Coins du bouton (pseudo-éléments pour les angles) */
@@ -85,3 +92,15 @@
   border-color: white;
 }
 
+
+@media (max-width: 600px) {
+  .menu-buttons button {
+    max-width: 100%;
+    font-size: 1.1rem;
+    padding: 15px 20px;
+  }
+
+  .menu-buttons {
+    gap: 15px;
+  }
+}

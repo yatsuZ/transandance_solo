@@ -4,6 +4,7 @@ export function initPopUpStartMusic() {
   const music = document.getElementById('arcade-music');
   const popup = document.getElementById('music-popup');
   const startBtn = document.getElementById('start-music');
+  const dontsStartBtn = document.getElementById('dont-start-music');
   const iconSoundImg = document.querySelector('#icon-sound img');
 
   if (!music || !popup || !startBtn || !iconSoundImg) return;
@@ -17,6 +18,13 @@ export function initPopUpStartMusic() {
       localStorage.setItem('isPlaying', isPlaying);
       popup.style.display = 'none';
     }).catch(err => console.log("Erreur lecture musique :", err));
+  });
+
+  dontsStartBtn.addEventListener('click', () => {
+      isPlaying = false;
+      iconSoundImg.src = './static/util/icon/son_off.png';
+      localStorage.setItem('isPlaying', isPlaying);
+      popup.style.display = 'none';
   });
 }
 

@@ -15,3 +15,12 @@
   align-items: center;
   padding: 20px 30px;
 }
+
+.arcade-subtitle {
+  transition: opacity 0.4s ease;
+  opacity: 1;
+}
+
+.arcade-subtitle.fade-out {
+  opacity: 0;
+}
