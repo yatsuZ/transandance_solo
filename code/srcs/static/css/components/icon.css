@@ -1,7 +1,15 @@
+.nav-wrapper {
+  display: flex;
+  justify-content: flex-end; /* Aligne tout à droite */
+  align-items: center;
+  padding: 20px 30px;
+}
+
 .icon-bar {
   display: flex;
   gap: 20px;
-  align-items: center;
+  /* Pas besoin de width: 100% */
+  justify-content: flex-end; /* Pour être sûr que les icônes restent à droite */
 }
 
 .icon {

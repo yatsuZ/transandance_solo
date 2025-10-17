@@ -1,6 +1,6 @@
 /* =========================
    === Pages SPA ===
    ========================= */
-.page.hidden { display: none; }
-.page.active { display: flex; flex-direction: column; height: 100%; }
+.hidden { display: none; }
+.active { display: flex; flex-direction: column; height: 100%; }
 
