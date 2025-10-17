@@ -50,7 +50,7 @@ function getLocalIP(): string {
 // 4. Démarrer le serveur
 const start = async () => {
   try {
-    const port = 3000;
+    const port = 3001;
     const host = '0.0.0.0';
 
     await fastify.listen({ port, host });

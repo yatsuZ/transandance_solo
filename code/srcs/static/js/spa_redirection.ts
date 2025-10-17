@@ -3,28 +3,35 @@ import {init_canvas} from './canvas_draw.js';
 
 // SPA et REDIRECTION
 export function initSPA() {
-  const iconAccueil = document.querySelector('#icon-accueil');
+  const iconAccueil = document.querySelector('#icon-accueil') as HTMLElement | null;
 
   document.addEventListener("DOMContentLoaded", () => {
 
     document.body.addEventListener("click", async (e) => {
+      const target = (e.target as Element | null);
+      if (!target) return;
 
-      const link = e.target.closest("button[data-link]");
+      const link = target.closest("button[data-link]");
       if (!link) return;
+
       e.preventDefault();
       const get_data_link = link.getAttribute("data-link");
-      if (get_data_link.startsWith("go_to_") === false) return
+      if (!get_data_link || get_data_link.startsWith("go_to_") === false) return;
       const pageName = get_data_link.slice("go_to_".length); // ex: "match"
 
       if (pageName === "accueil")
       {
-        iconAccueil.classList.add("hidden");
-        iconAccueil.classList.remove("active");
+        if (iconAccueil) {
+          iconAccueil.classList.add("hidden");
+          iconAccueil.classList.remove("active");
+        }
       }
       else 
       {
-        iconAccueil.classList.remove("hidden");
-        iconAccueil.classList.add("active");
+        if (iconAccueil) {
+          iconAccueil.classList.remove("hidden");
+          iconAccueil.classList.add("active");
+        }
       }
 
       // cacher toutes les pages

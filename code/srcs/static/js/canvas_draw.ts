@@ -1,7 +1,15 @@
 export function init_canvas() {
-  const canvas = document.getElementById('pong-canvas');
+  const canvas = document.getElementById('pong-canvas') as HTMLCanvasElement | null;
+  if (!canvas) {
+    console.error('Canvas element with id "pong-canvas" not found');
+    return;
+  }
   const ctx = canvas.getContext('2d');
   const parent = canvas.parentElement;
+  if (!parent) {
+    console.error('Canvas parent element not found');
+    return;
+  }
 
   // console.log(parent); // Affiche la balise parente dans la console
 
@@ -9,6 +17,11 @@ export function init_canvas() {
   const RATIO = 4 / 3; // 800x600 par exemple
   
   function resizeCanvas() {
+    if (!parent || !canvas) {
+      console.error('Canvas or canvas parent element not found');
+      return;
+    }
+
     const maxWidth = parent.clientWidth;
     const maxHeight = parent.clientHeight;
     

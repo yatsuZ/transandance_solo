@@ -1,13 +1,13 @@
 // === GESTION DE LA MUSIQUE ===
 
 export function initPopUpStartMusic() {
-  const music = document.getElementById('arcade-music');
+  const music = document.getElementById('arcade-music') as HTMLAudioElement | null;
   const popup = document.getElementById('music-popup');
   const startBtn = document.getElementById('start-music');
   const dontsStartBtn = document.getElementById('dont-start-music');
-  const iconSoundImg = document.querySelector('#icon-sound img');
+  const iconSoundImg = document.querySelector('#icon-sound img') as HTMLImageElement | null;
 
-  if (!music || !popup || !startBtn || !iconSoundImg) return;
+  if (!music || !popup || !startBtn || !dontsStartBtn || !iconSoundImg) return;
 
   let isPlaying = localStorage.getItem('isPlaying') === 'true';
 
@@ -15,7 +15,7 @@ export function initPopUpStartMusic() {
     music.play().then(() => {
       isPlaying = true;
       iconSoundImg.src = './static/util/icon/son_on.png';
-      localStorage.setItem('isPlaying', isPlaying);
+      localStorage.setItem('isPlaying', String(isPlaying));
       popup.style.display = 'none';
     }).catch(err => console.log("Erreur lecture musique :", err));
   });
@@ -23,17 +23,17 @@ export function initPopUpStartMusic() {
   dontsStartBtn.addEventListener('click', () => {
       isPlaying = false;
       iconSoundImg.src = './static/util/icon/son_off.png';
-      localStorage.setItem('isPlaying', isPlaying);
+      localStorage.setItem('isPlaying', String(isPlaying));
       popup.style.display = 'none';
   });
 }
 
 export function initOnOffMusic() {
-  const music = document.getElementById('arcade-music');
+  const music = document.getElementById('arcade-music') as HTMLAudioElement | null;
   const iconSound = document.getElementById('icon-sound');
-  const iconSoundImg = iconSound?.querySelector('img');
+  const iconSoundImg = iconSound?.querySelector('img') as HTMLImageElement | null;
 
-  if (!music || !iconSoundImg) return;
+  if (!music || !iconSound || !iconSoundImg) return;
 
   let isPlaying = localStorage.getItem('isPlaying') === 'true';
 
@@ -49,13 +49,13 @@ export function initOnOffMusic() {
       music.play().then(() => {
         isPlaying = true;
         iconSoundImg.src = './static/util/icon/son_on.png';
-        localStorage.setItem('isPlaying', isPlaying);
+        localStorage.setItem('isPlaying', String(isPlaying));
       }).catch(err => console.log("Erreur lecture musique :", err));
     } else {
       music.pause();
       isPlaying = false;
       iconSoundImg.src = './static/util/icon/son_off.png';
-      localStorage.setItem('isPlaying', isPlaying);
+      localStorage.setItem('isPlaying', String(isPlaying));
     }
   });
 }

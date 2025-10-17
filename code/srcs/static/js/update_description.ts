@@ -1,5 +1,12 @@
 export function update_description_de_page() {
   const subtitle = document.querySelector('.arcade-subtitle');
+  if (!subtitle) {
+    console.warn('update_description_de_page: .arcade-subtitle element not found');
+    return;
+  }
+  // Cast to a concrete HTMLElement now that we've checked for null
+  const subtitleEl = subtitle as HTMLElement;
+
   const buttons = document.querySelectorAll('button');
 
   const texts = {
@@ -11,14 +18,14 @@ export function update_description_de_page() {
     parametre : `acceder aux parametre.`
   };
 
-  function changeSubtitle(newText) {
+  function changeSubtitle(newText : string) {
     // Lancer un fondu de sortie
-    subtitle.classList.add('fade-out');
+    subtitleEl.classList.add('fade-out');
     
     // Attendre que le fondu se termine avant de changer le texte
     setTimeout(() => {
-      subtitle.textContent = newText;
-      subtitle.classList.remove('fade-out');
+      subtitleEl.textContent = newText;
+      subtitleEl.classList.remove('fade-out');
     }, 400); // doit correspondre à la durée du "transition" CSS
   }
 
@@ -26,7 +33,9 @@ export function update_description_de_page() {
     if (button.dataset)
     {
       button.addEventListener('mouseenter', () => {
-        changeSubtitle(texts[button.dataset.link]);
+        const link = (button as HTMLButtonElement).dataset.link as keyof typeof texts | undefined;
+        const newText = link && link in texts ? texts[link] : texts.default;
+        changeSubtitle(newText);
       });
       
       button.addEventListener('mouseleave', () => {
