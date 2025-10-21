@@ -1,0 +1,41 @@
+<!-- Anime.js CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+
+<script>
+  // Fonction pour animer le titre et le sous-titre
+  function animateHeader() {
+    anime({
+      targets: '.arcade-title',
+      translateY: [-30, 0],
+      opacity: [0, 1],
+      duration: 800,
+      easing: 'easeOutQuad'
+    });
+
+    anime({
+      targets: '.arcade-subtitle',
+      translateY: [-20, 0],
+      opacity: [0, 1],
+      duration: 800,
+      delay: 200,
+      easing: 'easeOutQuad'
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // Animation initiale
+    animateHeader();
+
+    // Relancer l'animation seulement pour les boutons dont data-link commence par "go_to_"
+    document.body.addEventListener("click", (e) => {
+      const target = e.target.closest("button[data-link]");
+      if (!target) return;
+
+      const linkValue = target.getAttribute("data-link");
+      if (!linkValue || !linkValue.startsWith("go_to_")) return;
+
+      // Relancer l'animation
+      animateHeader();
+    });
+  });
+</script>

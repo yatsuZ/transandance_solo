@@ -1,4 +1,3 @@
-import { animation_changement_de_page } from './animation.js';
 import {init_canvas} from './game.js';
 
 // SPA et REDIRECTION
@@ -54,8 +53,6 @@ export function initSPA() {
         init_canvas();
       }
 // cacher 
-      // anime.js animation
-      animation_changement_de_page()
     });
   });
 }
