@@ -1,3 +1,3 @@
-interface Window {
+export interface Window {
   anime: typeof import('animejs');
 }

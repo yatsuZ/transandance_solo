@@ -1,5 +1,5 @@
 import { animation_changement_de_page } from './animation.js';
-import {init_canvas} from './canvas_draw.js';
+import {init_canvas} from './game.js';
 
 // SPA et REDIRECTION
 export function initSPA() {

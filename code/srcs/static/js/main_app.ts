@@ -2,7 +2,6 @@ import { initSPA } from './spa_redirection.js';
 import { initPopUpStartMusic, initOnOffMusic } from './music_gestion.js';
 import { update_description_de_page } from './update_description.js';
 
-
 function script_js_du_coter_client()
 {
   const style = document.querySelector<HTMLLinkElement>('link[href="/static/css/main_style.css"]');

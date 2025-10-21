@@ -3,6 +3,7 @@
 const animeGlobal = (window as any).anime as (params: any) => any;
 
 export function animation_changement_de_page() {
+  console.log("Reussir a utilise anime.js  dans le coté client en temp que statique.")
   animeGlobal({
     targets: '#app .container .arcade-header .arcade-title',
     opacity: [0, 1],
