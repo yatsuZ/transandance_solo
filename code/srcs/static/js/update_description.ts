@@ -1,14 +1,20 @@
 export function update_description_de_page(): void {
-  const subtitleEl = document.querySelector('.arcade-subtitle') as HTMLElement | null;
-  if (!subtitleEl) {
-    console.warn('update_description_de_page: .arcade-subtitle element not found');
+  const subtitles = document.querySelectorAll<HTMLElement>('.arcade-subtitle');
+  if (!subtitles.length) {
+    console.warn('update_description_de_page: aucun .arcade-subtitle trouvé');
     return;
   }
 
-  const buttons = document.querySelectorAll<HTMLButtonElement>('button');
+  // Textes par défaut selon la page (id parent)
+  const defaultTexts: Record<string, string> = {
+    pagesAccueil: 'Que veux-tu faire ?',
+    pagesMatch: 'Le premier à 3 points gagne la partie',
+    pagesTournament: 'Prépare ton tournoi et affronte les meilleurs !',
+    pagesResult: 'Voici les résultats de ton dernier match !'
+  };
 
-  const texts: Record<string, string> = {
-    default: 'Que veux-tu faire ?',
+  // Textes selon les boutons
+  const buttonTexts: Record<string, string> = {
     go_to_match: '🎮 Jouer à Pong contre une IA — le premier à 3 gagne !',
     go_to_tournament: '🏆 Configure ton tournoi, que le meilleur gagne !',
     go_to_accueil: '🏠 Retour à l’accueil',
@@ -16,42 +22,43 @@ export function update_description_de_page(): void {
     parametre: 'Accéder aux paramètres.'
   };
 
-  let currentText: string = texts.default;
-  let fadeTimeout: number | undefined;
+  subtitles.forEach((subtitleEl) => {
+    const parentPage = subtitleEl.closest('.page');
+    if (!parentPage) return;
 
-  function changeSubtitle(newText: string): void {
-    if (!subtitleEl) {
-      console.warn('update_description_de_page: .arcade-subtitle element not found');
-      return;
+    const pageId = parentPage.id;
+    const defaultText = defaultTexts[pageId] ?? '...';
+    let currentText = defaultText;
+    let fadeTimeout: number | undefined;
+
+    // Fonction d’animation fluide
+    function changeSubtitle(newText: string): void {
+      if (newText === currentText) return;
+      currentText = newText;
+      if (fadeTimeout) window.clearTimeout(fadeTimeout);
+
+      subtitleEl.style.opacity = '0';
+      fadeTimeout = window.setTimeout(() => {
+        subtitleEl.textContent = newText;
+        subtitleEl.style.opacity = '1';
+        fadeTimeout = undefined;
+      }, 150);
     }
 
-    if (newText === currentText) return;
-    currentText = newText;
+    // Trouver uniquement les boutons à l’intérieur de cette page
+    const buttons = document.querySelectorAll<HTMLButtonElement>('button');
 
-    // Si une animation est en cours, on la stoppe
-    if (fadeTimeout) window.clearTimeout(fadeTimeout);
+    buttons.forEach((button) => {
+      button.addEventListener('mouseenter', () => {
+        const link = button.dataset.link;
+        const newText = (link && buttonTexts[link]) ? buttonTexts[link] : defaultText;
+        console.log(link, newText)
+        changeSubtitle(newText);
+      });
 
-    // Fade out
-    subtitleEl.style.opacity = '0';
-
-    // Quand il a fini de disparaître, on change le texte et on fait un fade in
-    fadeTimeout = window.setTimeout(() => {
-      subtitleEl.textContent = newText;
-      subtitleEl.style.opacity = '1';
-      fadeTimeout = undefined;
-    }, 150); // Durée du fade out
-  }
-
-  // Gestion du hover sur les boutons
-  buttons.forEach(button => {
-    button.addEventListener('mouseenter', () => {
-      const link = button.dataset.link;
-      const newText = link && texts[link] ? texts[link] : texts.default;
-      changeSubtitle(newText);
-    });
-
-    button.addEventListener('mouseleave', () => {
-      changeSubtitle(texts.default);
+      button.addEventListener('mouseleave', () => {
+        changeSubtitle(defaultText);
+      });
     });
   });
 }
