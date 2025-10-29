@@ -10,10 +10,9 @@
 }
 
 .arcade-subtitle {
-  transition: opacity 0.4s ease;
+  display: inline-block;
+  transition: opacity 0.25s ease;
   opacity: 1;
-}
-
-.arcade-subtitle.fade-out {
-  opacity: 0;
+  min-height: 1.5em; /* garde la même taille même si le texte change */
+  text-align: center;
 }
