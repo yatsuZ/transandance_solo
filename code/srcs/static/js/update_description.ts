@@ -52,7 +52,6 @@ export function update_description_de_page(): void {
       button.addEventListener('mouseenter', () => {
         const link = button.dataset.link;
         const newText = (link && buttonTexts[link]) ? buttonTexts[link] : defaultText;
-        console.log(link, newText)
         changeSubtitle(newText);
       });
 

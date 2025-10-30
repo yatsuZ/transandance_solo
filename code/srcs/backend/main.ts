@@ -31,7 +31,7 @@ fastify.register(fastifyStatic, {
 
 // 2. Routes
 fastify.get('/', async (request, reply) => {
-  return reply.view('main.ejs', { title: 'Accueil' });
+  return reply.view('main.ejs');
 });
 
 // 3. Fonction pour récupérer l'adresse IP locale
@@ -55,9 +55,9 @@ const start = async () => {
 
     await fastify.listen({ port, host });
 
-  const hostIP = process.env.HOST_IP || getLocalIP(); // fallback si hors Docker
-  const localURL = `http://${hostIP}:${port}`;
-
+    const hostIP = process.env.HOST_IP || getLocalIP(); // fallback si hors Docker
+    const localURL = `http://${hostIP}:${port}`;
+``
     console.log(chalk.cyanBright(`\n🌐 Accessible sur ton PC : http://localhost:${port}`));
     console.log(chalk.greenBright(`📱 Scan ce QR code pour ouvrir sur ton téléphone :`));
     console.log(chalk.yellowBright(`(${localURL})\n`));

@@ -1,157 +1,174 @@
-export function init_canvas() {
-  const canvas = document.getElementById('pong-canvas') as HTMLCanvasElement | null;
-  if (!canvas) return console.error('Canvas element with id "pong-canvas" not found');
-  const ctx = canvas.getContext('2d');
-  if (!ctx) return console.error('2D context not found');
+export class Game_Pong_Client {
+  private canvas: HTMLCanvasElement;
+  private ctx: CanvasRenderingContext2D;
+  private parent: HTMLElement;
 
-  const parent = canvas.parentElement;
-  if (!parent) return console.error('Canvas parent element not found');
+  private readonly RATIO = 4 / 3;
+  private readonly paddleWidth = 10;
+  private readonly paddleHeight = 80;
+  private readonly paddleOffset = 20;
+  private readonly playerSpeed = 6;
 
-  const RATIO = 4 / 3;
+  private playerY: number;
+  private aiY: number;
+  private ballX: number;
+  private ballY: number;
+  private ballSpeedX: number = 4;
+  private ballSpeedY: number = 3;
+  private playerScore: number = 0;
+  private aiScore: number = 0;
 
-  function resizeCanvas() {
-    if (!parent) return console.error('Canvas parent element not found');
-    if (!canvas) return console.error('Canvas element with id "pong-canvas" not found');
+  private upPressed: boolean = false;
+  private downPressed: boolean = false;
 
-    const maxWidth = parent.clientWidth;
-    const maxHeight = parent.clientHeight;
+  constructor(canvasId: string) {
+    const canvas = document.getElementById(canvasId) as HTMLCanvasElement | null;
+    if (!canvas) throw new Error(`Canvas element with id "${canvasId}" not found`);
+    this.canvas = canvas;
+
+    const ctx = this.canvas.getContext('2d');
+    if (!ctx) throw new Error('2D context not found');
+    this.ctx = ctx;
+
+    const parent = this.canvas.parentElement;
+    if (!parent) throw new Error('Canvas parent element not found');
+    this.parent = parent;
+
+    // Position initiale des raquettes et de la balle
+    this.playerY = this.canvas.height / 2 - this.paddleHeight / 2;
+    this.aiY = this.canvas.height / 2 - this.paddleHeight / 2;
+    this.ballX = this.canvas.width / 2;
+    this.ballY = this.canvas.height / 2;
+
+    this.initEvents();
+    this.resizeCanvas();
+    window.addEventListener('resize', () => this.resizeCanvas());
+
+    this.resetBall();
+    this.gameLoop();
+  }
+
+  private initEvents() {
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowUp') this.upPressed = true;
+      if (e.key === 'ArrowDown') this.downPressed = true;
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (e.key === 'ArrowUp') this.upPressed = false;
+      if (e.key === 'ArrowDown') this.downPressed = false;
+    });
+  }
+
+  private resizeCanvas() {
+    const maxWidth = this.parent.clientWidth;
+    const maxHeight = this.parent.clientHeight;
     let width = maxWidth;
-    let height = width / RATIO;
+    let height = width / this.RATIO;
     if (height > maxHeight) {
       height = maxHeight;
-      width = height * RATIO;
+      width = height * this.RATIO;
     }
-    canvas.width = width;
-    canvas.height = height;
+    this.canvas.width = width;
+    this.canvas.height = height;
+
+    // Ajuster la position des raquettes et de la balle après resize
+    this.playerY = this.canvas.height / 2 - this.paddleHeight / 2;
+    this.aiY = this.canvas.height / 2 - this.paddleHeight / 2;
+    this.ballX = this.canvas.width / 2;
+    this.ballY = this.canvas.height / 2;
   }
 
-  window.addEventListener('load', resizeCanvas);
-  window.addEventListener('resize', resizeCanvas);
-  resizeCanvas();
-
-  // === VARIABLES DU JEU ===
-  const paddleWidth = 10;
-  const paddleHeight = 80;
-  const paddleOffset = 20;
-
-  let playerY = canvas.height / 2 - paddleHeight / 2;
-  let aiY = canvas.height / 2 - paddleHeight / 2;
-
-  let ballX = canvas.width / 2;
-  let ballY = canvas.height / 2;
-  let ballSpeedX = 4;
-  let ballSpeedY = 3;
-  let playerScore = 0;
-  let aiScore = 0;
-
-  // === CONTROLES FLUIDES ===
-  let upPressed = false;
-  let downPressed = false;
-  const playerSpeed = 6;
-
-  window.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowUp') upPressed = true;
-    if (e.key === 'ArrowDown') downPressed = true;
-  });
-
-  window.addEventListener('keyup', (e) => {
-    if (e.key === 'ArrowUp') upPressed = false;
-    if (e.key === 'ArrowDown') downPressed = false;
-  });
-
-  function resetBall() {
-    if (!canvas) return console.error('Canvas element with id "pong-canvas" not found');
-
-    ballX = canvas.width / 2;
-    ballY = canvas.height / 2;
-    ballSpeedX = -ballSpeedX;
-    ballSpeedY = 3 * (Math.random() > 0.5 ? 1 : -1);
+  private resetBall() {
+    this.ballX = this.canvas.width / 2;
+    this.ballY = this.canvas.height / 2;
+    this.ballSpeedX = -this.ballSpeedX;
+    this.ballSpeedY = 3 * (Math.random() > 0.5 ? 1 : -1);
   }
 
-  function update() {
-    if (!canvas) return console.error('Canvas element with id "pong-canvas" not found');
-    // 🔹 Mouvement fluide du joueur
-    if (upPressed) playerY -= playerSpeed;
-    if (downPressed) playerY += playerSpeed;
+  private update() {
+    // Mouvement joueur
+    if (this.upPressed) this.playerY -= this.playerSpeed;
+    if (this.downPressed) this.playerY += this.playerSpeed;
 
     // Limites du terrain
-    if (playerY < 0) playerY = 0;
-    if (playerY + paddleHeight > canvas.height) playerY = canvas.height - paddleHeight;
+    if (this.playerY < 0) this.playerY = 0;
+    if (this.playerY + this.paddleHeight > this.canvas.height)
+      this.playerY = this.canvas.height - this.paddleHeight;
 
-    // 🔹 Balle
-    ballX += ballSpeedX;
-    ballY += ballSpeedY;
+    // Mouvement balle
+    this.ballX += this.ballSpeedX;
+    this.ballY += this.ballSpeedY;
 
-    if (ballY < 0 || ballY > canvas.height) ballSpeedY = -ballSpeedY;
+    if (this.ballY < 0 || this.ballY > this.canvas.height) this.ballSpeedY = -this.ballSpeedY;
 
-    // 🔹 Collisions raquettes
+    // Collisions raquettes
     if (
-      ballX < paddleOffset + paddleWidth &&
-      ballY > playerY &&
-      ballY < playerY + paddleHeight
+      this.ballX < this.paddleOffset + this.paddleWidth &&
+      this.ballY > this.playerY &&
+      this.ballY < this.playerY + this.paddleHeight
     ) {
-      ballSpeedX = -ballSpeedX;
+      this.ballSpeedX = -this.ballSpeedX;
     }
 
     if (
-      ballX > canvas.width - paddleWidth - paddleOffset &&
-      ballY > aiY &&
-      ballY < aiY + paddleHeight
+      this.ballX > this.canvas.width - this.paddleWidth - this.paddleOffset &&
+      this.ballY > this.aiY &&
+      this.ballY < this.aiY + this.paddleHeight
     ) {
-      ballSpeedX = -ballSpeedX;
+      this.ballSpeedX = -this.ballSpeedX;
     }
 
-    // 🔹 Points
-    if (ballX < 0) {
-      aiScore++;
-      resetBall();
+    // Points
+    if (this.ballX < 0) {
+      this.aiScore++;
+      this.resetBall();
     }
-    if (ballX > canvas.width) {
-      playerScore++;
-      resetBall();
-    }
-
-    // 🔹 Victoire
-    if (playerScore >= 3 || aiScore >= 3) {
-      alert(playerScore >= 3 ? '🎉 Vous avez gagné !' : '💀 Vous avez perdu !');
-      playerScore = 0;
-      aiScore = 0;
-      resetBall();
+    if (this.ballX > this.canvas.width) {
+      this.playerScore++;
+      this.resetBall();
     }
 
-    // 🔹 IA suit la balle
-    const aiCenter = aiY + paddleHeight / 2;
-    if (aiCenter < ballY - 20) aiY += 3;
-    else if (aiCenter > ballY + 20) aiY -= 3;
+    // Victoire
+    if (this.playerScore >= 3 || this.aiScore >= 3) {
+      alert(this.playerScore >= 3 ? '🎉 Vous avez gagné !' : '💀 Vous avez perdu !');
+      this.playerScore = 0;
+      this.aiScore = 0;
+      this.resetBall();
+    }
+
+    // IA suit la balle
+    const aiCenter = this.aiY + this.paddleHeight / 2;
+    if (aiCenter < this.ballY - 20) this.aiY += 3;
+    else if (aiCenter > this.ballY + 20) this.aiY -= 3;
   }
 
-  function draw() {
-    if (!ctx) return console.error('2D context not found');
-    if (!canvas) return console.error('Canvas element with id "pong-canvas" not found');
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  private draw() {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     // Balle
-    ctx.fillStyle = 'black';
-    ctx.beginPath();
-    ctx.arc(ballX, ballY, 8, 0, Math.PI * 2);
-    ctx.fill();
+    this.ctx.fillStyle = 'black';
+    this.ctx.beginPath();
+    this.ctx.arc(this.ballX, this.ballY, 8, 0, Math.PI * 2);
+    this.ctx.fill();
 
     // Raquettes
-    ctx.fillRect(paddleOffset, playerY, paddleWidth, paddleHeight);
-    ctx.fillRect(canvas.width - paddleWidth - paddleOffset, aiY, paddleWidth, paddleHeight);
+    this.ctx.fillRect(this.paddleOffset, this.playerY, this.paddleWidth, this.paddleHeight);
+    this.ctx.fillRect(
+      this.canvas.width - this.paddleWidth - this.paddleOffset,
+      this.aiY,
+      this.paddleWidth,
+      this.paddleHeight
+    );
 
     // Score
-    ctx.font = `${canvas.height / 10}px monospace`;
-    ctx.fillText(`${playerScore} - ${aiScore}`, canvas.width / 2 - 30, 50);
+    this.ctx.font = `${this.canvas.height / 10}px monospace`;
+    this.ctx.fillText(`${this.playerScore} - ${this.aiScore}`, this.canvas.width / 2 - 30, 50);
   }
 
-  function gameLoop() {
-    update();
-    draw();
-    requestAnimationFrame(gameLoop);
+  private gameLoop() {
+    this.update();
+    this.draw();
+    requestAnimationFrame(() => this.gameLoop());
   }
-
-  resetBall();
-  gameLoop();
 }

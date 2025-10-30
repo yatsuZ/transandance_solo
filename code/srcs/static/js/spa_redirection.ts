@@ -1,10 +1,14 @@
-import {init_canvas} from './game.js';
-
 // SPA et REDIRECTION
 export function initSPA() {
   const iconAccueil = document.querySelector('#icon-accueil') as HTMLElement | null;
 
   document.addEventListener("DOMContentLoaded", () => {
+    const activePage = document.querySelector('.active') as HTMLElement | null;
+    if (activePage?.id != "pagesAccueil" && iconAccueil)
+    {
+      iconAccueil.classList.remove("hidden");
+      iconAccueil.classList.add("active");
+    }
 
     document.body.addEventListener("click", async (e) => {
       const target = (e.target as Element | null);
@@ -48,11 +52,6 @@ export function initSPA() {
         targetPage.classList.remove("hidden");
         targetPage.classList.add("active");
       }
-      if (pageName === "match")
-      {
-        init_canvas();
-      }
-// cacher 
     });
   });
 }

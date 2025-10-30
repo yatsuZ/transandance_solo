@@ -1,6 +1,7 @@
 import { initSPA } from './spa_redirection.js';
 import { initPopUpStartMusic, initOnOffMusic } from './music_gestion.js';
 import { update_description_de_page } from './update_description.js';
+import {Game_Pong_Client} from './game.js';
 
 function script_js_du_coter_client()
 {
@@ -32,3 +33,16 @@ function script_js_du_coter_client()
 }
 
 script_js_du_coter_client();
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const activePage = document.querySelector('.active') as HTMLElement | null;
+  // recupere la page active si la page active est match alors on active le jeux
+  if (activePage?.id === "pagesMatch")
+  {
+    const pongGame = new Game_Pong_Client('pong-canvas');
+  }
+
+});
+
+
