@@ -1,174 +1,65 @@
-export class Game_Pong_Client {
+import { Ball } from './game/geometry.js';
+import { PlayerAI, PlayerHuman } from './game/player.js';
+
+export class PongGame {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
-  private parent: HTMLElement;
+  private player: PlayerHuman;
+  private ai: PlayerAI;
+  private ball: Ball;
 
-  private readonly RATIO = 4 / 3;
-  private readonly paddleWidth = 10;
-  private readonly paddleHeight = 80;
-  private readonly paddleOffset = 20;
-  private readonly playerSpeed = 6;
-
-  private playerY: number;
-  private aiY: number;
-  private ballX: number;
-  private ballY: number;
-  private ballSpeedX: number = 4;
-  private ballSpeedY: number = 3;
-  private playerScore: number = 0;
-  private aiScore: number = 0;
-
-  private upPressed: boolean = false;
-  private downPressed: boolean = false;
+  private playerScore = 0;
+  private aiScore = 0;
 
   constructor(canvasId: string) {
-    const canvas = document.getElementById(canvasId) as HTMLCanvasElement | null;
-    if (!canvas) throw new Error(`Canvas element with id "${canvasId}" not found`);
-    this.canvas = canvas;
+    this.canvas = document.getElementById(canvasId) as HTMLCanvasElement;
+    this.ctx = this.canvas.getContext('2d')!;
 
-    const ctx = this.canvas.getContext('2d');
-    if (!ctx) throw new Error('2D context not found');
-    this.ctx = ctx;
+    this.player = new PlayerHuman("L", {height: this.canvas.height, width: this.canvas.width}, 6);
+    this.ai = new PlayerAI("R", {height: this.canvas.height, width: this.canvas.width}, 3);
 
-    const parent = this.canvas.parentElement;
-    if (!parent) throw new Error('Canvas parent element not found');
-    this.parent = parent;
+    this.ball = new Ball(this.canvas.width / 2, this.canvas.height / 2, 8, 4, 3);
 
-    // Position initiale des raquettes et de la balle
-    this.playerY = this.canvas.height / 2 - this.paddleHeight / 2;
-    this.aiY = this.canvas.height / 2 - this.paddleHeight / 2;
-    this.ballX = this.canvas.width / 2;
-    this.ballY = this.canvas.height / 2;
-
-    this.initEvents();
-    this.resizeCanvas();
-    window.addEventListener('resize', () => this.resizeCanvas());
-
-    this.resetBall();
-    this.gameLoop();
-  }
-
-  private initEvents() {
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowUp') this.upPressed = true;
-      if (e.key === 'ArrowDown') this.downPressed = true;
-    });
-
-    window.addEventListener('keyup', (e) => {
-      if (e.key === 'ArrowUp') this.upPressed = false;
-      if (e.key === 'ArrowDown') this.downPressed = false;
-    });
-  }
-
-  private resizeCanvas() {
-    const maxWidth = this.parent.clientWidth;
-    const maxHeight = this.parent.clientHeight;
-    let width = maxWidth;
-    let height = width / this.RATIO;
-    if (height > maxHeight) {
-      height = maxHeight;
-      width = height * this.RATIO;
-    }
-    this.canvas.width = width;
-    this.canvas.height = height;
-
-    // Ajuster la position des raquettes et de la balle après resize
-    this.playerY = this.canvas.height / 2 - this.paddleHeight / 2;
-    this.aiY = this.canvas.height / 2 - this.paddleHeight / 2;
-    this.ballX = this.canvas.width / 2;
-    this.ballY = this.canvas.height / 2;
-  }
-
-  private resetBall() {
-    this.ballX = this.canvas.width / 2;
-    this.ballY = this.canvas.height / 2;
-    this.ballSpeedX = -this.ballSpeedX;
-    this.ballSpeedY = 3 * (Math.random() > 0.5 ? 1 : -1);
+    this.loop();
   }
 
   private update() {
-    // Mouvement joueur
-    if (this.upPressed) this.playerY -= this.playerSpeed;
-    if (this.downPressed) this.playerY += this.playerSpeed;
+    // Mouvements joueur
+    this.player.update();
 
-    // Limites du terrain
-    if (this.playerY < 0) this.playerY = 0;
-    if (this.playerY + this.paddleHeight > this.canvas.height)
-      this.playerY = this.canvas.height - this.paddleHeight;
+    // IA simple
+    this.ai.update(this.ball);
 
-    // Mouvement balle
-    this.ballX += this.ballSpeedX;
-    this.ballY += this.ballSpeedY;
+    // Balle
+    this.ball.update(this.canvas.width, this.canvas.height);
 
-    if (this.ballY < 0 || this.ballY > this.canvas.height) this.ballSpeedY = -this.ballSpeedY;
+    // Collisions
+    if (this.ball.collidesWith(this.player.paddle) || this.ball.collidesWith(this.ai.paddle))
+      this.ball.bounce();
 
-    // Collisions raquettes
-    if (
-      this.ballX < this.paddleOffset + this.paddleWidth &&
-      this.ballY > this.playerY &&
-      this.ballY < this.playerY + this.paddleHeight
-    ) {
-      this.ballSpeedX = -this.ballSpeedX;
-    }
-
-    if (
-      this.ballX > this.canvas.width - this.paddleWidth - this.paddleOffset &&
-      this.ballY > this.aiY &&
-      this.ballY < this.aiY + this.paddleHeight
-    ) {
-      this.ballSpeedX = -this.ballSpeedX;
-    }
-
-    // Points
-    if (this.ballX < 0) {
+    // Score
+    if (this.ball.x < 0) {
       this.aiScore++;
-      this.resetBall();
-    }
-    if (this.ballX > this.canvas.width) {
+      this.ball.reset(this.canvas.width, this.canvas.height);
+    } else if (this.ball.x > this.canvas.width) {
       this.playerScore++;
-      this.resetBall();
+      this.ball.reset(this.canvas.width, this.canvas.height);
     }
-
-    // Victoire
-    if (this.playerScore >= 3 || this.aiScore >= 3) {
-      alert(this.playerScore >= 3 ? '🎉 Vous avez gagné !' : '💀 Vous avez perdu !');
-      this.playerScore = 0;
-      this.aiScore = 0;
-      this.resetBall();
-    }
-
-    // IA suit la balle
-    const aiCenter = this.aiY + this.paddleHeight / 2;
-    if (aiCenter < this.ballY - 20) this.aiY += 3;
-    else if (aiCenter > this.ballY + 20) this.aiY -= 3;
   }
 
   private draw() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ball.draw(this.ctx);
+    this.player.paddle.draw(this.ctx);
+    this.ai.paddle.draw(this.ctx);
 
-    // Balle
-    this.ctx.fillStyle = 'black';
-    this.ctx.beginPath();
-    this.ctx.arc(this.ballX, this.ballY, 8, 0, Math.PI * 2);
-    this.ctx.fill();
-
-    // Raquettes
-    this.ctx.fillRect(this.paddleOffset, this.playerY, this.paddleWidth, this.paddleHeight);
-    this.ctx.fillRect(
-      this.canvas.width - this.paddleWidth - this.paddleOffset,
-      this.aiY,
-      this.paddleWidth,
-      this.paddleHeight
-    );
-
-    // Score
-    this.ctx.font = `${this.canvas.height / 10}px monospace`;
-    this.ctx.fillText(`${this.playerScore} - ${this.aiScore}`, this.canvas.width / 2 - 30, 50);
+    this.ctx.font = '30px monospace';
+    this.ctx.fillText(`${this.playerScore} - ${this.aiScore}`, this.canvas.width / 2 - 40, 50);
   }
 
-  private gameLoop() {
+  private loop() {
     this.update();
     this.draw();
-    requestAnimationFrame(() => this.gameLoop());
+    requestAnimationFrame(() => this.loop());
   }
 }
