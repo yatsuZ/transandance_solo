@@ -17,6 +17,10 @@ export abstract class Player {
     this.paddle = new Paddle(side, canvasDimension, speed, 20);
   }
 
+  onResize(newDimensions: { width: number; height: number }) {
+    this.paddle.resize(newDimensions);
+  }
+
   abstract update(...args: any[]): void; // méthode abstraite (différente pour IA/Humain)
 }
 

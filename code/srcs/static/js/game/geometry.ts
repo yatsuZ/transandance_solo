@@ -65,42 +65,60 @@ export class Paddle {
   public width: number;
   public height: number;
   private speed: number;
-  private offset : number;
+  private offset: number;
+  private side: PlayerSide;
 
-
-  constructor(side: PlayerSide, fieldDimension: {height: number, width: number}, speed: number, offset?: number) {
-
-    const paddleWidth = 5;
-    const paddleHeight = fieldDimension.height / 3;
-    
+  constructor(side: PlayerSide, fieldDimension: { height: number; width: number }, speed: number, offset?: number) {
+    this.side = side;
     this.offset = offset ?? 0;
-    const x = side === "L" ? this.offset : fieldDimension.width - paddleWidth - this.offset;
-    const y = fieldDimension.height / 2 - paddleHeight / 2;
-
-
-    this.position = new Point(x, y);
-
-    this.width = paddleWidth;
-    this.height = paddleHeight;
     this.speed = speed;
+
+    this.width = 10;
+    this.height = fieldDimension.height /7.5;
+
+    const x = side === "L" ? this.offset : fieldDimension.width - this.width - this.offset;
+    const y = fieldDimension.height / 2 - this.height / 2;
+    this.position = new Point(x, y);
   }
 
   moveUp() {
-    this.position.setY(this.position.y - this.speed)
+    this.position.setY(this.position.y - this.speed);
   }
 
   moveDown() {
-    this.position.setY(this.position.y + this.speed)
+    this.position.setY(this.position.y + this.speed);
   }
 
   draw(ctx: CanvasRenderingContext2D) {
-    const x =  this.position.x;
-    const y = this.position.y;
-
-    ctx.fillRect(x, y, this.width, this.height);
+    ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
 
-  getSpeed(): number { return this.speed};
+  getSpeed(): number {
+    return this.speed;
+  }
+
+  /**
+   * 🔁 Redimensionne le paddle selon les nouvelles dimensions du terrain.
+   * Conserve la proportion de la hauteur et la position verticale relative.
+   */
+  resize(newDimensions: { width: number; height: number }) {
+    const prevHeight = this.height;
+    const prevY = this.position.y;
+
+    // recalcul des dimensions proportionnelles
+    this.height = newDimensions.height / 7.5;
+    this.width = 10; // peut être ajusté en fonction du ratio si tu veux
+
+    // recalcule la position horizontale selon le côté
+    this.position.x =
+      this.side === "L"
+        ? this.offset
+        : newDimensions.width - this.width - this.offset;
+
+    // garde la même position verticale proportionnelle
+    const yRatio = prevY / prevHeight; // rapport de position avant/après
+    this.position.y = yRatio * this.height;
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////
