@@ -1,9 +1,12 @@
 // SPA et REDIRECTION
+
+// ici faire un compretmenr pour chaque page ranger le code ici
 export function initSPA() {
   const iconAccueil = document.querySelector('#icon-accueil') as HTMLElement | null;
 
   document.addEventListener("DOMContentLoaded", () => {
     const activePage = document.querySelector('.active') as HTMLElement | null;
+
     if (activePage?.id != "pagesAccueil" && iconAccueil)
     {
       iconAccueil.classList.remove("hidden");

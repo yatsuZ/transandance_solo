@@ -9,6 +9,7 @@ export class PongGame {
   private player: PlayerHuman;
   private ai: PlayerAI;
   private ball: Ball;
+  private animationId: number | null = null;
 
   private playerScore = 0;
   private aiScore = 0;
@@ -23,7 +24,7 @@ export class PongGame {
     const dim = this.field.getDimensions();
     this.player = new PlayerHuman("L", dim, 6);
     this.ai = new PlayerAI("R", dim, 3);
-    this.ball = new Ball(dim.width / 2, dim.height / 2, 8, 4, 3);
+    this.ball = new Ball(dim);
 
     window.addEventListener("resize", () => this.handleResize());
     this.loop();
@@ -33,7 +34,11 @@ export class PongGame {
     const dim = this.field.getDimensions();
     this.player.onResize(dim);
     this.ai.onResize(dim);
-    this.ball.reset(dim.width, dim.height);
+    this.ball.resize(dim);
+
+    const baseFontSize = dim.height / 14.8;
+    this.ctx.font = `${baseFontSize}px Joystix Mono`;
+
   }
 
   private update() {
@@ -60,13 +65,62 @@ export class PongGame {
     this.player.paddle.draw(this.ctx);
     this.ai.paddle.draw(this.ctx);
 
-    this.ctx.font = '30px monospace';
-    this.ctx.fillText(`${this.playerScore} - ${this.aiScore}`, this.field.width / 2 - 40, 50);
+    const baseFontSize = this.field.height / 14.8;
+    this.ctx.font = `${baseFontSize}px Joystix Mono`;
+    this.ctx.fillStyle = 'rgb(0,255,76)'; // couleur du texte
+    this.ctx.textAlign = 'center';        // centrage horizontal
+    this.ctx.textBaseline = 'top';        // aligne le haut du texte
+    this.ctx.fillText(`${this.playerScore} - ${this.aiScore}`, this.field.width / 2, 30);
   }
 
   private loop() {
+    // stoper quand le score est a 3 
+    const activePage = document.querySelector('.active') as HTMLElement | null;
+
+    if (activePage?.id != "pagesMatch")
+    {
+      alert("Le match est arrêté car vous avez quitté la page !");
+      if (this.animationId !== null) {
+        cancelAnimationFrame(this.animationId);
+        this.animationId = null;
+      }
+      // tu peux aussi vider le canvas
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+      return ;
+    }
+
     this.update();
     this.draw();
-    requestAnimationFrame(() => this.loop());
+    // Vérifie si le jeu est terminé (ex: premier à 3 points)
+    if (this.playerScore >= 3 || this.aiScore >= 3) {
+      this.goToResult();
+      if (this.animationId !== null) {
+        cancelAnimationFrame(this.animationId);
+        this.animationId = null;
+      }
+      // tu peux aussi vider le canvas
+      this.ctx.fillStyle = "pink";
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+      return; // stop la boucle
+    }
+    this.animationId = requestAnimationFrame(() => this.loop());
+  }
+
+  private goToResult() {
+    console.log("Game Over !");
+    const matchPage = document.getElementById("pagesMatch");
+    const resultPage = document.getElementById("pagesResult");
+
+    if (matchPage) {
+      matchPage.classList.remove("active");
+      matchPage.classList.add("hidden");
+    }
+    console.log(resultPage)
+    if (resultPage) {
+      resultPage.classList.remove("hidden");
+      resultPage.classList.add("active");
+    }
   }
 }

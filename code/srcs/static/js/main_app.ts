@@ -40,9 +40,20 @@ document.addEventListener("DOMContentLoaded", () => {
   // recupere la page active si la page active est match alors on active le jeux
   if (activePage?.id === "pagesMatch")
   {
+    const header = activePage.querySelector('.arcade-header') as HTMLElement | null;
+    if (header)
+    {
+      header.style.borderBottom = 'none';
+
+    }
     const pongGame = new PongGame('pong-canvas');
   }
 
 });
 
+////
+
+// import { SiteManagement } from './SiteManagement.js';
+
+// new SiteManagement(); // ça va tout gérer
 

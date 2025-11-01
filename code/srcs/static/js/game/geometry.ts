@@ -90,7 +90,46 @@ export class Paddle {
   }
 
   draw(ctx: CanvasRenderingContext2D) {
-    ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
+    const { x, y } = this.position;
+    const { width, height } = this;
+    const slope = 0.2;
+
+    ctx.beginPath();
+
+  if (this.side === "L") {
+    // Trapèze plus large à l'intérieur du terrain (droite)
+    ctx.moveTo(x, y + height * slope);            // coin haut gauche (descendu)
+    ctx.lineTo(x + width, y);                     // coin haut droit (monté)
+    ctx.lineTo(x + width, y + height);            // coin bas droit (descendu)
+    ctx.lineTo(x, y + height * (1 - slope));      // coin bas gauche (remonté)
+  } else {
+    // Trapèze plus large à l'intérieur du terrain (gauche)
+    ctx.moveTo(x + width, y + height * slope);    // coin haut droit (descendu)
+    ctx.lineTo(x, y);                             // coin haut gauche (monté)
+    ctx.lineTo(x, y + height);                    // coin bas gauche (descendu)
+    ctx.lineTo(x + width, y + height * (1 - slope)); // coin bas droit (remonté)
+  }
+    // if (this.side === "L") {
+    //   // Trapèze pour le joueur de gauche
+    //   ctx.moveTo(x, y);                 // coin haut gauche
+    //   ctx.lineTo(x + width, y + height * slope);  // haut droit (légèrement descendu)
+    //   ctx.lineTo(x + width, y + height * (1 - slope));  // bas droit (légèrement remonté)
+    //   ctx.lineTo(x, y + height);        // coin bas gauche
+    // } else {
+    //   // Trapèze pour le joueur de droite (inversé)
+    //   ctx.moveTo(x + width, y);         // coin haut droit
+    //   ctx.lineTo(x, y + height * slope);  // haut gauche (descendu)
+    //   ctx.lineTo(x, y + height * (1 - slope));  // bas gauche (remonté)
+    //   ctx.lineTo(x + width, y + height); // coin bas droit
+    // }
+
+    ctx.closePath();
+    if (this.side === "L")
+      ctx.fillStyle = "blue";
+    else if (this.side === "R") 
+      ctx.fillStyle= "red";
+    ctx.fill();
+
   }
 
   getSpeed(): number {
@@ -124,18 +163,21 @@ export class Paddle {
 /////////////////////////////////////////////////////////////////////////////////
 
 export class Ball {
+  public curentFieldDimension: {height: number, width: number};
   public x: number;
   public y: number;
   private speedX: number;
   private speedY: number;
   private radius: number;
 
-  constructor(x: number, y: number, radius: number, speedX: number, speedY: number) {
-    this.x = x;
-    this.y = y;
-    this.radius = radius;
-    this.speedX = speedX;
-    this.speedY = speedY;
+  constructor(canvasDimension: {height: number, width: number}) {
+// a partir des dimension cr2e radieus et speed
+    this.curentFieldDimension = canvasDimension;
+    this.x = canvasDimension.width / 2;
+    this.y = canvasDimension.height / 2;
+    this.radius = this.curentFieldDimension.height / 56.375;
+    this.speedX = this.curentFieldDimension.height / 112.75;
+    this.speedY = this.curentFieldDimension.height / 150.333;
   }
 
   update(canvasWidth: number, canvasHeight: number) {
@@ -154,9 +196,26 @@ export class Ball {
     this.speedX = -this.speedX;
   }
 
+  resize(newDimensions: { width: number; height: number }) {
+    // 🔹 Calcul du ratio de redimensionnement
+    const xRatio = newDimensions.width / this.curentFieldDimension.width;
+    const yRatio = newDimensions.height / this.curentFieldDimension.height;
+
+    this.curentFieldDimension = newDimensions;
+
+    // 🔹 Redimensionner la position en gardant les proportions
+    this.x *= xRatio;
+    this.y *= yRatio;
+
+    this.radius = this.curentFieldDimension.height / 56.375;
+    this.speedX = this.curentFieldDimension.height / 112.75;
+    this.speedY = this.curentFieldDimension.height / 150.333;
+  }
+
   draw(ctx: CanvasRenderingContext2D) {
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    ctx.fillStyle= "white";
     ctx.fill();
   }
 

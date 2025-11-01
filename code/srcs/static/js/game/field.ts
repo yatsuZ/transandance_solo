@@ -28,7 +28,6 @@ export class Field {
 
     this.width = width;
     this.height = height;
-    console.log(this.getDimensions())
     window.addEventListener("resize", () => this.resize());
   }
 
@@ -60,14 +59,19 @@ export class Field {
   }
 
   draw(ctx: CanvasRenderingContext2D) {
-    ctx.strokeStyle = "#ffffff";
+    // 🎨 Fond noir
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, this.width, this.height);
+
+    // ⚪ Lignes blanches
+    ctx.strokeStyle = "white";
     ctx.lineWidth = 2;
 
     // Ligne centrale
-    ctx.beginPath();
-    ctx.moveTo(this.width / 2, 0);
-    ctx.lineTo(this.width / 2, this.height);
-    ctx.stroke();
+    // ctx.beginPath();
+    // ctx.moveTo(this.width / 2, 0);
+    // ctx.lineTo(this.width / 2, this.height);
+    // ctx.stroke();
 
     // Bordures
     ctx.strokeRect(0, 0, this.width, this.height);
