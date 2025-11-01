@@ -11,12 +11,13 @@ export class SiteManagement {
   }
 
   private init() {
-    this.initStyleAndSPA();
+    this.initStyleAndSPA();// fais
     this.initMusic();
     this.initPageEvents();
     this.initGameIfNeeded();
   }
 
+  // gere le spa et charge le css avant dafficher le site
   private initStyleAndSPA() {
     const style = document.querySelector<HTMLLinkElement>('link[href="/static/css/main_style.css"]');
     if (!style) return console.error("Pas reussie a recupere style.css");
@@ -25,17 +26,20 @@ export class SiteManagement {
     else style.addEventListener("load", initSPA);
   }
 
+  // gere la gestion de music
   private initMusic() {
     initPopUpStartMusic();
     initOnOffMusic();
   }
 
+  // gere les evenemnt action bouton
   private initPageEvents() {
+    update_description_de_page();
+
     const iconSettings = document.getElementById('icon-settings');
     if (!iconSettings) return console.error("Pas reussie a recupere icon-settings");
 
     iconSettings.addEventListener('click', () => alert("⚙️ Paramètres à venir !"));
-    update_description_de_page();
   }
 
   private initGameIfNeeded() {
