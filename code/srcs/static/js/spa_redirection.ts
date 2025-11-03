@@ -2,18 +2,32 @@
 
 export function initSPA() {
   const iconAccueil = document.querySelector('#icon-accueil') as HTMLElement | null;
-  if (!iconAccueil) return console.error("Pas reussie a recupere #icon-accueil");
-
+  const iconSettings = document.getElementById('icon-settings') as HTMLElement | null;
   const activePage = document.querySelector('.active') as HTMLElement | null;
 
-  if (activePage?.id != "pagesAccueil" && iconAccueil)// autamatise au depart
+  if (!activePage) return console.error("Pas reussie a recupere .active");
+  if (!iconAccueil) return console.error("Pas reussie a recupere #icon-accueil");
+  if (!iconSettings) return console.error("Pas reussie a recupere icon-settings");
+
+  // iconSettings.addEventListener('click', () => alert("⚙️ Paramètres à venir !"));
+
+
+  if (activePage.id != "pagesAccueil")
     activeOrHiden(iconAccueil, "On")
+  if (activePage.id != "pagesParametre")
+    activeOrHiden(iconSettings, "On")
 
   // gere quand on click dans un bouton
-  document.body.addEventListener("click", async (e) => redirectionDePage(e, iconAccueil));
+  // Sélectionner uniquement les boutons avec data-link
+  const linkButtons = document.querySelectorAll<HTMLButtonElement>("button[data-link]");
+
+  // Ajouter l'événement uniquement à ceux-là
+  linkButtons.forEach(btn => {
+    btn.addEventListener("click", (e) => redirectionDePage(e, iconAccueil, iconSettings));
+  });
 }
 
-function redirectionDePage(e: PointerEvent, iconAccueil: HTMLElement) {
+function redirectionDePage(e: PointerEvent, iconAccueil: HTMLElement, iconSettings: HTMLElement) {
     e.preventDefault();
     const target = (e.target as Element | null);
     const link = target?.closest("button[data-link]");
@@ -21,9 +35,10 @@ function redirectionDePage(e: PointerEvent, iconAccueil: HTMLElement) {
     const get_data_link = link.getAttribute("data-link");
     if (!get_data_link || get_data_link.startsWith("go_to_") === false)
       return console.error("data-link invalide:", get_data_link);
-    const pageName = get_data_link.slice("go_to_".length); 
+    const pageName = get_data_link.slice("go_to_".length);
 
     activeOrHiden(iconAccueil, pageName === "accueil" ? "Off" : "On")
+    activeOrHiden(iconSettings, pageName === "parametre" ? "Off" : "On")
 
     const targetId = "pages" + pageName.charAt(0).toUpperCase() + pageName.slice(1);
     const targetPage = document.getElementById(targetId);

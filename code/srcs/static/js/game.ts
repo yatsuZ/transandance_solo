@@ -10,11 +10,13 @@ export class PongGame {
   private ai: PlayerAI;
   private ball: Ball;
   private animationId: number | null = null;
+  private shouldStop: boolean = false;
 
   private playerScore = 0;
   private aiScore = 0;
 
   constructor(canvasId: string) {
+    console.log("une nouvelle partie est fais.")
     this.canvas = document.getElementById(canvasId) as HTMLCanvasElement;
     this.ctx = this.canvas.getContext('2d')!;
 
@@ -22,8 +24,8 @@ export class PongGame {
     this.field = new Field(this.canvas);
 
     const dim = this.field.getDimensions();
-    this.player = new PlayerHuman("L", dim, 6);
-    this.ai = new PlayerAI("R", dim, 3);
+    this.player = new PlayerHuman("L", dim, 10);
+    this.ai = new PlayerAI("R", dim, 5);
     this.ball = new Ball(dim);
 
     window.addEventListener("resize", () => this.handleResize());
@@ -74,42 +76,41 @@ export class PongGame {
   }
 
   private loop() {
-    // stoper quand le score est a 3 
     const activePage = document.querySelector('.active') as HTMLElement | null;
-
-    if (activePage?.id != "pagesMatch")
-    {
-      alert("Le match est arrêté car vous avez quitté la page !");
-      if (this.animationId !== null) {
-        cancelAnimationFrame(this.animationId);
-        this.animationId = null;
-      }
-      // tu peux aussi vider le canvas
-      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-      return ;
-    }
+    let whyStop:string | undefined = undefined ;
 
     this.update();
     this.draw();
     // Vérifie si le jeu est terminé (ex: premier à 3 points)
-    if (this.playerScore >= 3 || this.aiScore >= 3) {
+    if (this.playerScore >= 3 || this.aiScore >= 3)
+    {
       this.goToResult();
-      if (this.animationId !== null) {
-        cancelAnimationFrame(this.animationId);
-        this.animationId = null;
-      }
-      // tu peux aussi vider le canvas
-      this.ctx.fillStyle = "pink";
-      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-      return; // stop la boucle
+      whyStop = "Le match c'est fini normalement.";
     }
+
+    if (activePage?.id != "pagesMatch")
+      this.stop(whyStop);
+
+    if (this.shouldStop)
+      return;
     this.animationId = requestAnimationFrame(() => this.loop());
   }
 
+  public stop(whyStop: string = "On a quitté la page match") {
+    if (this.animationId !== null) {
+      cancelAnimationFrame(this.animationId);
+      this.animationId = null;
+    }
+
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    alert(`Le match est arrêté car : ${whyStop}`);// ici
+    this.shouldStop = true;
+    console.log(`une partie est s'arrete. : ${whyStop}`)// ici
+
+  }
+
   private goToResult() {
-    console.log("Game Over !");
+
     const matchPage = document.getElementById("pagesMatch");
     const resultPage = document.getElementById("pagesResult");
 
@@ -117,7 +118,7 @@ export class PongGame {
       matchPage.classList.remove("active");
       matchPage.classList.add("hidden");
     }
-    console.log(resultPage)
+
     if (resultPage) {
       resultPage.classList.remove("hidden");
       resultPage.classList.add("active");

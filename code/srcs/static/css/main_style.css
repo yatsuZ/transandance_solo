@@ -8,4 +8,6 @@
 
 @import url('./animation/animation.css');
 
+@import url('./pages/all_pages.css');
+
 @import url('./other/spa_on_off.css');

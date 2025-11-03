@@ -3,8 +3,30 @@
     <h1 class="arcade-title"><%= title %></h1>
     <p class="arcade-subtitle">Le premier à 3 points gagne la partie</p>
   </header>
-  <div class="menu-wrapper">
+  <div class="match-wrapper">
+    <!-- === Joueur 1 === -->
+    <div class="player-card player-left">
+      <img src="./static/util/icon/profile.png" alt="Profil Joueur 1" class="player-avatar">
+      <h2 class="player-name">Joueur 1</h2>
+      <p class="player-type">Humain</p>
+      <p class="player-controls">Commandes :<br><span id="cmd_j1_show">↑ / ↓</span></p>
+      <p class="player-score">Score : <span id="score-j1">0</span></p>
+      <!-- <img src="./static/util/icon/power_up.png" alt="Power-up" class="player-powerup"> -->
+    </div>
+
+    <!-- === Canvas du jeu === -->
     <!-- definir la taille du canvas comme haut max qui peut avoir et largeur RATIO = 4 / 3 -->
     <canvas id="pong-canvas"></canvas>
+
+    <!-- === Joueur 2 === -->
+    <div class="player-card player-right">
+      <img src="./static/util/icon/profile_robot.png" alt="Profil Joueur 2" class="player-avatar">
+      <h2 class="player-name">Joueur 2</h2>
+      <p class="player-type">IA</p>
+      <p class="player-controls">Commandes :<br><span id="cmd_j2_show">robot technique</span></p>
+      <p class="player-score">Score : <span id="score-j2">0</span></p>
+      <!-- <img src="./static/util/icon/power_up.png" alt="Power-up" class="player-powerup"> -->
+    </div>
   </div>
 </div>
+<!-- en gros a gauche info joueur 1 une sorte de carte a droite pariel pour le joueur 2 aux mielieux le teraain -->

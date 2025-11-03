@@ -13,7 +13,7 @@ export class SiteManagement {
   private init() {
     this.initStyleAndSPA();// fais
     this.initMusic();// fais
-    this.initPageEvents();
+    this.initPageEvents();// fais
     this.initGameIfNeeded();
   }
 
@@ -34,20 +34,37 @@ export class SiteManagement {
   // gere les evenemnt action bouton
   private initPageEvents() {
     update_description_de_page();
-
-    const iconSettings = document.getElementById('icon-settings');//gerer sa dans spa redirection
-    if (!iconSettings) return console.error("Pas reussie a recupere icon-settings");
-
-    iconSettings.addEventListener('click', () => alert("⚙️ Paramètres à venir !"));
   }
 
   private initGameIfNeeded() {// gerer sa dans spa redirection
-    const activePage = document.querySelector('.active') as HTMLElement | null;
-    if (activePage?.id === "pagesMatch") {
-      const header = activePage.querySelector('.arcade-header') as HTMLElement | null;
-      if (header) header.style.borderBottom = 'none';
+  const linkButtons = document.querySelectorAll<HTMLButtonElement>("button[data-link]");
+  const activePage = document.querySelector('.active') as HTMLElement | null;
+  if (activePage?.id === "pagesMatch")
+  {
+    const header = activePage.querySelector('.arcade-header') as HTMLElement | null;
+    if (header)
+      header.style.borderBottom = 'none';
+    this.pongGame = new PongGame('pong-canvas');
+  }
 
-      this.pongGame = new PongGame('pong-canvas');
-    }
+  // Ajouter l'événement uniquement à ceux-là
+  linkButtons.forEach(btn => {
+    btn.addEventListener("click", (e) => {
+
+      const activePage = document.querySelector('.active') as HTMLElement | null;
+      if (activePage?.id === "pagesMatch")
+      {
+        const header = activePage.querySelector('.arcade-header') as HTMLElement | null;
+        if (header) 
+          header.style.borderBottom = 'none';
+        
+        this.pongGame = new PongGame('pong-canvas');
+      }
+      else
+        {
+          this.pongGame = null;
+        }
+      });
+    });
   }
 }

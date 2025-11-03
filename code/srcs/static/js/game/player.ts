@@ -51,7 +51,13 @@ export class PlayerAI extends Player {
 
   update(ball: Ball) {
     const center = this.paddle.position.y + this.paddle.height / 2;
-    if (center < ball.y - 20) this.paddle.position.y += this.paddle.getSpeed();
-    else if (center > ball.y + 20) this.paddle.position.y -= this.paddle.getSpeed();
+
+    const errorMargin = Math.random() * (this.paddle.height - this.paddle.height / 3 ) * 3; 
+
+    if (center < ball.y - 20 + errorMargin) {
+        this.paddle.position.y += this.paddle.getSpeed();
+    } else if (center > ball.y + 20 + errorMargin) {
+        this.paddle.position.y -= this.paddle.getSpeed();
+    }
   }
 }

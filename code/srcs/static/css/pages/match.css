@@ -1,0 +1,110 @@
+/* .container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #fff;
+  font-family: 'Press Start 2P', monospace;
+  background: radial-gradient(circle at center, #111 0%, #000 100%);
+  min-height: 100vh;
+  padding: 1rem;
+  box-sizing: border-box;
+} */
+
+.arcade-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.arcade-title {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.arcade-subtitle {
+  font-size: 0.7rem;
+  opacity: 0.8;
+}
+
+/* --- Disposition centrale du jeu --- */
+.match-wrapper {
+  display: flex; /* ← le bon choix pour aligner horizontalement */
+  justify-content: center; /* centre horizontalement */
+  align-items: center; /* centre verticalement */
+  width: 100%;
+  height: 100%;
+  gap: 2rem;
+}
+
+/* --- Canvas --- */
+#pong-canvas {
+  background: #111;
+  border: 3px solid #fff;
+  border-radius: 12px;
+  aspect-ratio: 4 / 3;
+  width: 100%;
+  max-width: 600px;
+  max-height: 450px;
+}
+
+/* --- Cartes joueurs --- */
+.player-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid #fff;
+  border-radius: 12px;
+  padding: 1rem;
+  width: 160px;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(255,255,255,0.2);
+}
+
+.player-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  margin-bottom: 0.5rem;
+  border: 2px solid #fff;
+}
+
+.player-name {
+  font-size: 0.8rem;
+  margin-bottom: 0.3rem;
+}
+
+.player-type,
+.player-controls,
+.player-score {
+  font-size: 0.6rem;
+  margin: 0.2rem 0;
+}
+
+.player-powerup {
+  width: 32px;
+  height: 32px;
+  margin-top: 0.4rem;
+  filter: invert(1);
+}
+
+.hidden {
+  display: none;
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+  .match-wrapper {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #pong-canvas {
+    max-width: 90%;
+    max-height: none;
+  }
+
+  .player-card {
+    width: 120px;
+    font-size: 0.5rem;
+  }
+}
