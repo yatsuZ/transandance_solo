@@ -27,7 +27,6 @@
   background: rgba(0, 255, 76, 0.3);
 }
 
-/* Le texte à l’intérieur du node */
 .tournament-node p {
   margin: 0;
   padding: 0;
@@ -61,6 +60,24 @@
   color: #000;
 }
 
+/* === Joueur vivant === */
+.player-leaf.alive {
+  opacity: 1;
+  filter: brightness(1.1);
+}
+
+/* === Joueur éliminé === */
+.player-leaf.eliminate {
+  border-color: #ff4d4d;
+  background: radial-gradient(circle at center, rgba(255, 0, 0, 0.25), rgba(80, 0, 0, 0.1));
+  box-shadow: 0 0 6px rgba(255, 0, 0, 0.4);
+  opacity: 0.6;
+}
+
+.player-leaf.eliminate p {
+  color: #ff4d4d;
+}
+
 /* === MATCH NODE === */
 .match-node {
   border-color: #00ffff;
@@ -79,6 +96,22 @@
   transform: scale(1.05) rotate(1deg);
   background: rgba(0, 255, 255, 0.3);
   box-shadow: 0 0 20px rgba(0, 255, 255, 0.7);
+}
+
+/* === Match futur === */
+.match-node.future {
+  opacity: 0.8;
+}
+
+/* === Match passé === */
+.match-node.past {
+  border-color: #ff4d4d;
+  background: rgba(255, 0, 0, 0.1);
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+}
+
+.match-node.past p {
+  color: #ff4d4d;
 }
 
 /* === WINNER NODE === */

@@ -2,8 +2,8 @@ import { PongGame } from './game.js';
 import { initMusicSystem } from './music_gestion.js';
 import { update_description_de_page } from './update_description.js';
 import { activeOrHiden, initSPA } from './spa_redirection.js';
+import { createTree } from './tournament.js';
 
-declare const Treant: any; // Add type declaration for Treant
 
 export class SiteManagement {
   private pongGameSingleMatch: PongGame | null = null;
@@ -70,67 +70,6 @@ export class SiteManagement {
     });
   }
 
-private tournamentTreeGestion() {
-  const BASE_CHART_CONFIG = {
-    chart: {
-      container: "#TournamentTree",
-      rootOrientation: "EAST",
-      levelSeparation: 30,
-      siblingSeparation: 25,
-      connectors: {
-        type: "straight",
-        style: {
-          "stroke-width": 2,
-          "stroke": "#0f0"
-        }
-      },
-      node: {
-        HTMLclass: "tournament-node"
-      },
-      // Limiter la taille du conteneur de l'arbre dans Treant.js
-      // Ajuster l'arbre à la taille du conteneur avec un facteur de zoom
-      scrollable: true, // Autorise le défilement si nécessaire
-      zoom: {
-        enabled: true, // Activer le zoom
-        scale: 0.5,    // Facteur de zoom initial
-        min: 0.3,      // Zoom minimal
-        max: 1         // Zoom maximal
-      }
-    }
-  };
-
-  // === Structure du tournoi à 4 joueurs ===
-  const tournamentStructure = {
-    text: { name: "🏆 Vainqueur" },
-    HTMLclass: "winner-node",
-    children: [
-      {
-        text: { name: "Match 1" },
-        HTMLclass: "match-node",
-        children: [
-          { text: { name: "Joueur 1" }, HTMLclass: "player-leaf" },
-          { text: { name: "Joueur 2" }, HTMLclass: "player-leaf" }
-        ]
-      },
-      {
-        text: { name: "Match 2" },
-        HTMLclass: "match-node",
-        children: [
-          { text: { name: "Joueur 3" }, HTMLclass: "player-leaf" },
-          { text: { name: "Joueur 4" }, HTMLclass: "player-leaf" }
-        ]
-      }
-    ]
-  };
-
-  // Initialiser l'arbre Treant.js avec la structure et la config
-  const verif = new Treant({
-    ...BASE_CHART_CONFIG,
-    nodeStructure: tournamentStructure
-  });
-  console.log("verif = ", verif);
-}
-
   private tournamentGestion() {
     const nextButtons = document.getElementById("next-btn_result");
     if (!nextButtons) {
@@ -151,7 +90,9 @@ private tournamentTreeGestion() {
       else
         activeOrHiden(pageAccueil, "On")
     })
-    this.tournamentTreeGestion();
+    const activePage = document.querySelector('.active') as HTMLElement | null;
+    if (activePage?.id === "pagesTree_Tournament")
+      createTree();
   }
 
 }

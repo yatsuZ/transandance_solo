@@ -23,6 +23,7 @@ export function initSPA() {
 
   // Ajouter l'événement uniquement à ceux-là
   linkButtons.forEach(btn => {
+
     btn.addEventListener("click", (e) => redirectionDePage(e, iconAccueil, iconSettings));
   });
 }
@@ -34,7 +35,7 @@ function redirectionDePage(e: PointerEvent, iconAccueil: HTMLElement, iconSettin
     if (!link) return console.error("Bouton avec data-link introuvable");
     const get_data_link = link.getAttribute("data-link");
     if (!get_data_link || get_data_link.startsWith("go_to_") === false)
-      return console.error("data-link invalide:", get_data_link);
+      return console.log("data-link invalide:", get_data_link);
     const pageName = get_data_link.slice("go_to_".length);
 
     activeOrHiden(iconAccueil, pageName === "accueil" ? "Off" : "On")
