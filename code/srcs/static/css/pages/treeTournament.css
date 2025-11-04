@@ -1,0 +1,57 @@
+#TournamentTree {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
+  margin: 0;
+}
+
+/* === 2 CONTAINER TOURNAMENT === */
+.tournament-wrapper {
+  display: flex;
+  flex-direction: column; /* Empile les éléments verticalement */
+  align-items: center; /* Centre horizontalement */
+  overflow: hidden; /* Empêche le débordement global du conteneur */
+}
+
+/* === 3 ARBRE DE TOURNOI === */
+.tournament-tree-wrapper {
+  display: flex;
+  justify-content: center; /* Centre le contenu horizontalement */
+  align-items: center; /* Centre le contenu verticalement */
+  width: 100%;
+  max-height: 100%; /* La hauteur de l'arbre doit être dynamique mais ne dépasser pas la hauteur de l'écran moins l'espace pour les autres éléments */
+}
+
+/* === 4 MENU DU BAS === */
+.tree-menu-wrapper {
+  display: flex;
+  justify-content: center; /* Centre horizontalement les boutons */
+  align-items: center; /* Centre verticalement les boutons */
+  flex: 1;
+  width: 100%; /* S'assurer que le menu prend toute la largeur disponible */
+}
+
+.menu-buttons-tree-tournament-padding
+{
+  padding-right: 30px;
+  padding-left: 30px;;
+}
+
+.next-match-info{
+  display: flex;
+  justify-content: center; /* Centre horizontalement les boutons */
+  align-items: center; /* Centre verticalement les boutons */
+  flex: 1;
+  width: 100%; /* S'assurer que le menu prend toute la largeur disponible */
+}
+.next-match-info p {
+  margin: 0;;
+}
+.texte-next-match {
+  text-align: center;
+  font-size: 0.7rem;
+  margin: 0;
+}

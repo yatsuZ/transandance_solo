@@ -1,8 +1,10 @@
 .tournament-config-wrapper {
   display: flex;
   justify-content: center;
-  align-items: center;
-  padding: 3rem 0; /* ajoute de l'air sans forcer la hauteur */
+  align-items: flex-start; /* on aligne en haut pour éviter de trop descendre */
+  height: auto; /* ne force plus une grande hauteur */
+  min-height: 60vh; /* hauteur visuelle équilibrée */
+  box-sizing: border-box;
 }
 
 .tournament-config-buttons {
@@ -17,30 +19,28 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
-  background: rgba(20, 20, 20, 0.95);
-  padding: 2rem 3rem;
+  gap: 0.8rem;
+  background: rgba(20, 20, 20, 0.9);
+  padding: 1.5rem 2rem; /* réduit le padding interne */
   border-radius: 16px;
-  box-shadow: 0 0 15px rgba(0, 255, 76, 0.6);
+  box-shadow: 0 0 10px rgba(0, 255, 76, 0.6);
   border: 1px solid rgba(0, 255, 76, 0.8);
   text-align: center;
-  margin: 0 auto; /* centré horizontalement */
+  margin: 0 auto;
+  max-width: 320px;
 }
 
-/* === TITRE === */
 .form-title {
-  font-size: 1.2rem;
+  font-size: 1rem;
   color: rgb(0, 255, 76);
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem;
 }
 
-/* === INPUTS === */
 .players-inputs {
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 300px;
-  gap: 0.8rem;
+  gap: 0.6rem;
 }
 
 .players-inputs label {
@@ -50,7 +50,7 @@
 }
 
 .players-inputs input {
-  padding: 0.6rem;
+  padding: 0.5rem;
   border-radius: 8px;
   border: 1px solid #ffcc00;
   background-color: transparent;
@@ -70,15 +70,14 @@
   box-shadow: 0 0 10px rgba(0, 255, 76, 0.6);
 }
 
-/* === BOUTON START === */
 .start-btn {
-  margin-top: 1rem;
-  padding: 0.8rem 1.2rem;
+  margin-top: 0.5rem;
+  padding: 0.6rem 1rem;
   border: none;
   border-radius: 10px;
   background-color: rgb(0, 255, 76);
   color: #000;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: bold;
   cursor: pointer;
   transition: 0.25s ease;

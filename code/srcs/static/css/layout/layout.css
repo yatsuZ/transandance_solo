@@ -17,6 +17,6 @@ html, body, #app, .arcade-container {
 .screen-content, .container {
   max-width: 100%;
   max-height: 100%;
-  overflow: hidden;
+  /* overflow: hidden; */
   box-sizing: border-box;
 }

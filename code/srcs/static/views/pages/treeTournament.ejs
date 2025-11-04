@@ -1,0 +1,36 @@
+<div class="container">
+  <!-- 1 Titre header -->
+  <header class="arcade-header">
+    <h1 class="arcade-title"><%= title %></h1>
+    <p class="arcade-subtitle">Voici les futurs matchs du tournoi</p>
+  </header>
+  <div>
+    <div class="box-texte-next-match">
+      <p class="texte-next-match">Prochain match -> Joueur 1 vs Joueur 2</p>
+    </div>
+  </div>
+  
+  <!-- 2 Conteneur pour l'arbre de tournoi et les boutons -->
+  <div class="tournament-wrapper">
+    <!-- Arbre de tournoi -->
+    <div class="tournament-tree-wrapper">
+        <!-- Cest lui il casse ile prend trop dessapce je veux pas quil deplace -->
+        <div id="TournamentTree"></div>
+    </div>
+  </div>
+  <!-- ajouter une balise avec du text qui dira le prochain matche jouer 1 vs joueur 2 -->
+  <!-- Liste de boutons 4 -->
+  <div class="menu-buttons menu-buttons-tree-tournament-padding">
+    <button id="goToMatch">
+      <span class="corner-top-right"></span><span class="corner-bottom-left"></span>
+      <p>GO NEXT MATCH</p>
+    </button>
+
+    <button id="goToMatch">
+      <span class="corner-top-right"></span><span class="corner-bottom-left"></span>
+      <p>GIVE UP Tournament</p>
+    </button>
+
+  </div>
+  <!-- 1 2 3 ne doive pas depasser container -->
+</div>
