@@ -9,7 +9,7 @@ export function update_description_de_page(): void {
   const defaultTexts: Record<string, string> = {
     pagesAccueil: 'Que veux-tu faire ?',
     pagesMatch: 'Le premier à 3 points gagne la partie',
-    pagesBeginTournament: 'Prépare ton tournoi et affronte les meilleurs !',
+    pagesBegin_Tournament: 'Prépare ton tournoi et affronte les meilleurs !',
     pagesResult: 'Voici les résultats de ton dernier match !',
     pagesParametre: 'Parametre du site'
   };
@@ -17,7 +17,7 @@ export function update_description_de_page(): void {
   // Textes selon les boutons
   const buttonTexts: Record<string, string> = {
     go_to_match: '🎮 Jouer à Pong contre une IA — le premier à 3 gagne !',
-    go_to_tournament: '🏆 Configure ton tournoi, que le meilleur gagne !',
+    go_to_Begin_Tournament: '🏆 Configure ton tournoi, que le meilleur gagne !',
     go_to_accueil: '🏠 Retour à l’accueil',
     interupteur_du_son: 'Mettre le son ou l’arrêter.',
     parametre: 'Accéder aux paramètres.'

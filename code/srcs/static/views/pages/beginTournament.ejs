@@ -3,12 +3,28 @@
     <h1 class="arcade-title"><%= title %></h1>
     <p class="arcade-subtitle">Prépare ton tournoi et affronte les meilleurs !</p>
   </header>
-  <div class="menu-wrapper">
-    <nav class="menu-buttons">
 
-    <!-- ICi on faire lorganisation d'un tableaux de tournoi sa sera 4 joueur dont on peut choisire leur pseudo -->
-     <!-- Une fois qu'on as mis leur pseudo il yaura un bouton start tournament qui redirige vers une page treeTournament -->
+  <div class="tournament-config-wrapper">
+    <nav class="tournament-config-buttons">
+      <form id="tournament-form" class="tournament-form">
+        <h2 class="form-title">Tournoi à 4 joueurs</h2>
 
+        <div class="players-inputs">
+          <label for="player1">Joueur 1 :</label>
+          <input type="text" id="player1" name="player1" placeholder="Pseudo du joueur 1" required>
+
+          <label for="player2">Joueur 2 :</label>
+          <input type="text" id="player2" name="player2" placeholder="Pseudo du joueur 2" required>
+
+          <label for="player3">Joueur 3 :</label>
+          <input type="text" id="player3" name="player3" placeholder="Pseudo du joueur 3" required>
+
+          <label for="player4">Joueur 4 :</label>
+          <input type="text" id="player4" name="player4" placeholder="Pseudo du joueur 4" required>
+        </div>
+
+        <button type="submit" class="start-btn" data-link="/treeTournament">Start Tournament</button>
+      </form>
     </nav>
   </div>
 </div>

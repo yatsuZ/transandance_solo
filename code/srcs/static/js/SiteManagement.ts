@@ -77,7 +77,7 @@ export class SiteManagement {
     nextButtons.addEventListener("click", (e) => {
       const pageAccueil = document.getElementById("pagesAccueil");
       if (!pageAccueil) return console.error("Page cible non trouvée: pageAccueil");
-      const pageTournament = document.getElementById("pagesBeginTournament");
+      const pageTournament = document.getElementById("pagesBegin_Tournament");
       if (!pageTournament) return console.error("Page cible non trouvée: pageTournament");
 
       document.querySelectorAll(".page").forEach(p => {
@@ -88,8 +88,7 @@ export class SiteManagement {
       else
         activeOrHiden(pageAccueil, "On")
     })
-
-
+    
   }
 
 }

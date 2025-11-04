@@ -1,0 +1,92 @@
+.tournament-config-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem 0; /* ajoute de l'air sans forcer la hauteur */
+}
+
+.tournament-config-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.tournament-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  background: rgba(20, 20, 20, 0.95);
+  padding: 2rem 3rem;
+  border-radius: 16px;
+  box-shadow: 0 0 15px rgba(0, 255, 76, 0.6);
+  border: 1px solid rgba(0, 255, 76, 0.8);
+  text-align: center;
+  margin: 0 auto; /* centré horizontalement */
+}
+
+/* === TITRE === */
+.form-title {
+  font-size: 1.2rem;
+  color: rgb(0, 255, 76);
+  margin-bottom: 1rem;
+}
+
+/* === INPUTS === */
+.players-inputs {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 300px;
+  gap: 0.8rem;
+}
+
+.players-inputs label {
+  font-size: 0.8rem;
+  color: rgb(0, 255, 76);
+  text-align: left;
+}
+
+.players-inputs input {
+  padding: 0.6rem;
+  border-radius: 8px;
+  border: 1px solid #ffcc00;
+  background-color: transparent;
+  color: #ffcc00;
+  font-size: 0.8rem;
+  text-align: center;
+  transition: all 0.25s ease;
+}
+
+.players-inputs input::placeholder {
+  color: rgba(0, 255, 76, 0.4);
+}
+
+.players-inputs input:focus {
+  outline: none;
+  background-color: rgba(0, 255, 76, 0.1);
+  box-shadow: 0 0 10px rgba(0, 255, 76, 0.6);
+}
+
+/* === BOUTON START === */
+.start-btn {
+  margin-top: 1rem;
+  padding: 0.8rem 1.2rem;
+  border: none;
+  border-radius: 10px;
+  background-color: rgb(0, 255, 76);
+  color: #000;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.25s ease;
+  box-shadow: 0 0 10px rgba(0, 255, 76, 0.6);
+}
+
+.start-btn:hover {
+  background-color: #00ff6a;
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(0, 255, 76, 0.9);
+}
