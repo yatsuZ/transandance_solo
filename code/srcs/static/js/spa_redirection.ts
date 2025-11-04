@@ -55,7 +55,7 @@ function redirectionDePage(e: PointerEvent, iconAccueil: HTMLElement, iconSettin
 ////////////////////////////////////// UTIL
 
 
-function activeOrHiden(element: HTMLElement | Element, onOrOff : "On" | "Off" = "Off")
+export function activeOrHiden(element: HTMLElement | Element, onOrOff : "On" | "Off" = "Off")
 {
   if (onOrOff == "On")
   {

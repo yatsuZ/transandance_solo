@@ -1,18 +1,28 @@
 <div class="container">
   <header class="arcade-header">
-    <h1 class="arcade-title"><%= title %></h1>
+    <h1 class="arcade-title">Résultat du match</h1>
     <p class="arcade-subtitle">Voici les résultats de ton dernier match !</p>
   </header>
+
+  <div class="results-section">
+    <div class="winner-display">
+      <h2 class="winner-title">🏆 Vainqueur 🏆</h2>
+      <p id="winner-name">...</p> <!-- Valeur injectée dynamiquement -->
+    </div>
+
+    <div class="score-display">
+      <p><span id="player1-name">...</span> Score : <span id="player1-score">...</span></p>
+      <p><span id="player2-name">...</span> Score : <span id="player2-score">...</span></p>
+    </div>
+  </div>
+
   <div class="menu-wrapper">
     <nav class="menu-buttons">
-
-<!-- Dire qui a gagner son pseudo esaaye de recuperer les information du vainqueru -->
-<!-- et proposer un bouton next -->
-       <button data-link="">
-        <span class="corner-top-right"></span><span class="corner-bottom-left"></span>
+      <button id="next-btn_result">
+        <span class="corner-top-right"></span>
+        <span class="corner-bottom-left"></span>
         <p>Next</p>
       </button>
-
     </nav>
   </div>
 </div>

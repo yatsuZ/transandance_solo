@@ -9,7 +9,7 @@ export function update_description_de_page(): void {
   const defaultTexts: Record<string, string> = {
     pagesAccueil: 'Que veux-tu faire ?',
     pagesMatch: 'Le premier à 3 points gagne la partie',
-    pagesTournament: 'Prépare ton tournoi et affronte les meilleurs !',
+    pagesBeginTournament: 'Prépare ton tournoi et affronte les meilleurs !',
     pagesResult: 'Voici les résultats de ton dernier match !',
     pagesParametre: 'Parametre du site'
   };

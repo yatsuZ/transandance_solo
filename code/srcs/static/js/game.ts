@@ -110,7 +110,6 @@ export class PongGame {
   }
 
   private goToResult() {
-
     const matchPage = document.getElementById("pagesMatch");
     const resultPage = document.getElementById("pagesResult");
 
@@ -122,6 +121,21 @@ export class PongGame {
     if (resultPage) {
       resultPage.classList.remove("hidden");
       resultPage.classList.add("active");
+
+      // 💡 Injection des infos du match dans la page résultat
+      const winnerNameEl = resultPage.querySelector<HTMLParagraphElement>('#winner-name');
+      const player1NameEl = resultPage.querySelector<HTMLSpanElement>('#player1-name');
+      const player1ScoreEl = resultPage.querySelector<HTMLSpanElement>('#player1-score');
+      const player2NameEl = resultPage.querySelector<HTMLSpanElement>('#player2-name');
+      const player2ScoreEl = resultPage.querySelector<HTMLSpanElement>('#player2-score');
+
+      const winnerName = this.playerScore > this.aiScore ? this.player.name : this.ai.name;
+
+      if (winnerNameEl) winnerNameEl.textContent = winnerName;
+      if (player1NameEl) player1NameEl.textContent = this.player.name;
+      if (player1ScoreEl) player1ScoreEl.textContent = this.playerScore.toString();
+      if (player2NameEl) player2NameEl.textContent = this.ai.name;
+      if (player2ScoreEl) player2ScoreEl.textContent = this.aiScore.toString();
     }
   }
 }

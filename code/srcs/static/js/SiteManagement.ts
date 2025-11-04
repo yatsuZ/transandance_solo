@@ -1,10 +1,11 @@
 import { PongGame } from './game.js';
 import { initMusicSystem } from './music_gestion.js';
 import { update_description_de_page } from './update_description.js';
-import { initSPA } from './spa_redirection.js';
+import { activeOrHiden, initSPA } from './spa_redirection.js';
 
 export class SiteManagement {
-  private pongGame: PongGame | null = null;
+  private pongGameSingleMatch: PongGame | null = null;
+  private tournamentOn: boolean = true;
 
   constructor() {
     document.addEventListener("DOMContentLoaded", () => this.init());
@@ -15,6 +16,7 @@ export class SiteManagement {
     this.initMusic();// fais
     this.initPageEvents();// fais
     this.initGameIfNeeded();
+    this.tournamentGestion();
   }
 
   // gere le spa + redirection et charge le css avant dafficher le site
@@ -44,7 +46,7 @@ export class SiteManagement {
     const header = activePage.querySelector('.arcade-header') as HTMLElement | null;
     if (header)
       header.style.borderBottom = 'none';
-    this.pongGame = new PongGame('pong-canvas');
+    this.pongGameSingleMatch = new PongGame('pong-canvas');
   }
 
   // Ajouter l'événement uniquement à ceux-là
@@ -58,13 +60,36 @@ export class SiteManagement {
         if (header) 
           header.style.borderBottom = 'none';
         
-        this.pongGame = new PongGame('pong-canvas');
+        this.pongGameSingleMatch = new PongGame('pong-canvas');
       }
       else
-        {
-          this.pongGame = null;
-        }
+          this.pongGameSingleMatch = null;
       });
     });
   }
+
+  private tournamentGestion() {
+    const nextButtons = document.getElementById("next-btn_result");
+    if (!nextButtons) {
+      console.error("Pas reussie a recupere #next-btn_result");
+      return;
+    }
+    nextButtons.addEventListener("click", (e) => {
+      const pageAccueil = document.getElementById("pagesAccueil");
+      if (!pageAccueil) return console.error("Page cible non trouvée: pageAccueil");
+      const pageTournament = document.getElementById("pagesBeginTournament");
+      if (!pageTournament) return console.error("Page cible non trouvée: pageTournament");
+
+      document.querySelectorAll(".page").forEach(p => {
+        activeOrHiden(p, "Off")
+      });
+      if (this.tournamentOn)
+        activeOrHiden(pageTournament, "On")
+      else
+        activeOrHiden(pageAccueil, "On")
+    })
+
+
+  }
+
 }
