@@ -45,6 +45,7 @@ function redirectionDePage(e: PointerEvent, iconAccueil: HTMLElement, iconSettin
     const targetPage = document.getElementById(targetId);
     if (!targetPage) return console.error("Page cible non trouvée:", targetId);
 
+
     document.querySelectorAll(".page").forEach(p => {
       activeOrHiden(p, "Off")
     });

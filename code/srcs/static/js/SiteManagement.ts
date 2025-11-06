@@ -3,11 +3,16 @@ import { initMusicSystem } from './music_gestion.js';
 import { update_description_de_page } from './update_description.js';
 import { activeOrHiden, initSPA } from './spa_redirection.js';
 import { createTree } from './tournament.js';
+import { startTournament} from './tournament.js'
 
+export type PlayerForTournament = { name: string; aLive: boolean };
 
 export class SiteManagement {
   private pongGameSingleMatch: PongGame | null = null;
   private tournamentOn: boolean = false;
+  // ici sotkcer les 4 joueur et metre tournament On en vrai
+  private tournamentPlayers: [PlayerForTournament, PlayerForTournament, PlayerForTournament, PlayerForTournament] | null = null;
+
 
   constructor() {
     document.addEventListener("DOMContentLoaded", () => this.init());
@@ -71,28 +76,54 @@ export class SiteManagement {
   }
 
   private tournamentGestion() {
+    this.redirection_after_end_match();
+
+    startTournament((players) => this.onValidPlayers(players));
+  }
+
+  private onValidPlayers(players: [string, string, string, string] | null): void {
+    if (players == null) {
+      // console.log("❌ Le tournoi n'est pas prêt.");
+      return;
+    }
+
+    // console.log("✅ Tournoi prêt avec :", players);
+
+    // transforme le tableau de strings en tableau d'objets
+    this.tournamentPlayers = players.map(name => ({ name, aLive: true })) as [PlayerForTournament,PlayerForTournament,PlayerForTournament,PlayerForTournament];
+
+    this.tournamentOn = true;
+
+    // Redirection SPA
+    const pageTournament = document.getElementById("pagesTree_Tournament");
+    if (pageTournament) {
+      document.querySelectorAll(".page").forEach(p => activeOrHiden(p, "Off"));
+      activeOrHiden(pageTournament, "On");
+      createTree(this.tournamentPlayers); // création de l'arbre du tournoi
+    }
+  }
+
+  private redirection_after_end_match()
+  {
     const nextButtons = document.getElementById("next-btn_result");
-    if (!nextButtons) {
+    if (!nextButtons)
+    {
       console.error("Pas reussie a recupere #next-btn_result");
       return;
     }
+
     nextButtons.addEventListener("click", (e) => {
       const pageAccueil = document.getElementById("pagesAccueil");
       if (!pageAccueil) return console.error("Page cible non trouvée: pageAccueil");
       const pageTournament = document.getElementById("pagesBegin_Tournament");
       if (!pageTournament) return console.error("Page cible non trouvée: pageTournament");
 
-      document.querySelectorAll(".page").forEach(p => {
-        activeOrHiden(p, "Off")
-      });
-      if (this.tournamentOn)
-        activeOrHiden(pageTournament, "On")
-      else
-        activeOrHiden(pageAccueil, "On")
-    })
-    const activePage = document.querySelector('.active') as HTMLElement | null;
-    if (activePage?.id === "pagesTree_Tournament")
-      createTree();
-  }
+      document.querySelectorAll(".page").forEach(p => {activeOrHiden(p, "Off")});
 
+      if (this.tournamentOn)
+        activeOrHiden(pageTournament, "On");
+      else
+        activeOrHiden(pageAccueil, "On");
+    });
+  }
 }
