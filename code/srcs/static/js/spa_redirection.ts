@@ -46,6 +46,12 @@ function redirectionDePage(e: PointerEvent, iconAccueil: HTMLElement, iconSettin
     if (!targetPage) return console.error("Page cible non trouvée:", targetId);
 
 
+    // Reset inputs
+    const inputIds = ["player1", "player2", "player3", "player4"];
+    inputIds.forEach(id => {
+      const input = document.getElementById(id) as HTMLInputElement | null;
+      if (input) input.value = "";
+    });
     document.querySelectorAll(".page").forEach(p => {
       activeOrHiden(p, "Off")
     });
@@ -69,4 +75,11 @@ export function activeOrHiden(element: HTMLElement | Element, onOrOff : "On" | "
     element.classList.add("hidden");
     element.classList.remove("active");
   }
+}
+
+export function activeAnotherPage(element: HTMLElement)
+{
+  document.querySelectorAll(".page").forEach(p => {activeOrHiden(p, "Off")});
+
+  activeOrHiden(element, "On");
 }

@@ -1,51 +1,5 @@
-import { PlayerForTournament } from "./SiteManagement.js"
+import { PlayerForTournament } from "./Tournament.js";
 export declare const Treant: any; // Add type declaration for Treant
-
-export function startTournament(ft_after_submit: (players: [string, string, string, string] | null) => void): void {
-  const form = document.getElementById("tournament-form") as HTMLFormElement | null;
-  if (!form) {
-    console.error("form tournament-form introuvable");
-    return;
-  }
-
-  form.addEventListener("submit", (event) => {
-    event.preventDefault();
-
-    const inputIds = ["player1", "player2", "player3", "player4"];
-    const players: string[] = [];
-
-    for (const id of inputIds) {
-      const input = document.getElementById(id) as HTMLInputElement | null;
-      if (!input) {
-        alert(`Le champ ${id} est introuvable dans le DOM !`);
-        return (ft_after_submit(null));
-      }
-      players.push(input.value.trim());
-    }
-
-    // Vérifie que tous les pseudos sont remplis
-    if (players.some(p => p === "")) {
-      alert("Tous les joueurs doivent avoir un pseudo !");
-      return (ft_after_submit(null));
-    }
-
-    // Vérifie l’unicité
-    const uniquePlayers = new Set(players);
-    if (uniquePlayers.size !== players.length) {
-      alert("Les pseudos des joueurs doivent être uniques !");
-      return (ft_after_submit(null));
-    }
-
-    inputIds.forEach(id => {
-      const input = document.getElementById(id) as HTMLInputElement | null;
-      if (input) input.value = "";
-    });
-
-    console.log("Joueurs du tournoi :", players);
-    ft_after_submit(players as [string, string, string, string]);
-  });
-}
-
 
 export function createTree(list_of_player: [PlayerForTournament, PlayerForTournament,PlayerForTournament,PlayerForTournament]): typeof Treant {
   const BASE_CHART_CONFIG = {
