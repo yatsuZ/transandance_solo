@@ -21,13 +21,17 @@
   justify-content: center;
   gap: 0.8rem;
   background: rgba(20, 20, 20, 0.9);
-  padding: 1.5rem 2rem; /* réduit le padding interne */
+  padding: 1.5rem 2rem;
   border-radius: 16px;
   box-shadow: 0 0 10px rgba(0, 255, 76, 0.6);
   border: 1px solid rgba(0, 255, 76, 0.8);
   text-align: center;
   margin: 0 auto;
-  max-width: 320px;
+
+  /* 🔧 Changement ici : on élargit légèrement le formulaire */
+  width: 100%;
+  max-width: 420px; /* était 320px */
+  box-sizing: border-box;
 }
 
 .form-title {
@@ -88,4 +92,52 @@
   background-color: #00ff6a;
   transform: scale(1.05);
   box-shadow: 0 0 20px rgba(0, 255, 76, 0.9);
+}
+
+/*  */
+
+
+/* Bloc global d’un joueur */
+.player-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+}
+
+/* Label au-dessus */
+.player-block > label {
+  font-size: 0.8rem;
+  color: rgb(0, 255, 76);
+  margin-bottom: 0.2rem;
+}
+
+/* Ligne contenant input + checkbox à droite */
+.player-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  width: 100%;
+}
+
+/* Champ texte extensible */
+.player-line input[type="text"] {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Label de la checkbox à droite */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  font-size: 0.75rem;
+  color: #ffcc00;
+  white-space: nowrap;
+}
+
+.checkbox-label input {
+  margin-right: 5px;
+  transform: scale(1.1);
+  accent-color: rgb(0, 255, 76);
 }

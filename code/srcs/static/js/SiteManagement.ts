@@ -51,7 +51,7 @@ export class SiteManagement {
       const header = activePage.querySelector('.arcade-header') as HTMLElement | null;
       if (header)
         header.style.borderBottom = 'none';
-      this.pongGameSingleMatch = new PongGame('pong-canvas');
+      this.pongGameSingleMatch = new PongGame('pong-canvas', {mode:"PvP", name:["Left_Player", "Right_Player"]});
     }
 // Ce qui fais stoper un match
     linkButtons.forEach(btn => {
@@ -64,7 +64,7 @@ export class SiteManagement {
           if (header) 
             header.style.borderBottom = 'none';
 
-          this.pongGameSingleMatch = new PongGame('pong-canvas');
+          this.pongGameSingleMatch = new PongGame('pong-canvas', {mode:"IAvIA", name:["Left_Player", "Right_Player"]});
         }
         else
             this.pongGameSingleMatch = null;
@@ -82,7 +82,7 @@ export class SiteManagement {
         return;
       }
       // console.log("✅ Tournoi prêt avec :", players);
-      this.tournament = new Tournament(players.map(name => ({ name, aLive: true })) as [PlayerForTournament,PlayerForTournament,PlayerForTournament,PlayerForTournament], pageTreeTournament);
+      this.tournament = new Tournament(players, pageTreeTournament);
     });
 //// Tout ce qui fais stoper le tournoi
     const pageAccueil = document.getElementById("pagesAccueil");

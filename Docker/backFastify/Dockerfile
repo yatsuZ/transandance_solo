@@ -1,15 +1,13 @@
-FROM node:20
+FROM node:20-alpine
 
 WORKDIR /app
 
 COPY ./code/srcs/ srcs
 COPY ./code/*.json .
 
-# USER root
+RUN apk add --no-cache tree
 
-RUN apt-get update
-
-RUN apt-get install -y tree
+RUN npm install typescript
 
 RUN npm install
 
