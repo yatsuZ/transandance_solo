@@ -23,6 +23,16 @@ export class Tournament {
     this.initButtons();
     activeAnotherPage(this.pageTreeTournament);
     this.createTree();
+    window.addEventListener("resize", this.handleResize.bind(this));
+  }
+
+  private handleResize() {
+    // Optionnel : petit délai pour ne pas redessiner trop souvent pendant le resize
+    clearTimeout((this as any)._resizeTimeout);
+    (this as any)._resizeTimeout = setTimeout(() => {
+      console.log("🔄 Redimensionnement détecté → recalcul de l’arbre");
+      this.createTree();
+    }, 50);
   }
 
   /**
