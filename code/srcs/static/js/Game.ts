@@ -2,6 +2,7 @@ import { Ball } from './game/geometry.js';
 import { Player, PlayerAI, PlayerHuman } from './game/player.js';
 import { Field } from './game/field.js';
 
+export type ConfigMatch = {mode : "PvP" | "PvIA" | "IAvP" | "IAvIA", name: [string, string]};
 
 // modifier pong game 1 pour afficher les bonne info dans la page match 
 // Pouvoir prendre en parametre le nom des joueur 
@@ -21,7 +22,7 @@ export class PongGame {
   private shouldStop: boolean = false;
 
 
-  constructor(canvasId: string, config: {mode : "PvP" | "PvIA" | "IAvP" | "IAvIA", name: [string, string]})
+  constructor(canvasId: string, config: ConfigMatch)
   {
     console.log("une nouvelle partie est fais.")
     this.canvas = document.getElementById(canvasId) as HTMLCanvasElement;
@@ -168,5 +169,14 @@ export class PongGame {
       if (player2NameEl) player2NameEl.textContent = this.playerRight.name;
       if (player2ScoreEl) player2ScoreEl.textContent = this.playerRight.get_score().toString();
     }
+  }
+
+  public getWinnerAndLooser(): null | {"Winner": Player, "Looser": Player}
+  {
+    if (this.shouldStop == false) return (console.log("Le match nest pas fini on ne peut pas avoir de Vainquer ou Perdant"), null);
+    return this.playerLeft.get_score() > this.playerRight.get_score() ? 
+    {"Winner" : this.playerLeft, "Looser": this.playerRight} : 
+    {"Winner" : this.playerRight, "Looser": this.playerLeft};
+
   }
 }

@@ -46,6 +46,7 @@ export class SiteManagement {
     const linkButtons = document.querySelectorAll<HTMLButtonElement>("button[data-link]");
     const activePage = document.querySelector('.active') as HTMLElement | null;
 
+// si ya premier page dans la quelle on est est la page match
     if (activePage?.id === "pagesMatch")
     {
       const header = activePage.querySelector('.arcade-header') as HTMLElement | null;
@@ -95,7 +96,7 @@ export class SiteManagement {
     stopTournament.addEventListener("click", (e) => {
       activeAnotherPage(pageAccueil);
       console.log("Tournament Finito pipo (1) :", this);
-
+      this.tournament?.ft_stopTournament();
       this.tournament = null;
     });
 
@@ -103,7 +104,6 @@ export class SiteManagement {
       btn.addEventListener("click", (e) => {
         const allowedPages = [
           "pagesMatch",
-          "pagesBegin_Tournament",
           "pagesResult",
           "pagesTree_Tournament",
         ];
@@ -113,6 +113,8 @@ export class SiteManagement {
         if (!allowedPages.includes(activePage.id))
         {
           console.log("Tournament Finito pipo (2) :", this);
+          this.tournament?.ft_stopTournament();
+
           this.tournament = null;
         }
         });
@@ -131,13 +133,17 @@ export class SiteManagement {
     nextButtons.addEventListener("click", (e) => {
       const pageAccueil = document.getElementById("pagesAccueil");
       if (!pageAccueil) return console.error("Page cible non trouvée: pageAccueil");
-      const pageTournament = document.getElementById("pagesBegin_Tournament");
+      const pageTournament = document.getElementById("pagesTree_Tournament");
       if (!pageTournament) return console.error("Page cible non trouvée: pageTournament");
 
       document.querySelectorAll(".page").forEach(p => {activeOrHiden(p, "Off")});
-
+      // recuperer les resultet pour metre a jour tournament puis recomencer 
       if (this.tournament)
+      {
+        // faire une condition pour verifier si il sagit du denrier match ??
         activeOrHiden(pageTournament, "On");
+        this.tournament.updateEndMatch();
+      }
       else
         activeOrHiden(pageAccueil, "On");
     });

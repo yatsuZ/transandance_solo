@@ -11,7 +11,8 @@ export function update_description_de_page(): void {
     pagesMatch: 'Le premier à 3 points gagne la partie',
     pagesBegin_Tournament: 'Prépare ton tournoi et affronte les meilleurs !',
     pagesResult: 'Voici les résultats de ton dernier match !',
-    pagesParametre: 'Parametre du site'
+    pagesParametre: 'Parametre du site',
+    pagesTree_Tournament: 'Voici le tournoi, préparez-vous et que le meilleur joueur gagne !'
   };
 
   // Textes selon les boutons
