@@ -42,13 +42,16 @@ export abstract class Player {
     const nameElement = this.playerCard.querySelector('.player-name') as HTMLElement | null;
     const typeElement = this.playerCard.querySelector('.player-type') as HTMLElement | null;
     const avatarElement = this.playerCard.querySelector('.player-avatar') as HTMLImageElement | null;
+    const scoreElement = this.playerCard.querySelector('.player-score')?.querySelector('span') as HTMLElement | null;
 
-    if (!nameElement || !typeElement || !avatarElement)
+    if (!nameElement || !typeElement || !avatarElement || !scoreElement)
       return console.error('Impossible de trouver tous les éléments nécessaires dans la carte du joueur');
 
     // Mettre à jour le texte
     nameElement.textContent = this.name;
     typeElement.textContent = this.typePlayer;
+    scoreElement.textContent = "0";
+
     // Mettre à jour la photo de profil
     if (avatarElement) {
       avatarElement.src = this.typePlayer === "HUMAN" 

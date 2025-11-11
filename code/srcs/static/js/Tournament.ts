@@ -14,7 +14,8 @@ export class Tournament {
   private players: [PlayerForTournament, PlayerForTournament, PlayerForTournament, PlayerForTournament];
   private tournamentTree: any = null;
   private pageTreeTournament: HTMLElement;
-  private stopTournament: boolean = false;// On stop le tournoi a partir du moment qu'on y sort ou qu'il y a un seul participant en vie
+  private stopTournament: boolean = false;
+  private onDoMatchTournamentClick: (() => void) | null = null;
   // avoir un attribut match quand on appuye sur doMatchTournament sa en crée un 
   private currentMatch: PongGame | null = null;
 
@@ -36,7 +37,7 @@ export class Tournament {
     // Optionnel : petit délai pour ne pas redessiner trop souvent pendant le resize
     clearTimeout((this as any)._resizeTimeout);
     (this as any)._resizeTimeout = setTimeout(() => {
-      console.log("🔄 Redimensionnement détecté → recalcul de l’arbre");
+      // console.log("🔄 Redimensionnement détecté → recalcul de l’arbre");
       this.createTree();
     }, 50);
   }
@@ -71,7 +72,6 @@ export class Tournament {
 
       clearInputs(inputIds);
 
-      console.log("✅ Joueurs du tournoi :", players);
       createTournament(players);
     });
   }
@@ -114,14 +114,14 @@ export class Tournament {
    * Initialise les boutons (accueil, abandon, etc.)
    */
   private initButtons() {
-    const doMatchTournament = document.getElementById("doMatchTournament");
-    if (!doMatchTournament)
+    const doMatchTournamentBtn = document.getElementById("doMatchTournament");
+    if (!doMatchTournamentBtn)
       return console.error("⚠️ Bouton #doMatchTournament introuvable");
 
-    doMatchTournament.addEventListener("click", () => {
+     this.onDoMatchTournamentClick = () => {
+      if (this.stopTournament === true) return console.log("Pas de match pour ce tournoi car ce tournoi si est desactiver")
       const configMatch = this.creatConfig();
       console.log("A faire : ⚔️ Début du match suivant. ConfigMatch =", configMatch);
-      if (this.stopTournament === false) return console.log("Pas de match pour ce tournoi car ce tournoi si est desactiver")
       const matchPage = document.getElementById("pagesMatch");
       if (matchPage === null) return console.error("Pas reussi a recuperer la page Match.");
 
@@ -134,7 +134,9 @@ export class Tournament {
       if (configMatch == null)
         return console.log("Le tournoi est fini il y a un vainquer.");
       this.currentMatch = new PongGame('pong-canvas', configMatch);
-    });
+    };
+
+    doMatchTournamentBtn.addEventListener("click", this.onDoMatchTournamentClick);
   }
 
   /**
@@ -182,7 +184,7 @@ export class Tournament {
     };
     this.tournamentTree = null;
     this.tournamentTree = new Treant({ ...BASE_CHART_CONFIG, nodeStructure: tournamentStructure });
-    console.log("🌳 Arbre du tournoi mis à jour !");
+    // console.log("🌳 Arbre du tournoi mis à jour !");
   }
 
   /**
@@ -204,7 +206,6 @@ export class Tournament {
 
   public updateEndMatch()
   {
-    this.updateWhoVsWhoTexte();
     // update who vs who dynamiquement 
     const winnerAndLosser = this.currentMatch ? this.currentMatch.getWinnerAndLooser() : null ;
   
@@ -217,33 +218,42 @@ export class Tournament {
 
     const alivePlayers = this.players.filter(p => p.aLive);
 
-    // 1️⃣ Si un seul vivant → fin du tournoi
-    if (alivePlayers.length <= 1)
-      console.log("FIN du tournoi montrer le vainquer du tournoi.");
+    this.updateWhoVsWhoTexte();
+
+    // if (alivePlayers.length <= 1)
+    // {
+    //   console.log("FIN du tournoi montrer le vainquer du tournoi.");
+    // }
   }
 
   private updateWhoVsWhoTexte(){
-    const spanWhoVsWho = document.getElementById("WhoVsWho");
-    const baliseTexteAvantSpanWhoVsWho = document.querySelector(".texte-next-match");
     const nextMatch = this.creatConfig();
+    const texteLabel = document.querySelector(".texte-label") as HTMLElement | null;
+    const spanWhoVsWho = document.getElementById("WhoVsWho");
 
-    if (spanWhoVsWho === null) return console.error("Pas reussi a recuperer l'element #WhoVsWho");
+    if (!texteLabel || !spanWhoVsWho) return console.error("Éléments introuvables.");
 
-
-    if (nextMatch === null)
-    {
-      const WinnerOfTournament = this.players.filter(p => p.aLive)[0];
-      spanWhoVsWho.textContent = WinnerOfTournament.name;
-      if (baliseTexteAvantSpanWhoVsWho === null) return console.error("Pas reussi a recuperer l'element .texte-next-match");
-      
-      baliseTexteAvantSpanWhoVsWho.textContent = "Le VAINQUER EST -> ";
-      return console.error("Y a pas de prochain match car 1 seul participant seulement donc quelqun a gagner");
+    if (nextMatch === null) {
+      const winner = this.players.find(p => p.aLive);
+      texteLabel.textContent = "Le VAINQUEUR EST -> ";
+      spanWhoVsWho.textContent = winner?.name ?? "Inconnu";
+    } else {
+      texteLabel.textContent = "Prochain match -> ";
+      spanWhoVsWho.textContent = `${nextMatch.name[0]} VS ${nextMatch.name[1]}`;
     }
-
-    spanWhoVsWho.textContent = `${nextMatch.name[0]} VS ${nextMatch.name[1]}`;
   }
 
   public ft_stopTournament() {
+    const doMatchTournamentBtn = document.getElementById("doMatchTournament");
+    if (!doMatchTournamentBtn)
+      return console.error("⚠️ Bouton #doMatchTournament introuvable");
+    if (this.onDoMatchTournamentClick) {
+      doMatchTournamentBtn.removeEventListener("click", this.onDoMatchTournamentClick);
+      console.log("🧹 Listener supprimé sur #doMatchTournament");
+    }
+    this.onDoMatchTournamentClick = null;
+
+    this.currentMatch = null;
     this.stopTournament = true;
   }
 }
