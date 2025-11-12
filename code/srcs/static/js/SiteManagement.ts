@@ -65,7 +65,7 @@ export class SiteManagement {
           if (header) 
             header.style.borderBottom = 'none';
 
-          this.pongGameSingleMatch = new PongGame('pong-canvas', {mode:"IAvIA", name:["Left_Player", "Right_Player"]});
+          this.pongGameSingleMatch = new PongGame('pong-canvas', {mode:"PvP", name:["Left_Player", "Right_Player"]});
         }
         else
             this.pongGameSingleMatch = null;
