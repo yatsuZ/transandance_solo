@@ -94,6 +94,9 @@ export class SiteManagement {
     if (!stopTournament) return console.error("Pas reussie a recupere #givUpTournament");
 
     stopTournament.addEventListener("click", (e) => {
+      const iconAccueil = document.querySelector('#icon-accueil') as HTMLElement | null;
+      if (!iconAccueil) return console.error("Pas reussie a recupere #icon-accueil");
+      activeOrHiden(iconAccueil, "Off");
       activeAnotherPage(pageAccueil);
       console.log("Tournament Finito pipo (1) :", this);
       this.tournament?.ft_stopTournament();

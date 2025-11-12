@@ -1,5 +1,5 @@
 import { ConfigMatch, PongGame } from "./Game.js";
-import { activeAnotherPage } from "./spa_redirection.js";
+import { activeAnotherPage, activeOrHiden } from "./spa_redirection.js";
 import { arePlayersValid, clearInputs, collectPlayers } from "./utils.js";
 
 export type PlayerForTournament = {
@@ -25,6 +25,9 @@ export class Tournament {
     this.pageTreeTournament = pageTreeTournament;
 
     console.log("🎮 Tournament créé :", this.players);
+    const boutonDeTournoi = document.querySelector(".menu-buttons-tree-tournament-padding");
+    if (boutonDeTournoi && boutonDeTournoi.classList.contains("hidden"))
+      boutonDeTournoi.classList.remove("hidden");
 
     this.initButtons();
     this.updateWhoVsWhoTexte();
@@ -220,10 +223,14 @@ export class Tournament {
 
     this.updateWhoVsWhoTexte();
 
-    // if (alivePlayers.length <= 1)
-    // {
-    //   console.log("FIN du tournoi montrer le vainquer du tournoi.");
-    // }
+    if (alivePlayers.length <= 1)
+    {
+      // desactiver les bouton 
+      const boutonDeTournoi = document.querySelector(".menu-buttons-tree-tournament-padding");
+      if (boutonDeTournoi)
+        activeOrHiden(boutonDeTournoi, "Off");
+      console.log("FIN du tournoi montrer le vainquer du tournoi.");
+    }
   }
 
   private updateWhoVsWhoTexte(){
@@ -257,5 +264,3 @@ export class Tournament {
     this.stopTournament = true;
   }
 }
-
-// jE DOIS CORRIGER LE BEUG DEXECUTION DU TOURNOI
