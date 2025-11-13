@@ -8,7 +8,7 @@ Liste des tâches à accomplir avant de commencer la partie modules du projet Tr
 
 ### 1. Routing & Navigation
 - [ ] Implémenter l'History API pour le routing SPA
-  - [ ] Utiliser `history.pushState()` lors des changements de page
+  - [X] Utiliser `history.pushState()` lors des changements de page
   - [ ] Gérer l'événement `popstate` pour back/forward du navigateur
   - [ ] Tester que précédent/suivant fonctionnent correctement
   - [ ] Mettre à jour l'URL sans recharger la page
