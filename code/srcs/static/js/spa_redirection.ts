@@ -16,6 +16,9 @@ export function initSPA() {
     activeOrHiden(iconAccueil, "On")
   if (activePage.id != "pagesParametre")
     activeOrHiden(iconSettings, "On")
+  const pageName = activePage.id.slice("pages".length).toLocaleLowerCase();
+  const newUrl = `/${pageName}`;
+  window.history.pushState({ page: pageName }, "", newUrl);
 
   // gere quand on click dans un bouton
   // Sélectionner uniquement les boutons avec data-link
@@ -23,7 +26,6 @@ export function initSPA() {
 
   // Ajouter l'événement uniquement à ceux-là
   linkButtons.forEach(btn => {
-
     btn.addEventListener("click", (e) => redirectionDePage(e, iconAccueil, iconSettings));
   });
 }
@@ -56,7 +58,10 @@ function redirectionDePage(e: PointerEvent, iconAccueil: HTMLElement, iconSettin
       activeOrHiden(p, "Off")
     });
 
-    activeOrHiden(targetPage, "On")
+  activeOrHiden(targetPage, "On")
+  // Met à jour l'URL sans recharger la page // ajouter cette evenemnt dans tournoi et game aussi 
+  const newUrl = `/${pageName}`;
+  window.history.pushState({ page: pageName }, "", newUrl);
 }
 
 

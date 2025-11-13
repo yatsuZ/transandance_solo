@@ -20,10 +20,11 @@ export class PongGame {
 
   private animationId: number | null = null;
   private shouldStop: boolean = false;
+  private inTournament : boolean;
 
-
-  constructor(canvasId: string, config: ConfigMatch)
+  constructor(canvasId: string, config: ConfigMatch, inTournament : boolean = false)
   {
+    this.inTournament = inTournament;
     console.log("une nouvelle partie est fais.")
     this.canvas = document.getElementById(canvasId) as HTMLCanvasElement;
     this.ctx = this.canvas.getContext('2d')!;
@@ -154,6 +155,11 @@ export class PongGame {
     if (resultPage) {
       resultPage.classList.remove("hidden");
       resultPage.classList.add("active");
+      const pageName = resultPage.id.slice("pages".length).toLocaleLowerCase();
+      let newUrl = `/match/${pageName}`;
+      if (this.inTournament)
+        newUrl = `/tournament` + newUrl;
+      window.history.pushState({ page: pageName }, "", newUrl);// dans tournoi
 
       const winnerNameEl = resultPage.querySelector<HTMLParagraphElement>('#winner-name');
       const player1NameEl = resultPage.querySelector<HTMLSpanElement>('#player1-name');

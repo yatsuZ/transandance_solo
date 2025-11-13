@@ -55,8 +55,8 @@ export abstract class Player {
     // Mettre à jour la photo de profil
     if (avatarElement) {
       avatarElement.src = this.typePlayer === "HUMAN" 
-        ? "./static/util/icon/profile.png" 
-        : "./static/util/icon/profile_robot.png";
+        ? "/static/util/icon/profile.png" 
+        : "/static/util/icon/profile_robot.png";
     }
   }
 

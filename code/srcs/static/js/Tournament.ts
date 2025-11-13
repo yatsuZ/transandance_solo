@@ -25,6 +25,7 @@ export class Tournament {
     this.pageTreeTournament = pageTreeTournament;
 
     console.log("🎮 Tournament créé :", this.players);
+
     const boutonDeTournoi = document.querySelector(".menu-buttons-tree-tournament-padding");
     if (boutonDeTournoi && boutonDeTournoi.classList.contains("hidden"))
       boutonDeTournoi.classList.remove("hidden");
@@ -32,6 +33,10 @@ export class Tournament {
     this.initButtons();
     this.updateWhoVsWhoTexte();
     activeAnotherPage(this.pageTreeTournament);
+    const pageName = this.pageTreeTournament.id.slice("pages".length).toLocaleLowerCase();
+    const newUrl = `/tournament/${pageName}`;
+    window.history.pushState({ page: pageName }, "", newUrl);// dans tournoi
+
     this.createTree();
     window.addEventListener("resize", this.handleResize.bind(this));
   }
@@ -130,13 +135,17 @@ export class Tournament {
 
       // Exemple: simulation du vainqueur aléatoire
       activeAnotherPage(matchPage)
+      const pageName = matchPage.id.slice("pages".length).toLocaleLowerCase();
+      const newUrl = `/tournament/${pageName}`;
+      window.history.pushState({ page: pageName }, "", newUrl);// dans tournoi
+
       const header = matchPage.querySelector('.arcade-header') as HTMLElement | null;
       if (header)
         header.style.borderBottom = 'none';
 
       if (configMatch == null)
         return console.log("Le tournoi est fini il y a un vainquer.");
-      this.currentMatch = new PongGame('pong-canvas', configMatch);
+      this.currentMatch = new PongGame('pong-canvas', configMatch, true);
     };
 
     doMatchTournamentBtn.addEventListener("click", this.onDoMatchTournamentClick);

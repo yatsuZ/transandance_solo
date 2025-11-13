@@ -98,6 +98,9 @@ export class SiteManagement {
       if (!iconAccueil) return console.error("Pas reussie a recupere #icon-accueil");
       activeOrHiden(iconAccueil, "Off");
       activeAnotherPage(pageAccueil);
+      const pageName = pageAccueil.id.slice("pages".length).toLocaleLowerCase();
+      const newUrl = `/${pageName}`;
+      window.history.pushState({ page: pageName }, "", newUrl);
       console.log("Tournament Finito pipo (1) :", this);
       this.tournament?.ft_stopTournament();
       this.tournament = null;
@@ -138,6 +141,8 @@ export class SiteManagement {
       if (!pageAccueil) return console.error("Page cible non trouvée: pageAccueil");
       const pageTournament = document.getElementById("pagesTree_Tournament");
       if (!pageTournament) return console.error("Page cible non trouvée: pageTournament");
+      const iconAccueil = document.querySelector('#icon-accueil') as HTMLElement | null;
+      if (!iconAccueil) return console.error("Pas reussie a recupere #icon-accueil");
 
       document.querySelectorAll(".page").forEach(p => {activeOrHiden(p, "Off")});
       // recuperer les resultet pour metre a jour tournament puis recomencer 
@@ -146,9 +151,18 @@ export class SiteManagement {
         // faire une condition pour verifier si il sagit du denrier match ??
         activeOrHiden(pageTournament, "On");
         this.tournament.updateEndMatch();
+        const pageName = pageTournament.id.slice("pages".length).toLocaleLowerCase();
+        const newUrl = `/tournament/${pageName}`;
+        window.history.pushState({ page: pageName }, "", newUrl);
       }
       else
+      {
+        activeOrHiden(iconAccueil, "Off")
         activeOrHiden(pageAccueil, "On");
+        const pageName = pageAccueil.id.slice("pages".length).toLocaleLowerCase();
+        const newUrl = `/${pageName}`;
+        window.history.pushState({ page: pageName }, "", newUrl);// dans tournoi
+      }
     });
   }
 }
