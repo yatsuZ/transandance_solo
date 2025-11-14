@@ -30,6 +30,7 @@ export function initSPA() {
   });
 }
 
+
 function redirectionDePage(e: PointerEvent, iconAccueil: HTMLElement, iconSettings: HTMLElement) {
     e.preventDefault();
     const target = (e.target as Element | null);

@@ -37,6 +37,13 @@ export function arePlayersValid(players: string[]): boolean {
   return areNamesUnique(players);
 }
 
+export function updateUrl(page: HTMLElement, prefix: string = "") {
+  const pageName = page.id.slice("pages".length).toLowerCase();
+  const url = prefix ? `${prefix}/${pageName}` : `/${pageName}`;
+  window.history.pushState({ page: pageName }, "", url);
+}
+
+
 // --- Fonctions utilitaires ---
 function isNameValid(name: string): boolean {
   if (!VALID_NAME_REGEX.test(name)) {
