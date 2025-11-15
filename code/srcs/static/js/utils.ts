@@ -1,3 +1,5 @@
+import { SiteManagement } from "./SiteManagement.js";
+
 // --- Configuration globale ---
 const MAX_NAME_LENGTH = 16;
 const VALID_NAME_REGEX = /^[a-zA-Z0-9_-]+$/;
@@ -38,6 +40,7 @@ export function arePlayersValid(players: string[]): boolean {
 }
 
 export function updateUrl(page: HTMLElement, prefix: string = "") {
+  SiteManagement.activePage = page;
   const pageName = page.id.slice("pages".length).toLowerCase();
   const url = prefix ? `${prefix}/${pageName}` : `/${pageName}`;
   window.history.pushState({ page: pageName }, "", url);

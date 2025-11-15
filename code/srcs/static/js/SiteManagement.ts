@@ -5,7 +5,7 @@ import { activeAnotherPage, activeOrHiden, initSPA } from './spa_redirection.js'
 import { PlayerForTournament, Tournament } from './Tournament.js';
 import { updateUrl } from './utils.js';
 
-type DOMElements = {
+export type DOMElements = {
   pages: {
     accueil: HTMLElement | null;
     match: HTMLElement | null;
@@ -19,6 +19,7 @@ type DOMElements = {
   };
   icons: {
     accueil: HTMLElement | null;
+    settings: HTMLElement | null;
   };
   style: HTMLLinkElement | null;
 };
@@ -39,6 +40,7 @@ export class SiteManagement {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   //  attribut pour gestion de match + tournoi
+  private static currentActivePage : HTMLElement | null = null;
   private pongGameSingleMatch: PongGame | null = null;
   private tournament: Tournament | null = null;
 
@@ -59,6 +61,7 @@ export class SiteManagement {
 
     icons: {
       accueil: null,
+      settings: null
     },
 
     style: null,
@@ -78,6 +81,7 @@ export class SiteManagement {
   // vrai constructeur dcp =>
   private init() {
     this._cacheDom();// Recuperer les elment du DOM
+    SiteManagement.activePage = null;
     this.initStyleAndSPA();// Gere les evenement de redirection de page etc 
     initMusicSystem();//Gere la gestion de evenement lier a la music
     update_description_de_page();// gere le evenemtn pour afficher les bons message de description
@@ -114,6 +118,9 @@ export class SiteManagement {
       { name: "buttons.linkButtons", selector: "button[data-link]", assign: els => this._DO.buttons.linkButtons = els, multiple: true },
 
       { name: "icons.accueil", selector: "#icon-accueil", assign: el => this._DO.icons.accueil = el },
+      { name: "icons.settings", selector: "#icon-settings", assign: el => this._DO.icons.settings = el },
+
+
       { name: "style.mainStyle", selector: 'link[href="/static/css/main_style.css"]', assign: el => this._DO.style = el },
     ];
 
@@ -136,14 +143,15 @@ export class SiteManagement {
     const do_style = this._DO.style;
     if (!do_style) return this.log("Pas reussie a recupere style.css", "error");
 
-    if (do_style.sheet) initSPA();
-    else do_style.addEventListener("load", initSPA);
-  }
+    const currentPage = SiteManagement.currentActivePage;
 
+    if (do_style.sheet) initSPA(this._DO, currentPage);
+    else do_style.addEventListener("load", () => initSPA(this._DO, currentPage));
+  }
 
   private initGameIfNeeded() {
     // gerer sa dans spa redirection
-    const activePage = this.activePage as HTMLElement | null;
+    const activePage = SiteManagement.currentActivePage;
 
     // si ya premier page dans la quelle on est est la page match
     if (activePage?.id === "pagesMatch")
@@ -193,11 +201,28 @@ export class SiteManagement {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  private get activePage(): HTMLElement | null {
+  static get activePage(): HTMLElement | null {
+    console.log("[Logger GET] activePage récupérée :", this.currentActivePage?.id ?? "aucune");
+    return (this.currentActivePage);
     const page = document.querySelector('.active') as HTMLElement | null;
-    console.log("[Logger] activePage récupérée :", page?.id ?? "aucune");
     return page;
   }
+
+  static set activePage(newPage: HTMLElement | null){
+    if (newPage === null)
+    {
+      const tmp = document.querySelector('.active') as HTMLElement | null;
+      console.log("[Logger SET] activePage set avec querySelector:", tmp?.id ?? "aucune");
+      this.currentActivePage = tmp;
+    }
+    else if (newPage === this.currentActivePage) console.log("[Logger SET] newPageActif et Current Page actif sont les meme:", newPage?.id ?? "aucune");
+    else
+    {
+      this.currentActivePage = newPage;
+      console.log("[Logger SET] activePage set:", newPage?.id ?? "aucune");
+    }
+  }
+  // rendre active page static pour lupdate de maniere constant sans h24 acceder aux DOM
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -232,7 +257,7 @@ export class SiteManagement {
       this._DO.pages.treeTournament?.id,
     ];
 
-    const activePage = this.activePage as HTMLElement | null;
+    const activePage = SiteManagement.currentActivePage;
     if (!activePage || !this.tournament) return;
     if (!allowedPages.includes(activePage.id))
     {
@@ -247,7 +272,7 @@ export class SiteManagement {
 
   private event_stop_MatchHandler = this.event_stop_Match.bind(this);
   private event_stop_Match() {// peut mieux gerer le event aux lieux de donner sa a tout les data link je peut donner sa at suelment les bouton qui crée les match et les autre ce qui stope le match peut mieux optimiser
-  const activePage = this.activePage as HTMLElement | null;
+  const activePage = SiteManagement.currentActivePage;
   if (activePage?.id === "pagesMatch")
   {
     const header = activePage.querySelector('.arcade-header') as HTMLElement | null;
@@ -269,12 +294,11 @@ export class SiteManagement {
     if (!do_p_treeTournament) return this.log("Page cible non trouvée: pageTournament", "error");
     if (!do_icon_accueil) return this.log("Pas reussie a recupere #icon-accueil", "error");
 
-    activeOrHiden(this.activePage as HTMLElement /**Flemme de metre la securite */, "Off")
     // recuperer les resultet pour metre a jour tournament puis recomencer 
     if (this.tournament)
     {
       // faire une condition pour verifier si il sagit du denrier match ??
-      activeOrHiden(do_p_treeTournament, "On");
+      activeAnotherPage(do_p_treeTournament);
       this.tournament.updateEndMatch();
 
       updateUrl(do_p_treeTournament, `/tournament`);
@@ -282,7 +306,7 @@ export class SiteManagement {
     else
     {
       activeOrHiden(do_icon_accueil, "Off");
-      activeOrHiden(do_p_accueil, "On");
+      activeAnotherPage(do_p_accueil);
       updateUrl(do_p_accueil);
     }
   }
