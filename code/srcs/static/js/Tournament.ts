@@ -1,5 +1,5 @@
+import { DOMElements } from "./dom_gestion.js";
 import { ConfigMatch, PongGame } from "./Game.js";
-import { DOMElements } from "./SiteManagement.js";
 import { activeAnotherPage, activeOrHiden } from "./spa_redirection.js";
 import { arePlayersValid, clear_Formulaire_Of_Tournament, collectPlayers, updateUrl } from "./utils.js";
 
@@ -127,10 +127,6 @@ export class Tournament {
       activeAnotherPage(matchPage)
       updateUrl(matchPage, "/tournament")
 
-      const header = matchPage.querySelector('.arcade-header') as HTMLElement | null;
-      if (header)
-        header.style.borderBottom = 'none';
-
       if (configMatch == null)
         return console.log("Le tournoi est fini il y a un vainquer.");
       this.currentMatch = new PongGame(this._DO, configMatch, true);
@@ -253,6 +249,7 @@ export class Tournament {
     }
     this.onDoMatchTournamentClick = null;
 
+    if (this.currentMatch) this.currentMatch.stop("Leave Tournament");
     this.currentMatch = null;
     this.stopTournament = true;
   }

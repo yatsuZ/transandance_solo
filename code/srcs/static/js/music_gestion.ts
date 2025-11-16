@@ -1,16 +1,13 @@
+import { DOMElements } from "./dom_gestion";
 // === GESTION DE LA MUSIQUE ===
 
-export function initMusicSystem() {
-  const music = document.getElementById('arcade-music') as HTMLAudioElement | null;
-  const popup = document.getElementById('music-popup');
-  const startBtn = document.getElementById('start-music');
-  const dontStartBtn = document.getElementById('dont-start-music');
-  const iconSound = document.getElementById('icon-sound');
-  const iconSoundImg = iconSound?.querySelector('img') as HTMLImageElement | null;
-
-  if (!music || !popup || !startBtn || !dontStartBtn || !iconSoundImg || !iconSound)
-    return console.error("initMusicSystem: élément(s) manquant(s)");
-
+export function initMusicSystem(all_DO: DOMElements) {
+  const music = all_DO.media.music.main_theme;
+  const popup = all_DO.popup.startOrNotMusic;
+  const startBtn = all_DO.buttons.startMusic;
+  const dontStartBtn = all_DO.buttons.dontStartMusic;
+  const iconSound = all_DO.icons.sound;
+  const iconSoundImg = all_DO.media.image.sound;
 
   // attache les événements
   startBtn.addEventListener('click', () => handleStartMusic(music, iconSoundImg, popup));

@@ -1,4 +1,5 @@
-import { DOMElements } from './SiteManagement.js';
+import { DOMElements } from './dom_gestion.js';
+import { SiteManagement } from './SiteManagement.js';
 import { clear_Formulaire_Of_Tournament, updateUrl } from './utils.js';
 // SPA et REDIRECTION
 
@@ -88,7 +89,5 @@ export function activeOrHiden(element: HTMLElement | Element, onOrOff : "On" | "
 
 export function activeAnotherPage(element: HTMLElement)
 {
-  document.querySelectorAll(".page").forEach(p => {activeOrHiden(p, "Off")});
-
-  activeOrHiden(element, "On");
+  SiteManagement.activePage = element;
 }

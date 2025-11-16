@@ -1,4 +1,5 @@
-import { DOMElements, SiteManagement } from "./SiteManagement.js";
+import { DOMElements } from "./dom_gestion.js";
+import { SiteManagement } from "./SiteManagement.js";
 
 
 // --- Fonctions utilitaires qu'on export ---

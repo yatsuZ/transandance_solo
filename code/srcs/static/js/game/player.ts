@@ -13,17 +13,50 @@ export abstract class Player {
 
   protected playerCard: HTMLElement;
 
+  // Éléments DOM récupérés une seule fois pour optimisation
+  protected nameElement: HTMLElement | null = null;
+  protected typeElement: HTMLElement | null = null;
+  protected avatarElement: HTMLImageElement | null = null;
+  protected scoreElement: HTMLElement | null = null;
+  protected movementElement: HTMLElement | null = null;
+
   constructor(side: PlayerSide, playerCards:{playerCardL: HTMLElement,playerCardR: HTMLElement}, canvasDimension: {height: number, width: number}, speed: number, name: string)
   {
     this.side = side;
     this.name = name ?? (side === "L" ? "Player 1" : "Player 2");
 
     this.paddle = new Paddle(side, canvasDimension, speed, 20);
-    const idBalise : string = (this.side == "L" ? 'player-Left-Card-Match': 'player-Right-Card-Match');
+
+    // Sélection de la carte du joueur
     if (side == "L")
       this.playerCard = playerCards.playerCardL;
     else
       this.playerCard = playerCards.playerCardR;
+
+    // Récupération des sous-éléments DOM UNE SEULE FOIS
+    this.initDOMElements();
+  }
+
+  /**
+   * Initialise tous les éléments DOM nécessaires une seule fois
+   * @private
+   */
+  private initDOMElements(): void {
+    if (!this.playerCard) {
+      console.error('[Player] Carte du joueur introuvable');
+      return;
+    }
+
+    this.nameElement = this.playerCard.querySelector('.player-name');
+    this.typeElement = this.playerCard.querySelector('.player-type');
+    this.avatarElement = this.playerCard.querySelector('.player-avatar');
+    this.scoreElement = this.playerCard.querySelector('.player-score')?.querySelector('span') ?? null;
+    this.movementElement = this.playerCard.querySelector('.player-controls')?.querySelector('span') ?? null;
+
+    // Vérification que tous les éléments critiques sont présents
+    if (!this.nameElement || !this.typeElement || !this.avatarElement || !this.scoreElement) {
+      console.error('[Player] Impossible de trouver tous les éléments nécessaires dans la carte du joueur');
+    }
   }
 
   onResize(newDimensions: { width: number; height: number }) {
@@ -32,41 +65,40 @@ export abstract class Player {
 
   abstract update(...args: any[]): void;
 
-  // cree une methode qui mets a joure les information de la page match
-  public add_to_update()
-  {
-    if (this.playerCard == null) return;
-    // Récupérer les sous-éléments
-    const nameElement = this.playerCard.querySelector('.player-name') as HTMLElement | null;
-    const typeElement = this.playerCard.querySelector('.player-type') as HTMLElement | null;
-    const avatarElement = this.playerCard.querySelector('.player-avatar') as HTMLImageElement | null;
-    const scoreElement = this.playerCard.querySelector('.player-score')?.querySelector('span') as HTMLElement | null;
-
-    if (!nameElement || !typeElement || !avatarElement || !scoreElement)
-      return console.error('Impossible de trouver tous les éléments nécessaires dans la carte du joueur');
+  /**
+   * Met à jour les informations de la carte du joueur dans l'interface
+   * Utilise les éléments DOM déjà récupérés (pas de querySelector)
+   */
+  public add_to_update(): void {
+    if (!this.nameElement || !this.typeElement || !this.avatarElement || !this.scoreElement) {
+      console.error('[Player] Éléments DOM non initialisés pour la mise à jour');
+      return;
+    }
 
     // Mettre à jour le texte
-    nameElement.textContent = this.name;
-    typeElement.textContent = this.typePlayer;
-    scoreElement.textContent = "0";
+    this.nameElement.textContent = this.name;
+    this.typeElement.textContent = this.typePlayer;
+    this.scoreElement.textContent = "0";
 
     // Mettre à jour la photo de profil
-    if (avatarElement) {
-      avatarElement.src = this.typePlayer === "HUMAN" 
-        ? "/static/util/icon/profile.png" 
-        : "/static/util/icon/profile_robot.png";
-    }
+    this.avatarElement.src = this.typePlayer === "HUMAN"
+      ? "/static/util/icon/profile.png"
+      : "/static/util/icon/profile_robot.png";
   }
 
-  public add_score()
-  {
+  /**
+   * Incrémente le score du joueur et met à jour l'affichage
+   * OPTIMISÉ : Utilise l'élément DOM déjà récupéré (pas de querySelector)
+   */
+  public add_score(): void {
     this.score++;
-    if (this.playerCard === null) return;
 
-    const scoreElement = this.playerCard.querySelector('.player-score')?.querySelector('span') as HTMLElement | null;
-    if (!scoreElement)
-      return console.error(`Impossible de trouver l'éléments nécessaires dans la carte du joueur pour update le score.`);
-    scoreElement.textContent = this.score.toString();
+    if (!this.scoreElement) {
+      console.error('[Player] Élément score non initialisé');
+      return;
+    }
+
+    this.scoreElement.textContent = this.score.toString();
   }
 
   public get_score(){
@@ -84,21 +116,27 @@ export class PlayerHuman extends Player {
     super(side, playerCards, canvasDimension, speed, name);
     this.typePlayer = "HUMAN";
     this.input = new InputHandler(side);
-    this.add_to_update()
+    this.add_to_update();
 
-    const movementElement = this.playerCard?.querySelector('.player-controls')?.querySelector('span') as HTMLImageElement | null;
-    if (!movementElement)
-      console.error(`Impossible de trouver l'éléments nécessaires dans la carte du joueur pour update le score.`);
-    else
-    {
+    // Mise à jour des touches de contrôle (utilise l'élément déjà récupéré)
+    if (this.movementElement) {
       const upAndDownKey = this.input.getDisplayKeys();
-      movementElement.textContent = `${upAndDownKey.up} / ${upAndDownKey.down}`;
+      this.movementElement.textContent = `${upAndDownKey.up} / ${upAndDownKey.down}`;
+    } else {
+      console.error('[PlayerHuman] Élément de contrôle introuvable');
     }
   }
 
   update() {
     if (this.input.upPressed) this.paddle.moveUp();
     if (this.input.downPressed) this.paddle.moveDown();
+  }
+
+  /**
+   * Nettoie les event listeners clavier
+   */
+  public cleanup(): void {
+    this.input.cleanup();
   }
 }
 
@@ -110,17 +148,19 @@ export class PlayerAI extends Player {
     super(side, playerCards, canvasDimension, speed, name);
     this.typePlayer = "IA";
     this.add_to_update();
-    const movementElement = this.playerCard?.querySelector('.player-controls')?.querySelector('span') as HTMLImageElement | null;
-    if (!movementElement)
-      console.error(`Impossible de trouver l'éléments nécessaires dans la carte du joueur pour update le score.`);
-    else
-      movementElement.textContent = `Parkinson`;
+
+    // Mise à jour du texte de contrôle pour l'IA (utilise l'élément déjà récupéré)
+    if (this.movementElement) {
+      this.movementElement.textContent = `Parkinson`;
+    } else {
+      console.error('[PlayerAI] Élément de contrôle introuvable');
+    }
   }
 
   update(ball: Ball) {
     const center = this.paddle.position.y + this.paddle.height / 2;
 
-    const errorMargin = Math.random() * (this.paddle.height - this.paddle.height / 3 ) * 3; 
+    const errorMargin = Math.random() * (this.paddle.height - this.paddle.height / 3 ) * 3;
 
     if (center < ball.y - 20 + errorMargin) {
         this.paddle.position.y += this.paddle.getSpeed();

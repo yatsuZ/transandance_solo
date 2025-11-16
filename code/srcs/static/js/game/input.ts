@@ -10,11 +10,25 @@ export class InputHandler {
   public downPressed = false;
   private keys: ControlKeys;
 
+  // Handlers stockés pour pouvoir les retirer
+  private keyDownHandler = (e: KeyboardEvent) => this.handleKey(e, true);
+  private keyUpHandler = (e: KeyboardEvent) => this.handleKey(e, false);
+
   constructor(side: PlayerSide) {
     this.keys = this.getDefaultKeys(side);
 
-    window.addEventListener("keydown", (e) => this.handleKey(e, true));
-    window.addEventListener("keyup", (e) => this.handleKey(e, false));
+    window.addEventListener("keydown", this.keyDownHandler);
+    window.addEventListener("keyup", this.keyUpHandler);
+  }
+
+  /**
+   * Nettoie les event listeners clavier
+   * IMPORTANT : Appeler cette méthode quand le joueur est détruit
+   */
+  public cleanup(): void {
+    window.removeEventListener("keydown", this.keyDownHandler);
+    window.removeEventListener("keyup", this.keyUpHandler);
+    console.log("🧹 Input handlers nettoyés");
   }
 
   private handleKey(e: KeyboardEvent, isPressed: boolean) {

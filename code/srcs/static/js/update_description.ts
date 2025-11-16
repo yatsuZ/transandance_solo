@@ -1,7 +1,13 @@
-export function update_description_de_page(): void {
-  const subtitles = document.querySelectorAll<HTMLElement>('.arcade-subtitle');
+import { DOMElements } from './dom_gestion.js';
+
+/**
+ * Configure les animations et changements de description au survol des boutons
+ * @param dom - Éléments DOM de l'application (récupérés par init_All_Dom)
+ */
+export function update_description_de_page(dom: DOMElements): void {
+  const subtitles = dom.subtitles;
   if (!subtitles.length) {
-    console.warn('update_description_de_page: aucun .arcade-subtitle trouvé');
+    console.warn('[update_description_de_page] Aucun sous-titre trouvé');
     return;
   }
 
@@ -47,8 +53,7 @@ export function update_description_de_page(): void {
       }, 150);
     }
 
-    // Trouver uniquement les boutons à l’intérieur de cette page
-    const buttons = document.querySelectorAll<HTMLButtonElement>('button');
+    const buttons = dom.buttons.allButtons;
 
     buttons.forEach((button) => {
       button.addEventListener('mouseenter', () => {

@@ -3,7 +3,8 @@ import { Player, PlayerAI, PlayerHuman } from './game/player.js';
 import { Field } from './game/field.js';
 import { log, updateUrl } from './utils.js';
 import { activeAnotherPage } from './spa_redirection.js';
-import { DOMElements, SiteManagement } from './SiteManagement.js';
+import { SiteManagement } from './SiteManagement.js';
+import { DOMElements } from './dom_gestion.js';
 
 export type ConfigMatch = {mode : "PvP" | "PvIA" | "IAvP" | "IAvIA", name: [string, string]};
 
@@ -61,7 +62,7 @@ export class PongGame {
     this.ball = new Ball(dim);
 
     // Gestion du resize
-    window.addEventListener("resize", () => this.handleResize());
+    window.addEventListener("resize", this.resizeHandler);
 
     // Démarrage de la boucle
     this.loop();
@@ -70,6 +71,8 @@ export class PongGame {
   // -------------------------
   // Gestion du resize
   // -------------------------
+  private resizeHandler = () => this.handleResize();
+
   private handleResize() {
     const dim = this.field.getDimensions();
     this.playerLeft.onResize(dim);
@@ -128,32 +131,45 @@ export class PongGame {
     this.update();
     this.draw();
 
-    const activePage = SiteManagement.activePage;
-    let whyStop: string | undefined;
-
+    // Vérifier si le match est terminé (3 points)
     if (this.playerLeft.get_score() >= 3 || this.playerRight.get_score() >= 3) {
       this.goToResult();
       this.stop("Le match est terminé normalement.");
     }
-    else if (activePage?.id !== "pagesMatch") this.stop(whyStop); // Faire autrenemnt pas opti du tout verifier si y a une redirection et que un match et encours comme tournoi
 
-    if (!this.shouldStop) this.animationId = requestAnimationFrame(() => this.loop());
+    // Continuer la boucle si le jeu n'est pas arrêté
+    if (!this.shouldStop) {
+      this.animationId = requestAnimationFrame(() => this.loop());
+    }
   }
 
   // -------------------------
   // Stop & résultat
   // -------------------------
   public stop(whyStop: string = "On a quitté la page match") {
+    // Annuler l'animation frame
     if (this.animationId !== null) {
       cancelAnimationFrame(this.animationId);
       this.animationId = null;
     }
 
+    // Nettoyer l'event listener resize
+    window.removeEventListener("resize", this.resizeHandler);
+
+    // Nettoyer les input handlers des joueurs humains
+    if (this.playerLeft.typePlayer === "HUMAN") {
+      (this.playerLeft as PlayerHuman).cleanup();
+    }
+    if (this.playerRight.typePlayer === "HUMAN") {
+      (this.playerRight as PlayerHuman).cleanup();
+    }
+
+    // Clear le canvas
     const { canva, ctx } = this._DO;
     ctx.clearRect(0, 0, canva.width, canva.height);
 
-    alert(`Le match est arrêté car : ${whyStop}`);
-    console.log(`Une partie s'arrête : ${whyStop}`);
+    // Logger l'arrêt
+    console.log(`✅ Match arrêté : ${whyStop}`);
     this.shouldStop = true;
   }
 

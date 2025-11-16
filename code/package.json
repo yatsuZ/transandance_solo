@@ -12,7 +12,7 @@
     "dev:watch": "ts-node-dev --respawn --transpile-only backend/main.ts | pino-pretty --colorize",
     "clean": "rm -rf ./dist",
     "redev": "npm run clean; npm run build && npm run build:client && npm run start | pino-pretty --colorize",
-	"redev:watch": "npm run clean; ts-node-dev --respawn --transpile-only --watch srcs/backend,srcs/static/js srcs/backend/main.ts"
+    "redev:watch": "npm run clean; ts-node-dev --respawn --transpile-only --watch srcs/backend,srcs/static/js srcs/backend/main.ts"
   },
   "keywords": [],
   "author": "",
