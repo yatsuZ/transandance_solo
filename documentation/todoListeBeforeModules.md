@@ -28,9 +28,9 @@ Liste des tâches à accomplir avant de commencer la partie modules du projet Tr
 ## 🧹 NETTOYAGE & OPTIMISATION CODE
 
 ### 4. Event Listeners Cleanup
-- [ ] Identifier tous les `addEventListener` dans le projet
-- [ ] Créer des fonctions nommées pour chaque event handler
-- [ ] Implémenter `removeEventListener` dans les méthodes de cleanup
+- [X] Identifier tous les `addEventListener` dans le projet
+- [X] Créer des fonctions nommées pour chaque event handler
+- [X] Implémenter `removeEventListener` dans les méthodes de cleanup
   - [ ] `Tournament.ts` : cleanup des listeners du tournoi
   - [ ] `main_app.ts` : cleanup des listeners de navigation
   - [ ] `input.ts` : cleanup des listeners clavier

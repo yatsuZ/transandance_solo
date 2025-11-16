@@ -1,64 +1,75 @@
 import { Ball } from './game/geometry.js';
 import { Player, PlayerAI, PlayerHuman } from './game/player.js';
 import { Field } from './game/field.js';
+import { log, updateUrl } from './utils.js';
+import { activeAnotherPage } from './spa_redirection.js';
+import { DOMElements, SiteManagement } from './SiteManagement.js';
 
 export type ConfigMatch = {mode : "PvP" | "PvIA" | "IAvP" | "IAvIA", name: [string, string]};
+
 
 // modifier pong game 1 pour afficher les bonne info dans la page match 
 // Pouvoir prendre en parametre le nom des joueur 
 // Faire un mode human vs human
 
 export class PongGame {
-  private canvas: HTMLCanvasElement;
-  private ctx: CanvasRenderingContext2D;
-
+  // -------------------------
+  // Propriétés
+  // -------------------------
+  private _DO: DOMElements;
   private field: Field;
   private ball: Ball;
-
   private playerLeft: Player;
   private playerRight: Player;
-
   private animationId: number | null = null;
   private shouldStop: boolean = false;
-  private inTournament : boolean;
+  private inTournament: boolean;
 
-  constructor(canvasId: string, config: ConfigMatch, inTournament : boolean = false)
-  {
+  // -------------------------
+  // Constructeur
+  // -------------------------
+  constructor(DO_of_SiteManagement: DOMElements, config: ConfigMatch, inTournament: boolean = false) {
     this.inTournament = inTournament;
-    console.log("une nouvelle partie est fais.")
-    this.canvas = document.getElementById(canvasId) as HTMLCanvasElement;
-    this.ctx = this.canvas.getContext('2d')!;
+    console.log("Une nouvelle partie est créée.");
 
-    // 💡 On passe width et height au constructeur
-    this.field = new Field(this.canvas);
+    this._DO = DO_of_SiteManagement;
 
+    // Initialisation du terrain et des joueurs
+    this.field = new Field(this._DO.canva);
     const dim = this.field.getDimensions();
-    const vitesse_paddel = dim.height / 150.333;
-    if (config.mode == "PvIA")
-    {
-      this.playerLeft = new PlayerHuman("L", dim, vitesse_paddel, config.name[0]);
-      this.playerRight = new PlayerAI("R", dim, vitesse_paddel, config.name[1]);
-    }else if (config.mode == "IAvP")
-    {
-      this.playerLeft = new PlayerAI("L", dim, vitesse_paddel, config.name[0]);
-      this.playerRight = new PlayerHuman("R", dim, vitesse_paddel, config.name[1]);
+    const vitessePaddle = dim.height / 150.333;
 
-    }else if (config.mode == "IAvIA")
-    {
-      this.playerLeft = new PlayerAI("L", dim, vitesse_paddel, config.name[0]);
-      this.playerRight = new PlayerAI("R", dim, vitesse_paddel, config.name[1]);
+    switch (config.mode) {
+      case "PvIA":
+        this.playerLeft = new PlayerHuman("L", this._DO.matchElement, dim, vitessePaddle, config.name[0]);
+        this.playerRight = new PlayerAI("R", this._DO.matchElement, dim, vitessePaddle, config.name[1]);
+        break;
+      case "IAvP":
+        this.playerLeft = new PlayerAI("L", this._DO.matchElement, dim, vitessePaddle, config.name[0]);
+        this.playerRight = new PlayerHuman("R", this._DO.matchElement, dim, vitessePaddle, config.name[1]);
+        break;
+      case "IAvIA":
+        this.playerLeft = new PlayerAI("L", this._DO.matchElement, dim, vitessePaddle, config.name[0]);
+        this.playerRight = new PlayerAI("R", this._DO.matchElement, dim, vitessePaddle, config.name[1]);
+        break;
+      default: // PvP
+        this.playerLeft = new PlayerHuman("L", this._DO.matchElement, dim, vitessePaddle, config.name[0]);
+        this.playerRight = new PlayerHuman("R", this._DO.matchElement, dim, vitessePaddle, config.name[1]);
     }
-    else
-    {
-      this.playerLeft = new PlayerHuman("L", dim, vitesse_paddel, config.name[0]);
-      this.playerRight = new PlayerHuman("R", dim, vitesse_paddel, config.name[1]);
-    }
+
+    // Initialisation de la balle
     this.ball = new Ball(dim);
 
+    // Gestion du resize
     window.addEventListener("resize", () => this.handleResize());
+
+    // Démarrage de la boucle
     this.loop();
   }
 
+  // -------------------------
+  // Gestion du resize
+  // -------------------------
   private handleResize() {
     const dim = this.field.getDimensions();
     this.playerLeft.onResize(dim);
@@ -66,20 +77,18 @@ export class PongGame {
     this.ball.resize(dim);
 
     const baseFontSize = dim.height / 14.8;
-    this.ctx.font = `${baseFontSize}px Joystix Mono`;
-
+    this._DO.ctx.font = `${baseFontSize}px Joystix Mono`;
   }
 
+  // -------------------------
+  // Update & Draw
+  // -------------------------
   private update() {
-    if (this.playerLeft.typePlayer == "HUMAN")
-      this.playerLeft.update();
-    else
-      this.playerLeft.update(this.ball);
+    if (this.playerLeft.typePlayer === "HUMAN") this.playerLeft.update();
+    else this.playerLeft.update(this.ball);
 
-    if (this.playerRight.typePlayer == "HUMAN")
-      this.playerRight.update();
-    else
-      this.playerRight.update(this.ball);
+    if (this.playerRight.typePlayer === "HUMAN") this.playerRight.update();
+    else this.playerRight.update(this.ball);
 
     this.ball.update(this.field.width, this.field.height);
 
@@ -96,93 +105,83 @@ export class PongGame {
   }
 
   private draw() {
-    this.ctx.clearRect(0, 0, this.field.width, this.field.height);
-    this.field.draw(this.ctx);
-    this.ball.draw(this.ctx);
-    this.playerLeft.paddle.draw(this.ctx);
-    this.playerRight.paddle.draw(this.ctx);
+    const ctx = this._DO.ctx;
+    ctx.clearRect(0, 0, this.field.width, this.field.height);
+
+    this.field.draw(ctx);
+    this.ball.draw(ctx);
+    this.playerLeft.paddle.draw(ctx);
+    this.playerRight.paddle.draw(ctx);
 
     const baseFontSize = this.field.height / 14.8;
-    this.ctx.font = `${baseFontSize}px Joystix Mono`;
-    this.ctx.fillStyle = 'rgb(0,255,76)'; // couleur du texte
-    this.ctx.textAlign = 'center';        // centrage horizontal
-    this.ctx.textBaseline = 'top';        // aligne le haut du texte
-    this.ctx.fillText(`${this.playerLeft.get_score()} - ${this.playerRight.get_score()}`, this.field.width / 2, 30);
+    ctx.font = `${baseFontSize}px Joystix Mono`;
+    ctx.fillStyle = 'rgb(0,255,76)';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillText(`${this.playerLeft.get_score()} - ${this.playerRight.get_score()}`, this.field.width / 2, 30);
   }
 
+  // -------------------------
+  // Boucle principale
+  // -------------------------
   private loop() {
-    const activePage = document.querySelector('.active') as HTMLElement | null;
-    let whyStop:string | undefined = undefined ;
-
     this.update();
     this.draw();
 
-    if (this.playerLeft.get_score() >= 3 || this.playerRight.get_score() >= 3)
-    {
+    const activePage = SiteManagement.activePage;
+    let whyStop: string | undefined;
+
+    if (this.playerLeft.get_score() >= 3 || this.playerRight.get_score() >= 3) {
       this.goToResult();
-      whyStop = "Le match c'est fini normalement.";
+      this.stop("Le match est terminé normalement.");
     }
+    else if (activePage?.id !== "pagesMatch") this.stop(whyStop); // Faire autrenemnt pas opti du tout verifier si y a une redirection et que un match et encours comme tournoi
 
-    if (activePage?.id != "pagesMatch")
-      this.stop(whyStop);
-
-    if (this.shouldStop)
-      return;
-    this.animationId = requestAnimationFrame(() => this.loop());
+    if (!this.shouldStop) this.animationId = requestAnimationFrame(() => this.loop());
   }
 
+  // -------------------------
+  // Stop & résultat
+  // -------------------------
   public stop(whyStop: string = "On a quitté la page match") {
     if (this.animationId !== null) {
       cancelAnimationFrame(this.animationId);
       this.animationId = null;
     }
 
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    alert(`Le match est arrêté car : ${whyStop}`);// ici
-    this.shouldStop = true;
-    console.log(`une partie est s'arrete. : ${whyStop}`)// ici
+    const { canva, ctx } = this._DO;
+    ctx.clearRect(0, 0, canva.width, canva.height);
 
+    alert(`Le match est arrêté car : ${whyStop}`);
+    console.log(`Une partie s'arrête : ${whyStop}`);
+    this.shouldStop = true;
   }
 
   private goToResult() {
-    const matchPage = document.getElementById("pagesMatch");
-    const resultPage = document.getElementById("pagesResult");
-    if (matchPage) {
-      matchPage.classList.remove("active");
-      matchPage.classList.add("hidden");
-    }
+    const resultPage = this._DO.pages.result;
+    activeAnotherPage(resultPage);
+    updateUrl(resultPage, this.inTournament ? '/tournament/match' : '/match');
 
-    if (resultPage) {
-      resultPage.classList.remove("hidden");
-      resultPage.classList.add("active");
-      const pageName = resultPage.id.slice("pages".length).toLocaleLowerCase();
-      let newUrl = `/match/${pageName}`;
-      if (this.inTournament)
-        newUrl = `/tournament` + newUrl;
-      window.history.pushState({ page: pageName }, "", newUrl);// dans tournoi
+    const winnerName = this.playerLeft.get_score() > this.playerRight.get_score() ? this.playerLeft.name : this.playerRight.name;
+    const { winnerNameEl, player1NameEl, player1ScoreEl, player2NameEl, player2ScoreEl } = this._DO.resultElement;
 
-      const winnerNameEl = resultPage.querySelector<HTMLParagraphElement>('#winner-name');
-      const player1NameEl = resultPage.querySelector<HTMLSpanElement>('#player1-name');
-      const player1ScoreEl = resultPage.querySelector<HTMLSpanElement>('#player1-score');
-      const player2NameEl = resultPage.querySelector<HTMLSpanElement>('#player2-name');
-      const player2ScoreEl = resultPage.querySelector<HTMLSpanElement>('#player2-score');
-
-      const winnerName = this.playerLeft.get_score() > this.playerRight.get_score() ? this.playerLeft.name : this.playerRight.name;
-
-      if (winnerNameEl) winnerNameEl.textContent = winnerName;
-      if (player1NameEl) player1NameEl.textContent = this.playerLeft.name;
-      if (player1ScoreEl) player1ScoreEl.textContent = this.playerLeft.get_score().toString();
-      if (player2NameEl) player2NameEl.textContent = this.playerRight.name;
-      if (player2ScoreEl) player2ScoreEl.textContent = this.playerRight.get_score().toString();
-    }
+    if (winnerNameEl) winnerNameEl.textContent = winnerName;
+    if (player1NameEl) player1NameEl.textContent = this.playerLeft.name;
+    if (player1ScoreEl) player1ScoreEl.textContent = this.playerLeft.get_score().toString();
+    if (player2NameEl) player2NameEl.textContent = this.playerRight.name;
+    if (player2ScoreEl) player2ScoreEl.textContent = this.playerRight.get_score().toString();
   }
 
-  public getWinnerAndLooser(): null | {"Winner": Player, "Looser": Player}
-  {
-    if (this.shouldStop == false) return (console.log("Le match nest pas fini on ne peut pas avoir de Vainquer ou Perdant"), null);
-    return this.playerLeft.get_score() > this.playerRight.get_score() ? 
-    {"Winner" : this.playerLeft, "Looser": this.playerRight} : 
-    {"Winner" : this.playerRight, "Looser": this.playerLeft};
-
+  // -------------------------
+  // Utilitaire
+  // -------------------------
+  public getWinnerAndLooser(): { Winner: Player; Looser: Player } | null {
+    if (!this.shouldStop) {
+      console.log("Le match n'est pas fini, pas de vainqueur ou perdant.");
+      return null;
+    }
+    return this.playerLeft.get_score() > this.playerRight.get_score()
+      ? { Winner: this.playerLeft, Looser: this.playerRight }
+      : { Winner: this.playerRight, Looser: this.playerLeft };
   }
 }

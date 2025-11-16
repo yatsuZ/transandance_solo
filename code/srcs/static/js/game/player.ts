@@ -10,22 +10,20 @@ export abstract class Player {
   public readonly name: string;
   public typePlayer : PlayerType = "UNDEFINED";
   public score: number = 0;
-  protected playerCard: HTMLElement | null = null;
 
-  constructor(side: PlayerSide, canvasDimension: {height: number, width: number}, speed: number, name: string)
+  protected playerCard: HTMLElement;
+
+  constructor(side: PlayerSide, playerCards:{playerCardL: HTMLElement,playerCardR: HTMLElement}, canvasDimension: {height: number, width: number}, speed: number, name: string)
   {
     this.side = side;
     this.name = name ?? (side === "L" ? "Player 1" : "Player 2");
 
     this.paddle = new Paddle(side, canvasDimension, speed, 20);
-    const idBalise : string = (this.side == "L" ? 'player-Left-Card-Match': 'player-Right-Card-Match')
-    this.playerCard = document.getElementById(idBalise);
-    if (this.playerCard === null) {
-      console.error(`Pas reussi a recuperer ${idBalise}`);
-      this.playerCard as null;
-    }
-    else this.playerCard as HTMLElement
-
+    const idBalise : string = (this.side == "L" ? 'player-Left-Card-Match': 'player-Right-Card-Match');
+    if (side == "L")
+      this.playerCard = playerCards.playerCardL;
+    else
+      this.playerCard = playerCards.playerCardR;
   }
 
   onResize(newDimensions: { width: number; height: number }) {
@@ -81,9 +79,9 @@ export abstract class Player {
 export class PlayerHuman extends Player {
   private input: InputHandler;
 
-  constructor(side: "L" | "R", canvasDimension: {height: number, width: number}, speed: number, name: string)
+  constructor(side: "L" | "R", playerCards:{playerCardL: HTMLElement,playerCardR: HTMLElement}, canvasDimension: {height: number, width: number}, speed: number, name: string)
   {
-    super(side, canvasDimension, speed, name);
+    super(side, playerCards, canvasDimension, speed, name);
     this.typePlayer = "HUMAN";
     this.input = new InputHandler(side);
     this.add_to_update()
@@ -107,9 +105,9 @@ export class PlayerHuman extends Player {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export class PlayerAI extends Player {
-  constructor(side: "L" | "R", canvasDimension: {height: number, width: number}, speed: number, name: string)
+  constructor(side: "L" | "R", playerCards:{playerCardL: HTMLElement,playerCardR: HTMLElement}, canvasDimension: {height: number, width: number}, speed: number, name: string)
   {
-    super(side, canvasDimension, speed, name);
+    super(side, playerCards, canvasDimension, speed, name);
     this.typePlayer = "IA";
     this.add_to_update();
     const movementElement = this.playerCard?.querySelector('.player-controls')?.querySelector('span') as HTMLImageElement | null;

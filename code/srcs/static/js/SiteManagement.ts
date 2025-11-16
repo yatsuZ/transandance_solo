@@ -2,26 +2,55 @@ import { PongGame } from './Game.js';
 import { initMusicSystem } from './music_gestion.js';
 import { update_description_de_page } from './update_description.js';
 import { activeAnotherPage, activeOrHiden, initSPA } from './spa_redirection.js';
-import { PlayerForTournament, Tournament } from './Tournament.js';
-import { updateUrl } from './utils.js';
+import { Tournament } from './Tournament.js';
+import { log, updateUrl } from './utils.js';
 
 export type DOMElements = {
   pages: {
-    accueil: HTMLElement | null;
-    match: HTMLElement | null;
-    result: HTMLElement | null;
-    treeTournament: HTMLElement | null;
+    accueil: HTMLElement;
+    match: HTMLElement;
+    result: HTMLElement;
+    beginTournament: HTMLElement,
+    treeTournament: HTMLElement;
+    parametre: HTMLElement,
   };
+
+  resultElement: {
+    winnerNameEl : HTMLElement;
+    player1NameEl : HTMLElement;
+    player1ScoreEl : HTMLElement;
+    player2NameEl : HTMLElement;
+    player2ScoreEl : HTMLElement;
+  }
+
+  matchElement: {
+    playerCardL : HTMLElement;
+    playerCardR : HTMLElement;
+  }
+
+  tournamentElement: {
+    texteWhovsWho : HTMLElement;
+    spanWhoVsWho : HTMLElement;
+    divOfButton: HTMLElement;
+    form: HTMLFormElement;
+    formPseudoTournament: [HTMLInputElement, HTMLInputElement, HTMLInputElement, HTMLInputElement];
+    formIsHumanCheckbox: [HTMLInputElement, HTMLInputElement, HTMLInputElement, HTMLInputElement];
+  }
+
   buttons: {
-    nextResult: HTMLElement | null;
-    giveUpTournament: HTMLElement | null;
+    nextResult: HTMLElement;
+    giveUpTournament: HTMLElement;
+    startMatchTournament: HTMLElement;
     linkButtons: HTMLButtonElement[];
   };
   icons: {
-    accueil: HTMLElement | null;
-    settings: HTMLElement | null;
+    accueil: HTMLElement;
+    settings: HTMLElement;
   };
-  style: HTMLLinkElement | null;
+  canva: HTMLCanvasElement;
+  ctx: CanvasRenderingContext2D;
+
+  style: HTMLLinkElement;
 };
 
 type DOMMapItem = {
@@ -45,27 +74,7 @@ export class SiteManagement {
   private tournament: Tournament | null = null;
 
   // Element du DOM ici on stock toute les Document objec que je compte manipuler
-  private _DO : DOMElements = {
-    pages: {
-      accueil: null,
-      match: null,
-      result: null,
-      treeTournament: null,
-    },
-
-    buttons: {
-      nextResult: null,
-      giveUpTournament: null,
-      linkButtons: [],
-    },
-
-    icons: {
-      accueil: null,
-      settings: null
-    },
-
-    style: null,
-  };
+  private _DO : DOMElements;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -75,12 +84,13 @@ export class SiteManagement {
 
 // Constructueur Que je fais tout passer dans le dom contented loaded comme sa sa charge tout en PREMIER
   constructor() {
+    this._DO = this._cacheDom();// Recuperer les elment du DOM
+
     document.addEventListener("DOMContentLoaded", () => this.init());
   }
 
   // vrai constructeur dcp =>
   private init() {
-    this._cacheDom();// Recuperer les elment du DOM
     SiteManagement.activePage = null;
     this.initStyleAndSPA();// Gere les evenement de redirection de page etc 
     initMusicSystem();//Gere la gestion de evenement lier a la music
@@ -97,51 +107,152 @@ export class SiteManagement {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  private _cacheDom() {
+  private _cacheDom(): DOMElements {
+    // Créer un objet temporaire avec le même type que DOMElements
+    const tmpDO: DOMElements = {
+      pages: { 
+        accueil: null!, 
+        match: null!, 
+        result: null!, 
+        beginTournament: null!,    // <-- nouvelle page
+        treeTournament: null!, 
+        parametre: null!           // <-- nouvelle page
+      },
+      resultElement: { 
+        winnerNameEl: null!, 
+        player1NameEl: null!, 
+        player1ScoreEl: null!, 
+        player2NameEl: null!, 
+        player2ScoreEl: null! 
+      },
+      matchElement: { 
+        playerCardL: null!, 
+        playerCardR: null! 
+      },
+      tournamentElement: { 
+        texteWhovsWho: null!, 
+        spanWhoVsWho: null!, 
+        divOfButton: null!, 
+        form: null!, 
+        formPseudoTournament: [null!, null!, null!, null!], 
+        formIsHumanCheckbox: [null!, null!, null!, null!] 
+      },
+      buttons: { 
+        nextResult: null!, 
+        giveUpTournament: null!, 
+        startMatchTournament: null!, 
+        linkButtons: [] 
+      },
+      icons: { 
+        accueil: null!, 
+        settings: null! 
+      },
+      canva: null!,
+      ctx: null!,
+      style: null!
+    };
+
     let allGood = true;
 
     const check = (name: string, el: any) => {
       if (!el || (Array.isArray(el) && el.length === 0)) {
-        this.log(`❌ _cacheDom: Impossible de récupérer "${name}"`, "error")
+        log(`❌ _cacheDom: Impossible de récupérer "${name}"`, "error");
         allGood = false;
       }
     };
 
     const map: DOMMapItem[] = [
-      { name: "pages.accueil", selector: "#pagesAccueil", assign: el => this._DO.pages.accueil = el },
-      { name: "pages.match", selector: "#pagesMatch", assign: el => this._DO.pages.match = el },
-      { name: "pages.result", selector: "#pagesResult", assign: el => this._DO.pages.result = el },
-      { name: "pages.treeTournament", selector: "#pagesTree_Tournament", assign: el => this._DO.pages.treeTournament = el },
+      // Pages
+      { name: "pages.accueil", selector: "#pagesAccueil", assign: el => tmpDO.pages.accueil = el },
+      { name: "pages.match", selector: "#pagesMatch", assign: el => tmpDO.pages.match = el },
+      { name: "pages.result", selector: "#pagesResult", assign: el => tmpDO.pages.result = el },
+      { name: "pages.beginTournament", selector: "#pagesBegin_Tournament", assign: el => tmpDO.pages.beginTournament = el },
+      { name: "pages.treeTournament", selector: "#pagesTree_Tournament", assign: el => tmpDO.pages.treeTournament = el },
+      { name: "pages.parametre", selector: "#pagesParametre", assign: el => tmpDO.pages.parametre = el },
 
-      { name: "buttons.nextResult", selector: "#next-btn_result", assign: el => this._DO.buttons.nextResult = el },
-      { name: "buttons.giveUpTournament", selector: "#givUpTournament", assign: el => this._DO.buttons.giveUpTournament = el },
-      { name: "buttons.linkButtons", selector: "button[data-link]", assign: els => this._DO.buttons.linkButtons = els, multiple: true },
+      // Result elements
+      { name: "resultElement.winnerNameEl", selector: "#winner-name", assign: el => tmpDO.resultElement.winnerNameEl = el },
+      { name: "resultElement.player1NameEl", selector: "#player1-name", assign: el => tmpDO.resultElement.player1NameEl = el },
+      { name: "resultElement.player1ScoreEl", selector: "#player1-score", assign: el => tmpDO.resultElement.player1ScoreEl = el },
+      { name: "resultElement.player2NameEl", selector: "#player2-name", assign: el => tmpDO.resultElement.player2NameEl = el },
+      { name: "resultElement.player2ScoreEl", selector: "#player2-score", assign: el => tmpDO.resultElement.player2ScoreEl = el },
 
-      { name: "icons.accueil", selector: "#icon-accueil", assign: el => this._DO.icons.accueil = el },
-      { name: "icons.settings", selector: "#icon-settings", assign: el => this._DO.icons.settings = el },
+      // Match elements
+      { name: "matchElement.playerCardL", selector: "#player-Left-Card-Match", assign: el => tmpDO.matchElement.playerCardL = el },
+      { name: "matchElement.playerCardR", selector: "#player-Right-Card-Match", assign: el => tmpDO.matchElement.playerCardR = el },
+
+      // Tournament elements
+      { name: "tournamentElement.texteWhovsWho", selector: ".texte-label", assign: el => tmpDO.tournamentElement.texteWhovsWho = el },
+      { name: "tournamentElement.spanWhoVsWho", selector: "#WhoVsWho", assign: el => tmpDO.tournamentElement.spanWhoVsWho = el },
+      { name: "tournamentElement.divOfButton", selector: ".menu-buttons-tree-tournament-padding", assign: el => tmpDO.tournamentElement.divOfButton = el },
+      { name: "tournamentElement.form", selector: "#tournament-form", assign: el => tmpDO.tournamentElement.form = el },
+            // Formulaire Elements 
+          // Pseudo
+      { name: "tournamentElement.formPseudoTournament[0]", selector: "#player1", assign: el => tmpDO.tournamentElement.formPseudoTournament[0] = el },
+      { name: "tournamentElement.formPseudoTournament[1]", selector: "#player2", assign: el => tmpDO.tournamentElement.formPseudoTournament[1] = el },
+      { name: "tournamentElement.formPseudoTournament[2]", selector: "#player3", assign: el => tmpDO.tournamentElement.formPseudoTournament[2] = el },
+      { name: "tournamentElement.formPseudoTournament[3]", selector: "#player4", assign: el => tmpDO.tournamentElement.formPseudoTournament[3] = el },
+          // is Human ?
+      { name: "tournamentElement.formIsHumanCheckbox[0]", selector: "#human1", assign: el => tmpDO.tournamentElement.formIsHumanCheckbox[0] = el },
+      { name: "tournamentElement.formIsHumanCheckbox[1]", selector: "#human2", assign: el => tmpDO.tournamentElement.formIsHumanCheckbox[1] = el },
+      { name: "tournamentElement.formIsHumanCheckbox[2]", selector: "#human3", assign: el => tmpDO.tournamentElement.formIsHumanCheckbox[2] = el },
+      { name: "tournamentElement.formIsHumanCheckbox[3]", selector: "#human4", assign: el => tmpDO.tournamentElement.formIsHumanCheckbox[3] = el },
 
 
-      { name: "style.mainStyle", selector: 'link[href="/static/css/main_style.css"]', assign: el => this._DO.style = el },
+      // Buttons
+      { name: "buttons.nextResult", selector: "#next-btn_result", assign: el => tmpDO.buttons.nextResult = el },
+      { name: "buttons.giveUpTournament", selector: "#givUpTournament", assign: el => tmpDO.buttons.giveUpTournament = el },
+      { name: "buttons.startMatchTournament", selector: "#doMatchTournament", assign: el => tmpDO.buttons.startMatchTournament = el },
+      { name: "buttons.linkButtons", selector: "button[data-link]", assign: els => tmpDO.buttons.linkButtons = els, multiple: true },
+
+      // Icons
+      { name: "icons.accueil", selector: "#icon-accueil", assign: el => tmpDO.icons.accueil = el },
+      { name: "icons.settings", selector: "#icon-settings", assign: el => tmpDO.icons.settings = el },
+
+      // Canvas
+      { name: "canva.pong", selector: "#pong-canvas", assign: el => tmpDO.canva = el },
+
+      // Style
+      { name: "style.mainStyle", selector: 'link[href="/static/css/main_style.css"]', assign: el => tmpDO.style = el }
     ];
 
     for (const item of map) {
       const el = item.multiple
         ? Array.from(document.querySelectorAll(item.selector))
         : document.querySelector(item.selector);
-
       item.assign(el);
       check(`${item.name} (${item.selector})`, el);
     }
 
-    if (allGood)
-      this.log("✅ _cacheDom: Tous les éléments du DOM ont été récupérés avec succès !");
-  }
+    // ⚡ Spécial ctx, on le récupère après le canvas
+    if (tmpDO.canva)
+    {
+      const ctx = tmpDO.canva.getContext("2d");
+      if (!ctx)
+      {
+        log("❌ _cacheDom: Impossible de récupérer le contexte 2D du canvas", "error");
+        allGood = false;
+      }
+      else
+        tmpDO.ctx = ctx;
+    }
+    else
+      allGood = false;
 
+
+    if (!allGood) {
+      log("❌ _cacheDom: Certains éléments DOM sont manquants, initialisation impossible.", "error");
+      throw new Error("_cacheDom: Impossible de récupérer tous les éléments DOM.");
+    }
+
+    log("✅ _cacheDom: Tous les éléments du DOM ont été récupérés avec succès !");
+    return tmpDO;
+  }
 
   // gere le spa + redirection et charge le css avant dafficher le site
   private initStyleAndSPA() {
     const do_style = this._DO.style;
-    if (!do_style) return this.log("Pas reussie a recupere style.css", "error");
+    if (!do_style) return log("Pas reussie a recupere style.css", "error");
 
     const currentPage = SiteManagement.currentActivePage;
 
@@ -159,7 +270,7 @@ export class SiteManagement {
       const header = activePage.querySelector('.arcade-header') as HTMLElement | null;
       if (header)
         header.style.borderBottom = 'none';
-      this.pongGameSingleMatch = new PongGame('pong-canvas', {mode:"PvP", name:["Left_Player", "Right_Player"]});
+      this.pongGameSingleMatch = new PongGame(this._DO, {mode:"PvP", name:["Left_Player", "Right_Player"]});
     }
     
     // Ce qui fais stoper un match
@@ -168,30 +279,24 @@ export class SiteManagement {
 
 
   private tournamentGestion() {
-    Tournament.checkPlayerForTournament((players) => {
+    Tournament.checkPlayerForTournament(this._DO, (players) => {
       if (!players)
-        return this.log("❌ Le tournoi n'est pas prêt.", "error");
-      const do_p_treeTournament = this._DO.pages.treeTournament
-      if (!do_p_treeTournament) return this.log("Page cible non trouvée: pagesTree_Tournament", "error");
-      this.tournament = new Tournament(players, do_p_treeTournament);
-      this.log("✅ Tournoi créé :")
+        return log("❌ Le tournoi n'est pas prêt.", "error");
+      this.tournament = new Tournament(this._DO, players);
+      log("✅ Tournoi créé :")
       console.log(this.tournament);
     });
-    const do_btn_giveUp = this._DO.buttons.giveUpTournament;
 
-    //// Tout ce qui fais stoper le tournoi
-    if (!do_btn_giveUp) return this.log("Pas reussie a recupere #givUpTournament", "error");
+//
 
-    do_btn_giveUp.addEventListener("click", this.event_GivUpTournamentHandler);
+    this._DO.buttons.giveUpTournament.addEventListener("click", this.event_GivUpTournamentHandler);
     this._DO.buttons.linkButtons.forEach(btn => {btn.addEventListener("click", this.event_LeaveTournamentHandler);});
   }
 
 
   private redirection_after_end_match()
   {
-    const do_btn_nextResult = this._DO.buttons.nextResult;
-    if (!do_btn_nextResult) return this.log("Pas reussie a recupere #next-btn_result", "error");
-    do_btn_nextResult.addEventListener("click", this.event_Btn_next_After_MatchHandler);
+    this._DO.buttons.nextResult.addEventListener("click", this.event_Btn_next_After_MatchHandler);
   }
 
 
@@ -204,8 +309,6 @@ export class SiteManagement {
   static get activePage(): HTMLElement | null {
     console.log("[Logger GET] activePage récupérée :", this.currentActivePage?.id ?? "aucune");
     return (this.currentActivePage);
-    const page = document.querySelector('.active') as HTMLElement | null;
-    return page;
   }
 
   static set activePage(newPage: HTMLElement | null){
@@ -235,15 +338,12 @@ export class SiteManagement {
     const do_icon_accueil = this._DO.icons.accueil;
     const do_p_accueil = this._DO.pages.accueil;
 
-    if (!do_icon_accueil) return this.log("Page cible non trouvée: pageAccueil", "error");
-    if (!do_p_accueil) return this.log("Pas reussie a recupere #icon-accueil", "error");
-
     activeOrHiden(do_icon_accueil, "Off");
     activeAnotherPage(do_p_accueil);
 
     updateUrl(do_p_accueil)
 
-    this.log(`Tournament Finito pipo (1) :`);
+    log(`Tournament Finito pipo (1) :`);
     console.log(this)
     this.tournament?.ft_stopTournament();
     this.tournament = null; 
@@ -252,16 +352,17 @@ export class SiteManagement {
   private event_LeaveTournamentHandler = this.event_LeaveTournament.bind(this);
   private event_LeaveTournament() {
     const allowedPages = [
-      this._DO.pages.match?.id,
-      this._DO.pages.result?.id,
-      this._DO.pages.treeTournament?.id,
+      this._DO.pages.match.id,
+      this._DO.pages.result.id,
+      this._DO.pages.treeTournament.id,
     ];
 
     const activePage = SiteManagement.currentActivePage;
     if (!activePage || !this.tournament) return;
+
     if (!allowedPages.includes(activePage.id))
     {
-      this.log("Tournament Finito pipo (2) :");
+      log("Tournament Finito pipo (2) :");
       console.log(this)
 
       this.tournament?.ft_stopTournament();
@@ -278,7 +379,7 @@ export class SiteManagement {
     const header = activePage.querySelector('.arcade-header') as HTMLElement | null;
     if (header) 
       header.style.borderBottom = 'none';
-    this.pongGameSingleMatch = new PongGame('pong-canvas', {mode:"PvP", name:["Left_Player", "Right_Player"]});
+    this.pongGameSingleMatch = new PongGame(this._DO, {mode:"PvP", name:["Left_Player", "Right_Player"]});
   }
   else
       this.pongGameSingleMatch = null;
@@ -289,10 +390,6 @@ export class SiteManagement {
     const do_p_accueil = this._DO.pages.accueil;
     const do_p_treeTournament = this._DO.pages.treeTournament;
     const do_icon_accueil = this._DO.icons.accueil;
-
-    if (!do_p_accueil) return this.log("Page cible non trouvée: pageAccueil", "error");
-    if (!do_p_treeTournament) return this.log("Page cible non trouvée: pageTournament", "error");
-    if (!do_icon_accueil) return this.log("Pas reussie a recupere #icon-accueil", "error");
 
     // recuperer les resultet pour metre a jour tournament puis recomencer 
     if (this.tournament)
@@ -309,16 +406,5 @@ export class SiteManagement {
       activeAnotherPage(do_p_accueil);
       updateUrl(do_p_accueil);
     }
-  }
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Utils 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  private log(msg: string, type: "info"|"error"="info") {
-    if(type === "error") console.error("[SiteManagement]", msg);
-    else console.log("[SiteManagement]", msg);
   }
 }

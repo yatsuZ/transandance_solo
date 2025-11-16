@@ -1,5 +1,5 @@
 import { DOMElements } from './SiteManagement.js';
-import { updateUrl } from './utils.js';
+import { clear_Formulaire_Of_Tournament, updateUrl } from './utils.js';
 // SPA et REDIRECTION
 
 export function initSPA(allDOMElement : DOMElements, activePage : HTMLElement |null ) {
@@ -26,11 +26,11 @@ export function initSPA(allDOMElement : DOMElements, activePage : HTMLElement |n
 
   // Ajouter l'événement uniquement à ceux-là
   linkButtons.forEach(btn => {
-    btn.addEventListener("click", (e) => redirectionDePage(e, allDOMElement["pages"], iconAccueil, iconSettings));
+    btn.addEventListener("click", (e) => redirectionDePage(e, allDOMElement, iconAccueil, iconSettings));
   });
 }
 
-function redirectionDePage(e: PointerEvent, allPages: DOMElements["pages"],iconAccueil: HTMLElement, iconSettings: HTMLElement) {
+function redirectionDePage(e: PointerEvent, dO: DOMElements,iconAccueil: HTMLElement, iconSettings: HTMLElement) {
   e.preventDefault();
   const target = (e.target as Element | null);
   const link = target?.closest("button[data-link]");
@@ -44,45 +44,32 @@ function redirectionDePage(e: PointerEvent, allPages: DOMElements["pages"],iconA
   activeOrHiden(iconSettings, pageName === "parametre" ? "Off" : "On")
 
   const targetId = "pages" + pageName.charAt(0).toUpperCase() + pageName.slice(1);
-  const targetPage = findNewPageActif(allPages, targetId);
+  const targetPage = findPage(dO.pages, targetId);
   if (targetPage === null) return;
 
   // Reset inputs
-  clear_Formulaire_Of_Tournament()
-  activeAnotherPage(targetPage)
+  clear_Formulaire_Of_Tournament(dO.tournamentElement.formPseudoTournament)
+  activeAnotherPage(targetPage);
   updateUrl(targetPage);
 }
 
 
 ////////////////////////////////////// UTIL
 
-function findNewPageActif(allPages: DOMElements["pages"], targetId : string) : HTMLElement | null
+
+// a patir de la string on checher la page qui se sera la nvl page actif mais en vrai on devrais lappeler juste find Page
+function findPage(allPages: DOMElements["pages"], targetId : string) : HTMLElement | null
 {
   let targetPage = Object.values(allPages).find(p => p?.id === targetId);
 
   if (!targetPage) {
     console.warn(`[SPA] Page "${targetId}" introuvable dans DOMElements, tentative de récupération via document.getElementById...`);
-    targetPage = document.getElementById(targetId) as HTMLElement | null;
-    if (targetPage) console.log(`[SPA] Page "${targetId}" récupérée avec succès via document.getElementById.`);
-    else
-    {
-      targetPage = null
-      console.error(`[SPA] Impossible de récupérer la page "${targetId}" depuis le DOM.`);
-    }
+    const tmpTargetPage = document.getElementById(targetId) as HTMLElement | null;
+    if (tmpTargetPage) console.log(`[SPA] Page "${tmpTargetPage}" récupérée avec succès via document.getElementById.`);
+    else console.error(`[SPA] Impossible de récupérer la page "${tmpTargetPage}" depuis le DOM.`);
+    return tmpTargetPage;
   }
   return targetPage
-}
-
-function clear_Formulaire_Of_Tournament()
-{
-    const inputIds = ["player1", "player2", "player3", "player4"];
-    inputIds.forEach(id => {
-      const input = document.getElementById(id) as HTMLInputElement | null;
-      if (input) input.value = "";
-    });
-    document.querySelectorAll(".page").forEach(p => {
-      activeOrHiden(p, "Off")
-    });
 }
 
 export function activeOrHiden(element: HTMLElement | Element, onOrOff : "On" | "Off" = "Off")

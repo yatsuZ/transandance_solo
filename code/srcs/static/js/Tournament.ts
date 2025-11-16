@@ -1,6 +1,7 @@
 import { ConfigMatch, PongGame } from "./Game.js";
+import { DOMElements } from "./SiteManagement.js";
 import { activeAnotherPage, activeOrHiden } from "./spa_redirection.js";
-import { arePlayersValid, clearInputs, collectPlayers } from "./utils.js";
+import { arePlayersValid, clear_Formulaire_Of_Tournament, collectPlayers, updateUrl } from "./utils.js";
 
 export type PlayerForTournament = {
   name: string;
@@ -11,36 +12,35 @@ export type PlayerForTournament = {
 export declare const Treant: any;
 
 export class Tournament {
+  private _DO: DOMElements;
   private players: [PlayerForTournament, PlayerForTournament, PlayerForTournament, PlayerForTournament];
   private tournamentTree: any = null;
-  private pageTreeTournament: HTMLElement;
   private stopTournament: boolean = false;
   private onDoMatchTournamentClick: (() => void) | null = null;
-  // avoir un attribut match quand on appuye sur doMatchTournament sa en crée un 
+  // avoir un attribut match quand on appuye sur doMatchTournament sa en crée un   
   private currentMatch: PongGame | null = null;
 
-  constructor(players: [PlayerForTournament, PlayerForTournament, PlayerForTournament, PlayerForTournament], pageTreeTournament: HTMLElement) {
+  constructor(DO_of_SiteManagement: DOMElements, players: [PlayerForTournament, PlayerForTournament, PlayerForTournament, PlayerForTournament]) {
+    this._DO = DO_of_SiteManagement;
     // update whovs who ici
     this.players = players;
-    this.pageTreeTournament = pageTreeTournament;
 
     console.log("🎮 Tournament créé :", this.players);
 
-    const boutonDeTournoi = document.querySelector(".menu-buttons-tree-tournament-padding");
-    if (boutonDeTournoi && boutonDeTournoi.classList.contains("hidden"))
+    const boutonDeTournoi = this._DO.tournamentElement.divOfButton;
+    if (boutonDeTournoi.classList.contains("hidden"))
       boutonDeTournoi.classList.remove("hidden");
 
+    activeAnotherPage(this._DO.pages.treeTournament);
     this.initButtons();
     this.updateWhoVsWhoTexte();
-    activeAnotherPage(this.pageTreeTournament);
-    const pageName = this.pageTreeTournament.id.slice("pages".length).toLocaleLowerCase();
-    const newUrl = `/tournament/${pageName}`;
-    window.history.pushState({ page: pageName }, "", newUrl);// dans tournoi
 
+    updateUrl(this._DO.pages.treeTournament, '/tournament')
     this.createTree();
     window.addEventListener("resize", this.handleResize.bind(this));
   }
 
+  // met a jour larbre et re affiche correctmeent on fonction de la taille de la fenetre
   private handleResize() {
     // Optionnel : petit délai pour ne pas redessiner trop souvent pendant le resize
     clearTimeout((this as any)._resizeTimeout);
@@ -53,32 +53,24 @@ export class Tournament {
   /**
    * Écoute le submit du formulaire et crée un tournoi si tout est valide
    */
-  public static checkPlayerForTournament(createTournament: (players: [PlayerForTournament, PlayerForTournament, PlayerForTournament, PlayerForTournament] | null) => void): void {
-    const form = document.getElementById("tournament-form") as HTMLFormElement | null;
-    if (!form) {
-      console.error("❌ Formulaire #tournament-form introuvable");
-      return;
-    }
-
-    const inputIds = ["player1", "player2", "player3", "player4"];
+  public static checkPlayerForTournament(dO: DOMElements, createTournament: (players: [PlayerForTournament, PlayerForTournament, PlayerForTournament, PlayerForTournament] | null) => void): void {
+    const form = dO.tournamentElement.form;
 
     form.addEventListener("submit", (event) => {
       event.preventDefault();
 
-      const playerNames = collectPlayers(inputIds);
-      if (!playerNames || !arePlayersValid(playerNames)) {
+      const playerNames = collectPlayers(dO.tournamentElement.formPseudoTournament);
+      if (!playerNames || !arePlayersValid(playerNames))
         return createTournament(null);
-      }
 
       // Récupérer si c’est un humain ou une IA
-      const players: [PlayerForTournament, PlayerForTournament, PlayerForTournament, PlayerForTournament] = 
-      playerNames.map((name, i) => {
-        const checkbox = document.getElementById(`human${i + 1}`) as HTMLInputElement | null;
-        const isHuman = checkbox ? checkbox.checked : false;
-        return { name, isHuman, aLive: true };
-      }) as any;
+      const players  = playerNames.map((name, i) => {
+          const isHuman = dO.tournamentElement.formIsHumanCheckbox[i].checked;
+          return { name, isHuman, aLive: true };
+        }
+      ) as [PlayerForTournament, PlayerForTournament, PlayerForTournament, PlayerForTournament];
 
-      clearInputs(inputIds);
+      clear_Formulaire_Of_Tournament(dO.tournamentElement.formPseudoTournament);
 
       createTournament(players);
     });
@@ -122,22 +114,18 @@ export class Tournament {
    * Initialise les boutons (accueil, abandon, etc.)
    */
   private initButtons() {
-    const doMatchTournamentBtn = document.getElementById("doMatchTournament");
-    if (!doMatchTournamentBtn)
-      return console.error("⚠️ Bouton #doMatchTournament introuvable");
+    const doMatchTournamentBtn = this._DO.buttons.startMatchTournament;
 
+    // metre sa dans une methode a pars et handler
      this.onDoMatchTournamentClick = () => {
       if (this.stopTournament === true) return console.log("Pas de match pour ce tournoi car ce tournoi si est desactiver")
       const configMatch = this.creatConfig();
       console.log("A faire : ⚔️ Début du match suivant. ConfigMatch =", configMatch);
-      const matchPage = document.getElementById("pagesMatch");
-      if (matchPage === null) return console.error("Pas reussi a recuperer la page Match.");
+      const matchPage = this._DO.pages.match;
 
       // Exemple: simulation du vainqueur aléatoire
       activeAnotherPage(matchPage)
-      const pageName = matchPage.id.slice("pages".length).toLocaleLowerCase();
-      const newUrl = `/tournament/${pageName}`;
-      window.history.pushState({ page: pageName }, "", newUrl);// dans tournoi
+      updateUrl(matchPage, "/tournament")
 
       const header = matchPage.querySelector('.arcade-header') as HTMLElement | null;
       if (header)
@@ -145,7 +133,7 @@ export class Tournament {
 
       if (configMatch == null)
         return console.log("Le tournoi est fini il y a un vainquer.");
-      this.currentMatch = new PongGame('pong-canvas', configMatch, true);
+      this.currentMatch = new PongGame(this._DO, configMatch, true);
     };
 
     doMatchTournamentBtn.addEventListener("click", this.onDoMatchTournamentClick);
@@ -234,20 +222,17 @@ export class Tournament {
 
     if (alivePlayers.length <= 1)
     {
-      // desactiver les bouton 
-      const boutonDeTournoi = document.querySelector(".menu-buttons-tree-tournament-padding");
-      if (boutonDeTournoi)
-        activeOrHiden(boutonDeTournoi, "Off");
+      // desactiver les bouton un pars un manuellment
+      const boutonDeTournoi = this._DO.tournamentElement.divOfButton;
+      activeOrHiden(boutonDeTournoi, "Off");
       console.log("FIN du tournoi montrer le vainquer du tournoi.");
     }
   }
 
   private updateWhoVsWhoTexte(){
     const nextMatch = this.creatConfig();
-    const texteLabel = document.querySelector(".texte-label") as HTMLElement | null;
-    const spanWhoVsWho = document.getElementById("WhoVsWho");
-
-    if (!texteLabel || !spanWhoVsWho) return console.error("Éléments introuvables.");
+    const texteLabel = this._DO.tournamentElement.texteWhovsWho;
+    const spanWhoVsWho = this._DO.tournamentElement.spanWhoVsWho;
 
     if (nextMatch === null) {
       const winner = this.players.find(p => p.aLive);
@@ -260,9 +245,8 @@ export class Tournament {
   }
 
   public ft_stopTournament() {
-    const doMatchTournamentBtn = document.getElementById("doMatchTournament");
-    if (!doMatchTournamentBtn)
-      return console.error("⚠️ Bouton #doMatchTournament introuvable");
+    const doMatchTournamentBtn = this._DO.buttons.startMatchTournament;
+
     if (this.onDoMatchTournamentClick) {
       doMatchTournamentBtn.removeEventListener("click", this.onDoMatchTournamentClick);
       console.log("🧹 Listener supprimé sur #doMatchTournament");

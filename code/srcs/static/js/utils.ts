@@ -1,19 +1,17 @@
-import { SiteManagement } from "./SiteManagement.js";
+import { DOMElements, SiteManagement } from "./SiteManagement.js";
+
+
+// --- Fonctions utilitaires qu'on export ---
 
 // --- Configuration globale ---
+// -- fonction utilie pour la classs tournoi
 const MAX_NAME_LENGTH = 16;
 const VALID_NAME_REGEX = /^[a-zA-Z0-9_-]+$/;
 
-// --- Fonctions utilitaires qu'on export ---
-export function collectPlayers(input_ids: string[]): string[] | null {
+export function collectPlayers(inputElements:DOMElements["tournamentElement"]["formPseudoTournament"]): string[] | null {
   const players: string[] = [];
 
-  for (const id of input_ids) {
-    const input = document.getElementById(id) as HTMLInputElement | null;
-    if (!input) {
-      alert(`Le champ ${id} est introuvable dans le DOM !`);
-      return null;
-    }
+  for (const input of inputElements) {
     const pseudo = input.value.trim();
     if (pseudo === "") {
       alert("Tous les joueurs doivent avoir un pseudo !");
@@ -25,9 +23,8 @@ export function collectPlayers(input_ids: string[]): string[] | null {
   return players;
 }
 
-export function clearInputs(input_ids: string[]): void {
-  input_ids.forEach(id => {
-    const input = document.getElementById(id) as HTMLInputElement | null;
+export function clear_Formulaire_Of_Tournament(inputElements:DOMElements["tournamentElement"]["formPseudoTournament"]): void {
+  inputElements.forEach(input => {
     if (input) input.value = "";
   });
 }
@@ -38,14 +35,6 @@ export function arePlayersValid(players: string[]): boolean {
   }
   return areNamesUnique(players);
 }
-
-export function updateUrl(page: HTMLElement, prefix: string = "") {
-  SiteManagement.activePage = page;
-  const pageName = page.id.slice("pages".length).toLowerCase();
-  const url = prefix ? `${prefix}/${pageName}` : `/${pageName}`;
-  window.history.pushState({ page: pageName }, "", url);
-}
-
 
 // --- Fonctions utilitaires ---
 function isNameValid(name: string): boolean {
@@ -71,4 +60,22 @@ function areNamesUnique(players: string[]): boolean {
     return false;
   }
   return true;
+}
+
+// -- URL ---
+
+export function updateUrl(page: HTMLElement, prefix: string = "") {
+  SiteManagement.activePage = page;
+
+  const pageName = page.id.slice("pages".length).toLowerCase();
+  const url = prefix ? `${prefix}/${pageName}` : `/${pageName}`;
+  window.history.pushState({ page: pageName }, "", url);
+}
+
+
+// --- LOGGER ---
+
+export function log(msg: string, type: "info"|"error"="info") {
+  if(type === "error") console.error("[SiteManagement]", msg);
+  else console.log("[SiteManagement]", msg);
 }
