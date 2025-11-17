@@ -1,9 +1,15 @@
 import { DOMElements } from './dom_gestion.js';
 import { SiteManagement } from './SiteManagement.js';
-import { clear_Formulaire_Of_Tournament, updateUrl } from './utils.js';
+import { clear_Formulaire_Of_Tournament, findPageFromUrl, updateUrl } from './utils.js';
 // SPA et REDIRECTION
 
-export function initSPA(allDOMElement : DOMElements, activePage : HTMLElement |null ) {
+/**
+ * Initialise le système SPA avec routing
+ * @param allDOMElement - Tous les éléments DOM
+ * @param activePage - Page active au démarrage
+ * @param customPopStateHandler - Handler personnalisé pour popstate (fourni par SiteManagement)
+ */
+export function initSPA(allDOMElement: DOMElements, activePage: HTMLElement | null,customPopStateHandler?: (event: PopStateEvent) => void) {
   const iconAccueil = allDOMElement.icons.accueil;
   const iconSettings = allDOMElement.icons.settings;
 
@@ -11,15 +17,28 @@ export function initSPA(allDOMElement : DOMElements, activePage : HTMLElement |n
   if (!iconAccueil) return console.error("Pas reussie a recupere #icon-accueil");
   if (!iconSettings) return console.error("Pas reussie a recupere icon-settings");
 
-  // iconSettings.addEventListener('click', () => alert("⚙️ Paramètres à venir !"));
-
+  // GÉRER LE RELOAD (F5) : Restaurer la page depuis l'URL // a modifier plus tard car serveur qui sen occupera
+  const currentPath = window.location.pathname;
+  if (currentPath !== '/' && currentPath !== '/accueil') {
+    console.log("🔄 Reload détecté, restauration de la page depuis l'URL:", currentPath);
+    const pageToRestore = findPageFromUrl(currentPath, allDOMElement.pages);
+    if (pageToRestore) {
+      activePage = pageToRestore;
+      // Ne pas appeler updateUrl ici car l'URL est déjà correcte
+    }
+  }
 
   if (activePage.id != "pagesAccueil")
     activeOrHiden(iconAccueil, "On")
   if (activePage.id != "pagesParametre")
     activeOrHiden(iconSettings, "On")
 
-  updateUrl(activePage);
+  // Activer la page initiale
+  activeAnotherPage(activePage);
+
+  // Mettre à jour l'URL seulement si on est sur la racine
+  if (currentPath === '/' || currentPath === '/accueil') 
+    updateUrl(activePage);
 
   // gere quand on click dans un bouton
   // Sélectionner uniquement les boutons avec data-link
@@ -29,6 +48,13 @@ export function initSPA(allDOMElement : DOMElements, activePage : HTMLElement |n
   linkButtons.forEach(btn => {
     btn.addEventListener("click", (e) => redirectionDePage(e, allDOMElement, iconAccueil, iconSettings));
   });
+
+  // Gérer le bouton précédent/suivant du navigateur
+  // Si un handler custom est fourni (par SiteManagement), l'utiliser
+  if (customPopStateHandler) {
+    window.addEventListener("popstate", customPopStateHandler);
+    console.log("✅ Listener popstate personnalisé ajouté (géré par SiteManagement)");
+  }
 }
 
 function redirectionDePage(e: PointerEvent, dO: DOMElements,iconAccueil: HTMLElement, iconSettings: HTMLElement) {
@@ -38,7 +64,7 @@ function redirectionDePage(e: PointerEvent, dO: DOMElements,iconAccueil: HTMLEle
   if (!link) return console.error("Bouton avec data-link introuvable");
   const get_data_link = link.getAttribute("data-link");
   if (!get_data_link || get_data_link.startsWith("go_to_") === false)
-    return console.log("data-link invalide:", get_data_link);
+    return console.log("it s not a data-link for redirection:", get_data_link);
   const pageName = get_data_link.slice("go_to_".length);
 
   activeOrHiden(iconAccueil, pageName === "accueil" ? "Off" : "On")

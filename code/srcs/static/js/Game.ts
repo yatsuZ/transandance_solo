@@ -157,12 +157,10 @@ export class PongGame {
     window.removeEventListener("resize", this.resizeHandler);
 
     // Nettoyer les input handlers des joueurs humains
-    if (this.playerLeft.typePlayer === "HUMAN") {
+    if (this.playerLeft.typePlayer === "HUMAN")
       (this.playerLeft as PlayerHuman).cleanup();
-    }
-    if (this.playerRight.typePlayer === "HUMAN") {
+    if (this.playerRight.typePlayer === "HUMAN")
       (this.playerRight as PlayerHuman).cleanup();
-    }
 
     // Clear le canvas
     const { canva, ctx } = this._DO;

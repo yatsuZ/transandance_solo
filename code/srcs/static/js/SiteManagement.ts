@@ -3,7 +3,7 @@ import { initMusicSystem } from './music_gestion.js';
 import { update_description_de_page } from './update_description.js';
 import { activeAnotherPage, activeOrHiden, initSPA } from './spa_redirection.js';
 import { Tournament } from './Tournament.js';
-import { log, updateUrl } from './utils.js';
+import { findPageFromUrl, log, updateUrl } from './utils.js';
 import { DOMElements } from './dom_gestion.js';
 
 
@@ -60,8 +60,9 @@ export class SiteManagement {
 
     const currentPage = SiteManagement.currentActivePage;
 
-    if (do_style.sheet) initSPA(this._DO, currentPage);
-    else do_style.addEventListener("load", () => initSPA(this._DO, currentPage));
+    // Passer la méthode handlePopStateNavigation pour gérer back/forward
+    if (do_style.sheet) initSPA(this._DO, currentPage, this.handlePopStateNavigation);
+    else do_style.addEventListener("load", () => initSPA(this._DO, currentPage, this.handlePopStateNavigation));
   }
 
   private initGameIfNeeded() {
@@ -208,7 +209,7 @@ export class SiteManagement {
     const do_p_treeTournament = this._DO.pages.treeTournament;
     const do_icon_accueil = this._DO.icons.accueil;
 
-    // recuperer les resultet pour metre a jour tournament puis recomencer 
+    // recuperer les resultet pour metre a jour tournament puis recomencer
     if (this.tournament)
     {
       // faire une condition pour verifier si il sagit du denrier match ??
@@ -223,5 +224,90 @@ export class SiteManagement {
       activeAnotherPage(do_p_accueil);
       updateUrl(do_p_accueil);
     }
+  }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Navigation back/forward (popstate)
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  /**
+   * Gère la navigation back/forward du navigateur (popstate)
+   * BLOQUE l'accès aux pages interdites AVANT de les afficher
+   * Appelle les méthodes stop appropriées selon la situation
+   */
+  private handlePopStateNavigation = (event: PopStateEvent): void => {
+    console.log("🔙 Navigation back/forward détectée:", window.location.pathname);
+
+    const path = window.location.pathname;
+    const targetPage = findPageFromUrl(path, this._DO.pages);
+
+    if (!targetPage) {
+      console.error("[popstate] Impossible de trouver la page pour:", path);
+      return;
+    }
+
+    const allowedTournamentPages = [
+      this._DO.pages.match.id,
+      this._DO.pages.result.id,
+      this._DO.pages.treeTournament.id,
+    ];
+
+    const currentPage = SiteManagement.currentActivePage;
+
+    // ===== BLOCAGES : Interdire l'accès AVANT d'afficher la page =====
+
+    // BLOCAGE 1 : Interdire l'accès aux pages de tournoi si aucun tournoi actif
+    if (!this.tournament && allowedTournamentPages.includes(targetPage.id)) {
+      log("🚫 [TOURNOI] Accès interdit : Aucun tournoi actif → Redirection accueil");
+      activeAnotherPage(this._DO.pages.accueil);
+      activeOrHiden(this._DO.icons.accueil, "Off");
+      window.history.replaceState({ page: 'accueil' }, "", "/accueil");
+      return;
+    }
+
+    // BLOCAGE 2 : Interdire l'accès à la page match si aucun match actif (hors tournoi)
+    if (!this.tournament && !this.pongGameSingleMatch && targetPage.id === "pagesMatch") {
+      log("🚫 [MATCH SOLO] Accès interdit : Aucun match classique actif → Redirection accueil");
+      activeAnotherPage(this._DO.pages.accueil);
+      activeOrHiden(this._DO.icons.accueil, "Off");
+      window.history.replaceState({ page: 'accueil' }, "", "/accueil");
+      return;
+    }
+
+    // ===== CLEANUP : Arrêter match/tournoi si on quitte leurs pages =====
+
+    // CAS SPÉCIAL 1 : Si on fait BACKWARD depuis une page de TOURNOI
+    // → Arrêter le tournoi ET rediriger vers accueil directement
+    if (this.tournament && allowedTournamentPages.includes(currentPage?.id ?? "")) {
+      log("🛑 [TOURNOI] Backward depuis tournoi → Arrêt du tournoi et redirection accueil");
+      this.tournament.ft_stopTournament();
+      this.tournament = null;
+      // Forcer la redirection vers accueil
+      activeAnotherPage(this._DO.pages.accueil);
+      activeOrHiden(this._DO.icons.accueil, "Off");
+      window.history.replaceState({ page: 'accueil' }, "", "/accueil");
+      return;
+    }
+
+    // Si on quitte la page match (et pas dans un tournoi), stopper le match solo
+    if (!this.tournament && this.pongGameSingleMatch && targetPage.id !== "pagesMatch") {
+      log("🛑 [MATCH SOLO] Backward depuis match classique → Arrêt du match");
+      this.pongGameSingleMatch.stop("Navigation back/forward du navigateur");
+      this.pongGameSingleMatch = null;
+    }
+
+    // ===== AFFICHAGE : Afficher la nouvelle page =====
+
+    const pageName = targetPage.id.slice("pages".length).toLowerCase();
+
+    // Mettre à jour les icônes
+    activeOrHiden(this._DO.icons.accueil, pageName === "accueil" ? "Off" : "On");
+    activeOrHiden(this._DO.icons.settings, pageName === "parametre" ? "Off" : "On");
+
+    // Afficher la page
+    activeAnotherPage(targetPage);
+    console.log("✅ Page affichée:", targetPage.id);
   }
 }

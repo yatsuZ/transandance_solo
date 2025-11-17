@@ -65,12 +65,51 @@ function areNamesUnique(players: string[]): boolean {
 
 // -- URL ---
 
+/**
+ * Trouve la page correspondante à partir d'une URL
+ * Gère les chemins imbriqués comme /tournament/match ou /tournament/result
+ */
+export function findPageFromUrl(url: string, allPages: DOMElements["pages"]): HTMLElement | null {
+  // Nettoyer l'URL et séparer les segments
+  const segments = url.split('/').filter(s => s.length > 0);
+
+  // CAS SPÉCIAL : URL racine "/" ou "/accueil" -> toujours page d'accueil
+  if (segments.length === 0 || segments[segments.length - 1] === 'accueil') {
+    return allPages.accueil;
+  }
+
+  // Dernier segment = nom de la page
+  const pageName = segments[segments.length - 1];
+
+  // Convertir en ID de page (ex: "match" -> "pagesMatch", "begin_tournament" -> "pagesBegin_Tournament")
+  // Mettre en majuscule le premier caractère + chaque caractère après un underscore
+  const convertedName = pageName
+    .split('_')
+    .map((part, index) => {
+      // Première lettre de chaque partie en majuscule
+      return part.charAt(0).toUpperCase() + part.slice(1);
+    })
+    .join('_');
+
+  const targetId = "pages" + convertedName;
+
+  // Chercher dans les pages disponibles
+  const targetPage = Object.values(allPages).find(p => p?.id === targetId);
+
+  if (!targetPage) {
+    console.warn(`[findPageFromUrl] Page "${targetId}" introuvable pour l'URL "${url}"`);
+    return allPages.accueil; // Fallback sur accueil
+  }
+
+  return targetPage;
+}
+
 export function updateUrl(page: HTMLElement, prefix: string = "") {
   SiteManagement.activePage = page;
 
   const pageName = page.id.slice("pages".length).toLowerCase();
   const url = prefix ? `${prefix}/${pageName}` : `/${pageName}`;
-  window.history.pushState({ page: pageName }, "", url);
+  window.history.pushState({ page: pageName, prefix }, "", url);
 }
 
 

@@ -17,8 +17,9 @@ export class Tournament {
   private tournamentTree: any = null;
   private stopTournament: boolean = false;
   private onDoMatchTournamentClick: (() => void) | null = null;
-  // avoir un attribut match quand on appuye sur doMatchTournament sa en crée un   
+
   private currentMatch: PongGame | null = null;
+  private resizeHandler = () => this.handleResize();
 
   constructor(DO_of_SiteManagement: DOMElements, players: [PlayerForTournament, PlayerForTournament, PlayerForTournament, PlayerForTournament]) {
     this._DO = DO_of_SiteManagement;
@@ -37,7 +38,7 @@ export class Tournament {
 
     updateUrl(this._DO.pages.treeTournament, '/tournament')
     this.createTree();
-    window.addEventListener("resize", this.handleResize.bind(this));
+    window.addEventListener("resize", this.resizeHandler);
   }
 
   // met a jour larbre et re affiche correctmeent on fonction de la taille de la fenetre
@@ -248,6 +249,10 @@ export class Tournament {
       console.log("🧹 Listener supprimé sur #doMatchTournament");
     }
     this.onDoMatchTournamentClick = null;
+
+    // Nettoyer le listener resize
+    window.removeEventListener("resize", this.resizeHandler);
+    console.log("🧹 Listener resize supprimé du tournoi");
 
     if (this.currentMatch) this.currentMatch.stop("Leave Tournament");
     this.currentMatch = null;
