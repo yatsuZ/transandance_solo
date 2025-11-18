@@ -1,6 +1,6 @@
 import { DOMElements } from './dom_gestion.js';
 import { SiteManagement } from './SiteManagement.js';
-import { clear_Formulaire_Of_Tournament, findPageFromUrl, updateUrl } from './utils.js';
+import { clear_Formulaire_Of_Tournament, findPageFromUrl, redirectToError, updateUrl } from './utils.js';
 // SPA et REDIRECTION
 
 /**
@@ -17,21 +17,51 @@ export function initSPA(allDOMElement: DOMElements, activePage: HTMLElement | nu
   if (!iconAccueil) return console.error("Pas reussie a recupere #icon-accueil");
   if (!iconSettings) return console.error("Pas reussie a recupere icon-settings");
 
-  // GÉRER LE RELOAD (F5) : Restaurer la page depuis l'URL // a modifier plus tard car serveur qui sen occupera
+  // GÉRER LE RELOAD (F5) : Valider et restaurer la page depuis l'URL
   const currentPath = window.location.pathname;
-  if (currentPath !== '/' && currentPath !== '/accueil') {
+
+  // Routes interdites en accès direct (nécessitent un contexte actif)
+  const restrictedRoutes = [
+    '/match',
+    '/match/result',
+    '/tournament',
+    '/tournament/match',
+    '/tournament/result',
+    '/tournament/tree_tournament'
+  ];
+
+  // Vérifier si la route actuelle est interdite
+  const isRestricted = restrictedRoutes.some(route => currentPath.startsWith(route));
+
+  if (isRestricted) {
+    console.warn("🚫 Accès direct interdit à:", currentPath);
+
+    // Rediriger vers la page d'erreur 403 (Accès interdit)
+    activePage = redirectToError(403, "Cette page n'est pas accessible directement. Vous devez passer par la page d'accueil pour démarrer un match ou un tournoi.", allDOMElement);
+  } else if (currentPath !== '/' && currentPath !== '/accueil') {
     console.log("🔄 Reload détecté, restauration de la page depuis l'URL:", currentPath);
     const pageToRestore = findPageFromUrl(currentPath, allDOMElement.pages);
-    if (pageToRestore) {
+
+    if (pageToRestore)
       activePage = pageToRestore;
-      // Ne pas appeler updateUrl ici car l'URL est déjà correcte
+    else {
+      console.warn("⚠️ Route invalide:", currentPath, "→ Redirection vers page d'erreur");
+
+      // Rediriger vers la page d'erreur 404 (Page introuvable)
+      activePage = redirectToError(404, "La page demandée n'existe pas.", allDOMElement);
     }
   }
 
+  // Gérer l'affichage des icônes selon la page active
   if (activePage.id != "pagesAccueil")
     activeOrHiden(iconAccueil, "On")
+  else
+    activeOrHiden(iconAccueil, "Off")
+
   if (activePage.id != "pagesParametre")
     activeOrHiden(iconSettings, "On")
+  else
+    activeOrHiden(iconSettings, "Off")
 
   // Activer la page initiale
   activeAnotherPage(activePage);

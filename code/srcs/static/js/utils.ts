@@ -98,7 +98,7 @@ export function findPageFromUrl(url: string, allPages: DOMElements["pages"]): HT
 
   if (!targetPage) {
     console.warn(`[findPageFromUrl] Page "${targetId}" introuvable pour l'URL "${url}"`);
-    return allPages.accueil; // Fallback sur accueil
+    return null; // Retourner null pour gérer l'erreur 404
   }
 
   return targetPage;
@@ -110,6 +110,36 @@ export function updateUrl(page: HTMLElement, prefix: string = "") {
   const pageName = page.id.slice("pages".length).toLowerCase();
   const url = prefix ? `${prefix}/${pageName}` : `/${pageName}`;
   window.history.pushState({ page: pageName, prefix }, "", url);
+}
+
+/**
+ * Redirige vers la page d'erreur avec un message et code personnalisés
+ * @param errorCode - Le code d'erreur (403 ou 404)
+ * @param errorMessage - Le message d'erreur à afficher
+ * @param dO - Les éléments DOM
+ * @returns La page d'erreur configurée (pour l'assigner à activePage)
+ */
+export function redirectToError(errorCode: 403 | 404, errorMessage: string, dO: DOMElements): HTMLElement {
+  const errorPage = dO.pages.error;
+  const errorCodeEl = dO.errorElement.codeEl;
+  const errorDescriptionEl = dO.errorElement.descriptionEl;
+  const errorImageEl = dO.errorElement.imageEl;
+
+  // Mettre à jour le code d'erreur
+  errorCodeEl.textContent = `Erreur ${errorCode}`;
+
+  // Mettre à jour le message d'erreur
+  errorDescriptionEl.textContent = errorMessage;
+
+  // Mettre à jour l'image selon le code d'erreur
+  errorImageEl.src = `/static/util/img/error_${errorCode}.jpg`;
+  errorImageEl.alt = `Erreur ${errorCode}`;
+
+  // Mettre à jour l'URL
+  window.history.replaceState({ page: 'error' }, "", "/error");
+
+  // Retourner la page pour l'activer dans spa_redirection
+  return errorPage;
 }
 
 

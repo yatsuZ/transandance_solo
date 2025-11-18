@@ -8,9 +8,15 @@
  */
 export type DOMElements = {
   pages: Record<
-    "accueil" | "match" | "result" | "beginTournament" | "treeTournament" | "parametre",
+    "accueil" | "match" | "result" | "beginTournament" | "treeTournament" | "parametre" | "error",
     HTMLElement
   >;
+
+  errorElement: {
+    codeEl: HTMLElement;
+    descriptionEl: HTMLElement;
+    imageEl: HTMLImageElement;
+  };
 
   resultElement: Record<
     "winnerNameEl" | "player1NameEl" | "player1ScoreEl" | "player2NameEl" | "player2ScoreEl",
@@ -157,6 +163,14 @@ export function init_All_Dom(): DOMElements {
   const pageBeginTournament = get<HTMLElement>("pagesBegin_Tournament", "Pages");
   const pageTreeTournament = get<HTMLElement>("pagesTree_Tournament", "Pages");
   const pageParametre = get<HTMLElement>("pagesParametre", "Pages");
+  const pageError = get<HTMLElement>("pagesError", "Pages");
+
+  // ========================================
+  // PAGE ERREUR
+  // ========================================
+  const errorCodeEl = query<HTMLElement>(".error-code", "Error");
+  const errorDescriptionEl = query<HTMLElement>(".error-description", "Error");
+  const errorImageEl = get<HTMLImageElement>("error-image", "Error");
 
   // ========================================
   // PAGE RÉSULTAT
@@ -244,6 +258,13 @@ export function init_All_Dom(): DOMElements {
       beginTournament: pageBeginTournament,
       treeTournament: pageTreeTournament,
       parametre: pageParametre,
+      error: pageError,
+    },
+
+    errorElement: {
+      codeEl: errorCodeEl,
+      descriptionEl: errorDescriptionEl,
+      imageEl: errorImageEl,
     },
 
     resultElement: {

@@ -3,7 +3,7 @@ import { initMusicSystem } from './music_gestion.js';
 import { update_description_de_page } from './update_description.js';
 import { activeAnotherPage, activeOrHiden, initSPA } from './spa_redirection.js';
 import { Tournament } from './Tournament.js';
-import { findPageFromUrl, log, updateUrl } from './utils.js';
+import { findPageFromUrl, log, redirectToError, updateUrl } from './utils.js';
 import { DOMElements } from './dom_gestion.js';
 
 
@@ -272,8 +272,14 @@ export class SiteManagement {
     const path = window.location.pathname;
     const targetPage = findPageFromUrl(path, this._DO.pages);
 
-    if (!targetPage)
-      return console.error("[popstate] Impossible de trouver la page pour:", path);
+    if (!targetPage) {
+      console.error("[popstate] Impossible de trouver la page pour:", path);
+      // Rediriger vers page d'erreur 404
+      activeAnotherPage(redirectToError(404, "La page demandée n'existe pas.", this._DO));
+      activeOrHiden(this._DO.icons.accueil, "On");
+      activeOrHiden(this._DO.icons.settings, "On");
+      return;
+    }
 
     const allowedTournamentPages = [
       this._DO.pages.match.id,
@@ -300,22 +306,20 @@ export class SiteManagement {
 
     // BLOCAGE 2 : Interdire l'accès à la page match si aucun match actif (hors tournoi)
     if (!this.tournament && !this.pongGameSingleMatch && targetPage.id === "pagesMatch" && (path==="/match" || path==="/match/result")) {
-      log("🚫 [MATCH SOLO] Accès interdit : Aucun match classique actif → Redirection accueil");
-      alert("❌ Accès refusé\n\nVous ne pouvez pas accéder à la page de match car aucun match n'est actuellement en cours.\n\nVeuillez démarrer un nouveau match depuis la page d'accueil.");
-      activeAnotherPage(this._DO.pages.accueil);
-      activeOrHiden(this._DO.icons.accueil, "Off");
-      window.history.replaceState({ page: 'accueil' }, "", "/accueil");
+      log("🚫 [MATCH SOLO] Accès interdit : Aucun match classique actif → Redirection page d'erreur");
+      activeAnotherPage(redirectToError(403, "Vous ne pouvez pas accéder à la page de match car aucun match n'est actuellement en cours. Veuillez démarrer un nouveau match depuis la page d'accueil.", this._DO));
+      activeOrHiden(this._DO.icons.accueil, "On");
+      activeOrHiden(this._DO.icons.settings, "On");
       return;
     }
 
 
     // BLOCAGE 1 : Interdire l'accès aux pages de tournoi si aucun tournoi actif
     if (!this.tournament && allowedTournamentPages.includes(targetPage.id)) {
-      log("🚫 [TOURNOI] Accès interdit : Aucun tournoi actif → Redirection accueil");
-      alert("❌ Accès refusé\n\nVous ne pouvez pas accéder aux pages du tournoi car aucun tournoi n'est actuellement actif.\n\nVeuillez créer un nouveau tournoi depuis la page d'accueil.");
-      activeAnotherPage(this._DO.pages.accueil);
-      activeOrHiden(this._DO.icons.accueil, "Off");
-      window.history.replaceState({ page: 'accueil' }, "", "/accueil");
+      log("🚫 [TOURNOI] Accès interdit : Aucun tournoi actif → Redirection page d'erreur");
+      activeAnotherPage(redirectToError(403, "Vous ne pouvez pas accéder aux pages du tournoi car aucun tournoi n'est actuellement actif. Veuillez créer un nouveau tournoi depuis la page d'accueil.", this._DO));
+      activeOrHiden(this._DO.icons.accueil, "On");
+      activeOrHiden(this._DO.icons.settings, "On");
       return;
     }
 

@@ -30,6 +30,17 @@ fastify.register(fastifyStatic, {
 });
 
 // 2. Routes
+// Fallback SPA : servir main.ejs pour toutes les routes
+fastify.setNotFoundHandler(async (request, reply) => {
+  // Si c'est une requête pour un fichier statique, renvoyer 404
+  if (request.url.startsWith('/static/')) {
+    return reply.code(404).send({ error: 'File not found' });
+  }
+  // Sinon, servir la SPA (le client gérera la validation de route)
+  return reply.view('main.ejs');
+});
+
+// Route principale
 fastify.get('/', async (request, reply) => {
   return reply.view('main.ejs');
 });
