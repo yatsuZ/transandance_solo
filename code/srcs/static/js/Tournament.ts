@@ -20,9 +20,11 @@ export class Tournament {
 
   private currentMatch: PongGame | null = null;
   private resizeHandler = () => this.handleResize();
+  private onTournamentEndCallback?: () => void;
 
-  constructor(DO_of_SiteManagement: DOMElements, players: [PlayerForTournament, PlayerForTournament, PlayerForTournament, PlayerForTournament]) {
+  constructor(DO_of_SiteManagement: DOMElements, players: [PlayerForTournament, PlayerForTournament, PlayerForTournament, PlayerForTournament], onTournamentEnd?: () => void) {
     this._DO = DO_of_SiteManagement;
+    this.onTournamentEndCallback = onTournamentEnd;
     // update whovs who ici
     this.players = players;
 
@@ -223,6 +225,11 @@ export class Tournament {
       const boutonDeTournoi = this._DO.tournamentElement.divOfButton;
       activeOrHiden(boutonDeTournoi, "Off");
       console.log("FIN du tournoi montrer le vainquer du tournoi.");
+
+      // Notifier SiteManagement que le tournoi est terminé
+      if (this.onTournamentEndCallback) {
+        this.onTournamentEndCallback();
+      }
     }
   }
 

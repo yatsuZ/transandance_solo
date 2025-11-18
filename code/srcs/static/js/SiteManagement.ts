@@ -70,7 +70,16 @@ export class SiteManagement {
 
     // Si la première page est la page match, créer un match
     if (activePage?.id === "pagesMatch") {
-      this.pongGameSingleMatch = new PongGame(this._DO, {mode:"PvP", name:["Left_Player", "Right_Player"]});
+      this.pongGameSingleMatch = new PongGame(
+        this._DO,
+        {mode:"PvP", name:["Left_Player", "Right_Player"]},
+        false,
+        () => {
+          // Callback appelé quand le match se termine normalement
+          this.pongGameSingleMatch = null;
+          log("[MATCH] Single match terminé, attribut remis à null");
+        }
+      );
     }
 
     // Event listener pour gérer les changements de page et stop/start de match
@@ -84,7 +93,15 @@ export class SiteManagement {
       if (!players) {
         return log("❌ Le tournoi n'est pas prêt.", "error");
       }
-      this.tournament = new Tournament(this._DO, players);
+      this.tournament = new Tournament(
+        this._DO,
+        players,
+        () => {
+          // Callback appelé quand le tournoi se termine naturellement
+          this.tournament = null;
+          log("[TOURNAMENT] Tournoi terminé (fin naturelle avec vainqueur), attribut remis à null");
+        }
+      );
       log("✅ Tournoi créé :");
       console.log(this.tournament);
     });
@@ -110,7 +127,7 @@ export class SiteManagement {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   static get activePage(): HTMLElement | null {
-    console.log("[Logger GET] activePage récupérée :", this.currentActivePage?.id ?? "aucune");
+    // console.log("[Logger GET] activePage récupérée :", this.currentActivePage?.id ?? "aucune");
     return (this.currentActivePage);
   }
 
@@ -121,18 +138,18 @@ export class SiteManagement {
         activeOrHiden(this.currentActivePage, "Off")
 
       const tmp = document.querySelector('.active') as HTMLElement | null;
-      console.log("[Logger SET] activePage set avec querySelector:", tmp?.id ?? "aucune");
+      // console.log("[Logger SET] activePage set avec querySelector:", tmp?.id ?? "aucune");
       this.currentActivePage = tmp;
       if (this.currentActivePage)
         activeOrHiden(this.currentActivePage, "On")
     }
-    else if (newPage === this.currentActivePage) console.log("[Logger SET] newPageActif et Current Page actif sont les meme:", newPage?.id ?? "aucune");
+    else if (newPage === this.currentActivePage) return; //console.log("[Logger SET] newPageActif et Current Page actif sont les meme:", newPage?.id ?? "aucune");
     else
     {
       if (this.currentActivePage)
         activeOrHiden(this.currentActivePage, "Off")
       this.currentActivePage = newPage;
-      console.log("[Logger SET] activePage set:", newPage?.id ?? "aucune");
+      // console.log("[Logger SET] activePage set:", newPage?.id ?? "aucune");
         activeOrHiden(this.currentActivePage, "On")
 
     }
@@ -158,7 +175,8 @@ export class SiteManagement {
     log(`Tournament Finito pipo (1) :`);
     console.log(this)
     this.tournament?.ft_stopTournament();
-    this.tournament = null; 
+    this.tournament = null;
+    log("[TOURNAMENT] Tournoi terminé (abandon via bouton), attribut remis à null"); 
   }
 
   private event_LeaveTournamentHandler = this.event_LeaveTournament.bind(this);
@@ -180,6 +198,7 @@ export class SiteManagement {
       this.tournament?.ft_stopTournament();
 
       this.tournament = null;
+      log("[TOURNAMENT] Tournoi terminé (navigation hors pages tournoi), attribut remis à null");
     }
   }
 
@@ -191,7 +210,16 @@ export class SiteManagement {
     if (activePage?.id === "pagesMatch") {
       // Ne créer un match que si il n'y en a pas déjà un
       if (!this.pongGameSingleMatch) {
-        this.pongGameSingleMatch = new PongGame(this._DO, {mode:"PvP", name:["Left_Player", "Right_Player"]});
+        this.pongGameSingleMatch = new PongGame(
+          this._DO,
+          {mode:"PvP", name:["Left_Player", "Right_Player"]},
+          false,
+          () => {
+            // Callback appelé quand le match se termine normalement
+            this.pongGameSingleMatch = null;
+            log("[MATCH] Single match terminé, attribut remis à null");
+          }
+        );
       }
     }
     // Si on QUITTE la page match, arrêter le match actuel
@@ -199,6 +227,7 @@ export class SiteManagement {
       if (this.pongGameSingleMatch) {
         this.pongGameSingleMatch.stop("Quite la  page match");
         this.pongGameSingleMatch = null;
+        log("[MATCH] Single match terminé, attribut remis à null");
       }
     }
   }
@@ -243,10 +272,8 @@ export class SiteManagement {
     const path = window.location.pathname;
     const targetPage = findPageFromUrl(path, this._DO.pages);
 
-    if (!targetPage) {
-      console.error("[popstate] Impossible de trouver la page pour:", path);
-      return;
-    }
+    if (!targetPage)
+      return console.error("[popstate] Impossible de trouver la page pour:", path);
 
     const allowedTournamentPages = [
       this._DO.pages.match.id,
@@ -258,9 +285,13 @@ export class SiteManagement {
 
     // ===== BLOCAGES : Interdire l'accès AVANT d'afficher la page =====
 
-    // BLOCAGE 1 : Interdire l'accès aux pages de tournoi si aucun tournoi actif
-    if (!this.tournament && allowedTournamentPages.includes(targetPage.id)) {
-      log("🚫 [TOURNOI] Accès interdit : Aucun tournoi actif → Redirection accueil");
+    // console.log("PATH = ", path);
+    // console.log("targetPage = ", targetPage);
+    // console.log("active page == ", SiteManagement?.currentActivePage?.id)
+    // console.log("match active == ", this.pongGameSingleMatch ? "OUI" : "NON")
+
+    if (path == "/")
+    {
       activeAnotherPage(this._DO.pages.accueil);
       activeOrHiden(this._DO.icons.accueil, "Off");
       window.history.replaceState({ page: 'accueil' }, "", "/accueil");
@@ -268,13 +299,26 @@ export class SiteManagement {
     }
 
     // BLOCAGE 2 : Interdire l'accès à la page match si aucun match actif (hors tournoi)
-    if (!this.tournament && !this.pongGameSingleMatch && targetPage.id === "pagesMatch") {
+    if (!this.tournament && !this.pongGameSingleMatch && targetPage.id === "pagesMatch" && (path==="/match" || path==="/match/result")) {
       log("🚫 [MATCH SOLO] Accès interdit : Aucun match classique actif → Redirection accueil");
+      alert("❌ Accès refusé\n\nVous ne pouvez pas accéder à la page de match car aucun match n'est actuellement en cours.\n\nVeuillez démarrer un nouveau match depuis la page d'accueil.");
       activeAnotherPage(this._DO.pages.accueil);
       activeOrHiden(this._DO.icons.accueil, "Off");
       window.history.replaceState({ page: 'accueil' }, "", "/accueil");
       return;
     }
+
+
+    // BLOCAGE 1 : Interdire l'accès aux pages de tournoi si aucun tournoi actif
+    if (!this.tournament && allowedTournamentPages.includes(targetPage.id)) {
+      log("🚫 [TOURNOI] Accès interdit : Aucun tournoi actif → Redirection accueil");
+      alert("❌ Accès refusé\n\nVous ne pouvez pas accéder aux pages du tournoi car aucun tournoi n'est actuellement actif.\n\nVeuillez créer un nouveau tournoi depuis la page d'accueil.");
+      activeAnotherPage(this._DO.pages.accueil);
+      activeOrHiden(this._DO.icons.accueil, "Off");
+      window.history.replaceState({ page: 'accueil' }, "", "/accueil");
+      return;
+    }
+
 
     // ===== CLEANUP : Arrêter match/tournoi si on quitte leurs pages =====
 
@@ -282,8 +326,10 @@ export class SiteManagement {
     // → Arrêter le tournoi ET rediriger vers accueil directement
     if (this.tournament && allowedTournamentPages.includes(currentPage?.id ?? "")) {
       log("🛑 [TOURNOI] Backward depuis tournoi → Arrêt du tournoi et redirection accueil");
+      // alert("⚠️ Tournoi interrompu\n\nLa navigation arrière depuis les pages du tournoi n'est pas autorisée.\n\nLe tournoi a été arrêté et vous êtes redirigé vers l'accueil.");
       this.tournament.ft_stopTournament();
       this.tournament = null;
+      log("[TOURNAMENT] Tournoi terminé (navigation back/forward), attribut remis à null");
       // Forcer la redirection vers accueil
       activeAnotherPage(this._DO.pages.accueil);
       activeOrHiden(this._DO.icons.accueil, "Off");
@@ -294,8 +340,10 @@ export class SiteManagement {
     // Si on quitte la page match (et pas dans un tournoi), stopper le match solo
     if (!this.tournament && this.pongGameSingleMatch && targetPage.id !== "pagesMatch") {
       log("🛑 [MATCH SOLO] Backward depuis match classique → Arrêt du match");
+      // alert("⚠️ Match interrompu\n\nLa navigation arrière depuis la page de match n'est pas autorisée.\n\nLe match a été arrêté.");
       this.pongGameSingleMatch.stop("Navigation back/forward du navigateur");
       this.pongGameSingleMatch = null;
+      log("[MATCH] Single match terminé, attribut remis à null");
     }
 
     // ===== AFFICHAGE : Afficher la nouvelle page =====

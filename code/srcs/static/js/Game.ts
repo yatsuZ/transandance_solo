@@ -25,13 +25,15 @@ export class PongGame {
   private animationId: number | null = null;
   private shouldStop: boolean = false;
   private inTournament: boolean;
+  private onMatchEndCallback?: () => void;
 
   // -------------------------
   // Constructeur
   // -------------------------
-  constructor(DO_of_SiteManagement: DOMElements, config: ConfigMatch, inTournament: boolean = false) {
+  constructor(DO_of_SiteManagement: DOMElements, config: ConfigMatch, inTournament: boolean = false, onMatchEnd?: () => void) {
     this.inTournament = inTournament;
-    console.log("Une nouvelle partie est créée.");
+    this.onMatchEndCallback = onMatchEnd;
+    console.log("[MATCH] Une nouvelle partie est créée.");
 
     this._DO = DO_of_SiteManagement;
 
@@ -133,8 +135,8 @@ export class PongGame {
 
     // Vérifier si le match est terminé (3 points)
     if (this.playerLeft.get_score() >= 3 || this.playerRight.get_score() >= 3) {
-      this.goToResult();
       this.stop("Le match est terminé normalement.");
+      this.goToResult();
     }
 
     // Continuer la boucle si le jeu n'est pas arrêté
@@ -167,7 +169,7 @@ export class PongGame {
     ctx.clearRect(0, 0, canva.width, canva.height);
 
     // Logger l'arrêt
-    console.log(`✅ Match arrêté : ${whyStop}`);
+    console.log(`[MATCH] ✅ Match arrêté : ${whyStop}`);
     this.shouldStop = true;
   }
 
@@ -184,6 +186,11 @@ export class PongGame {
     if (player1ScoreEl) player1ScoreEl.textContent = this.playerLeft.get_score().toString();
     if (player2NameEl) player2NameEl.textContent = this.playerRight.name;
     if (player2ScoreEl) player2ScoreEl.textContent = this.playerRight.get_score().toString();
+
+    // Notifier SiteManagement que le match est terminé
+    if (this.onMatchEndCallback) {
+      this.onMatchEndCallback();
+    }
   }
 
   // -------------------------
