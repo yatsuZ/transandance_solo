@@ -7,11 +7,11 @@ Liste des tâches à accomplir avant de commencer la partie modules du projet Tr
 ## 🔴 PARTIE OBLIGATOIRE MANQUANTE (CRITIQUE)
 
 ### 1. Routing & Navigation
-- [ ] Implémenter l'History API pour le routing SPA
+- [X] Implémenter l'History API pour le routing SPA
   - [X] Utiliser `history.pushState()` lors des changements de page
   - [X] Gérer l'événement `popstate` pour back/forward du navigateur
   - [X] Tester que précédent/suivant fonctionnent correctement
-  - [ ] Mettre à jour l'URL sans recharger la page
+  - [X] Mettre à jour l'URL sans recharger la page
 
 ### 2. HTTPS
 - [ ] Générer un certificat SSL (self-signed pour dev)
@@ -48,10 +48,10 @@ Liste des tâches à accomplir avant de commencer la partie modules du projet Tr
 ### 6. Optimisation des ressources
 **Objectif :** Faire tourner l'app plus rapidement et plus smoothly
 
-- [ ] **Memory leaks**
-  - [ ] Créer 5-10 tournois d'affilée
-  - [ ] Ouvrir DevTools → Memory → voir si la RAM augmente à chaque tournoi
-  - [ ] Si oui : trouver les event listeners ou objets non détruits
+- [X] **Memory leaks**
+  - [X] Créer 5-10 tournois d'affilée
+  - [X] Ouvrir DevTools → Memory → voir si la RAM augmente à chaque tournoi
+  - [X] Si oui : trouver les event listeners ou objets non détruits
 
 ---
 
