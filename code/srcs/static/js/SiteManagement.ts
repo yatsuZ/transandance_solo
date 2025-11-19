@@ -305,14 +305,13 @@ export class SiteManagement {
     }
 
     // BLOCAGE 2 : Interdire l'accès à la page match si aucun match actif (hors tournoi)
-    if (!this.tournament && !this.pongGameSingleMatch && targetPage.id === "pagesMatch" && (path==="/match" || path==="/match/result")) {
+    if (!this.tournament && !this.pongGameSingleMatch && ((targetPage.id === "pagesMatch" && path==="/match") || (targetPage.id==="pagesResult" && path==="/match/result"))) {
       log("🚫 [MATCH SOLO] Accès interdit : Aucun match classique actif → Redirection page d'erreur");
       activeAnotherPage(redirectToError(403, "Vous ne pouvez pas accéder à la page de match car aucun match n'est actuellement en cours. Veuillez démarrer un nouveau match depuis la page d'accueil.", this._DO));
       activeOrHiden(this._DO.icons.accueil, "On");
       activeOrHiden(this._DO.icons.settings, "On");
       return;
     }
-
 
     // BLOCAGE 1 : Interdire l'accès aux pages de tournoi si aucun tournoi actif
     if (!this.tournament && allowedTournamentPages.includes(targetPage.id)) {

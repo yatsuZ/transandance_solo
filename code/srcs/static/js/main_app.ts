@@ -1,6 +1,5 @@
 import { init_All_Dom } from './dom_gestion.js';
 import { SiteManagement } from './SiteManagement.js';
-import { log } from './utils.js';
 
 // la classe qui gere tout
 try {
