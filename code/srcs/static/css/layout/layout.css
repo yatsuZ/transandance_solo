@@ -6,8 +6,19 @@ html, body, #app, .arcade-container {
   overflow: hidden;
 }
 
-.screen-content,
-.page,
+.screen-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
 .container {
   display: flex;
   flex-direction: column;

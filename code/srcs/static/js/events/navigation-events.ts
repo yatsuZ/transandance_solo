@@ -1,6 +1,6 @@
 import { DOMElements } from "../core/dom-manager.js";
 import { activeAnotherPage, activeOrHiden, findPage } from "../navigation/page-manager.js";
-import { findPageFromUrl, redirectToError, updateUrl } from "../utils/url-helpers.js";
+import { findPageFromUrl, redirectToError, resetErrorPage, updateUrl } from "../utils/url-helpers.js";
 import { isRestrictedRoute } from "../navigation/route-config.js";
 import { clear_Formulaire_Of_Tournament } from "../utils/validators.js";
 
@@ -74,7 +74,7 @@ export class NavigationEvents {
         console.warn("⚠️ Route invalide:", currentPath, "→ Redirection vers page d'erreur");
 
         // Rediriger vers la page d'erreur 404 (Page introuvable)
-        activePage = redirectToError(404, this._DO);
+        activePage = redirectToError(404, this._DO, currentPath);
         // Afficher les icônes sur la page d'erreur
         activeOrHiden(iconAccueil, "On");
         activeOrHiden(iconSettings, "On");
@@ -147,6 +147,21 @@ export class NavigationEvents {
     const targetPage = findPage(this._DO.pages, targetId);
     if (targetPage === null) return;
 
+    // Réinitialiser la page error si on la quitte (sauf si c'est une 404)
+    const currentPage = this.getCurrentPage();
+    if (currentPage?.id === "pagesError") {
+      const errorCodeEl = this._DO.errorElement.codeEl;
+      const errorCodeText = errorCodeEl.textContent || '';
+      const is404 = errorCodeText.includes("404");
+
+      if (!is404) {
+        console.log("🔄 Réinitialisation de la page error (code 0)");
+        resetErrorPage(0, this._DO);
+      } else {
+        console.log("📌 Page error 404 conservée pour navigation back/forward");
+      }
+    }
+
     // Reset inputs
     clear_Formulaire_Of_Tournament(this._DO.tournamentElement.formPseudoTournament);
     activeAnotherPage(targetPage);
@@ -167,7 +182,7 @@ export class NavigationEvents {
     if (!targetPage) {
       console.error("[popstate] Impossible de trouver la page pour:", path);
       // Rediriger vers page d'erreur 404
-      activeAnotherPage(redirectToError(404, this._DO));
+      activeAnotherPage(redirectToError(404, this._DO, path));
       activeOrHiden(this._DO.icons.accueil, "On");
       activeOrHiden(this._DO.icons.settings, "On");
       return;
@@ -181,12 +196,36 @@ export class NavigationEvents {
 
     const currentPage = this.getCurrentPage();
 
+    // ===== RESET : Réinitialiser la page error si on la quitte (sauf 404) =====
+    if (currentPage?.id === "pagesError" && targetPage.id !== "pagesError") {
+      const errorCodeEl = this._DO.errorElement.codeEl;
+      const errorCodeText = errorCodeEl.textContent || '';
+      const is404 = errorCodeText.includes("404");
+
+      if (!is404) {
+        console.log("🔄 Réinitialisation de la page error (code 0)");
+        resetErrorPage(0, this._DO);
+      } else {
+        console.log("📌 Page error 404 conservée pour navigation back/forward");
+      }
+    }
+
     // ===== BLOCAGES : Interdire l'accès AVANT d'afficher la page =====
 
     if (path === "/") {
       activeAnotherPage(this._DO.pages.accueil);
       activeOrHiden(this._DO.icons.accueil, "Off");
       window.history.replaceState({ page: 'accueil' }, "", "/accueil");
+      return;
+    }
+
+    // Si on navigue vers /error via back/forward, afficher la page error avec code 0
+    if (path === "/error") {
+      console.log("🔄 Navigation vers /error → Affichage code 0");
+      resetErrorPage(0, this._DO);
+      activeAnotherPage(this._DO.pages.error);
+      activeOrHiden(this._DO.icons.accueil, "On");
+      activeOrHiden(this._DO.icons.settings, "On");
       return;
     }
 

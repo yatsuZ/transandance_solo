@@ -1,4 +1,5 @@
 import { DOMElements } from '../core/dom-manager.js';
+import { getMessageOfErrorCode } from '../utils/url-helpers.js';
 
 /**
  * Configure les animations et changements de description au survol des boutons
@@ -39,18 +40,41 @@ export function update_description_de_page(dom: DOMElements): void {
 
     /**
      * Récupère le texte par défaut de la page
-     * Pour la page erreur, on prend le texte actuel (car il change dynamiquement)
+     * Pour la page erreur, on récupère le code depuis le titre et on calcule le message
      */
     function getDefaultText(): string {
-      // Pour la page erreur, lire le texte actuel du subtitle
+      // Pour la page erreur, récupérer le code depuis .error-code
       if (pageId === 'pagesError') {
-        return subtitleEl.textContent || '...';
+        const errorCodeEl = dom.errorElement.codeEl;
+        const errorDescriptionEl = dom.errorElement.descriptionEl;
+        const errorCodeText = errorCodeEl.textContent || '';
+
+        // Parser le code d'erreur
+        let errorCode = 0;
+        if (errorCodeText === "Pas d'Erreur") {
+          errorCode = 0;
+        } else {
+          const match = errorCodeText.match(/Erreur (\d+)/);
+          errorCode = match ? parseInt(match[1], 10) : 0;
+        }
+
+        // Pour les 404, récupérer l'URL sauvegardée
+        let url: string | undefined;
+        if (errorCode === 404) {
+          url = errorDescriptionEl.getAttribute('data-404-url') || undefined;
+        }
+
+        // Retourner le message correspondant
+        return getMessageOfErrorCode(errorCode, url);
       }
+
       // Pour les autres pages, utiliser le texte statique
       return defaultTexts[pageId] ?? '...';
     }
 
-    let currentText = getDefaultText();
+    // Stocke le texte par défaut de la page
+    let defaultText = getDefaultText();
+    let currentText = defaultText;
 
     // Fonction d'animation fluide
     function changeSubtitle(newText: string): void {
@@ -71,12 +95,16 @@ export function update_description_de_page(dom: DOMElements): void {
     buttons.forEach((button) => {
       button.addEventListener('mouseenter', () => {
         const link = button.dataset.link;
-        const newText = (link && buttonTexts[link]) ? buttonTexts[link] : getDefaultText();
+        const newText = (link && buttonTexts[link]) ? buttonTexts[link] : defaultText;
         changeSubtitle(newText);
       });
 
       button.addEventListener('mouseleave', () => {
-        changeSubtitle(getDefaultText());
+        // Pour la page erreur, recalculer le texte par défaut
+        if (pageId === 'pagesError') {
+          defaultText = getDefaultText();
+        }
+        changeSubtitle(defaultText);
       });
     });
   });

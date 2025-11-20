@@ -103,7 +103,13 @@ up_cont:
 	@$(DC) up -d --remove-orphans --no-deps
 	@echo -e "$(GREEN)✔ Docker containers started successfully!$(NC)"
 	@echo ""
-	@echo -e "$(MAGENTA)🌐 Access your application at$(NC) http://localhost:$(PORT)$(NC)"
+	@. ./.env 2>/dev/null || true; \
+	HTTPS_PORT=$${NGINX_HTTPS_PORT:-443}; \
+	if [ "$$HTTPS_PORT" = "443" ]; then \
+		echo -e "$(MAGENTA)🌐 Access your application at:$(NC) $(GREEN)https://localhost$(NC)"; \
+	else \
+		echo -e "$(MAGENTA)🌐 Access your application at:$(NC) $(GREEN)https://localhost:$$HTTPS_PORT$(NC)"; \
+	fi
 	@echo ""
 
 # Stop Docker containers
@@ -136,6 +142,12 @@ go_in_container:
 	@docker exec -it "$(CONTAINER_NAME)" /bin/sh
 	@echo -e "$(GREEN)✔ You are now inside the container! Type 'exit' to return.$(NC)"
 
+# Enter the nginx Docker container
+go_in_nginx:
+	@echo -e "$(YELLOW)🚪 Entering nginx container...$(NC)"
+	@docker exec -it container-nginx-tr /bin/sh
+	@echo -e "$(GREEN)✔ You are now inside the nginx container! Type 'exit' to return.$(NC)"
+
 ### Combined Actions
 
 # Rebuild and restart Docker containers
@@ -151,6 +163,27 @@ re: fclean local
 # Commande pour afficher les logs du conteneur
 dock_logs:
 	docker logs -f $(CONTAINER_NAME)
+
+# Générer un QR code pour accéder depuis le téléphone
+qrcode:
+	@echo -e "$(YELLOW)📱 Generating QR code for mobile access...$(NC)"
+	@if ! command -v qrencode &> /dev/null; then \
+		echo -e "$(RED)Error: qrencode is not installed!$(NC)"; \
+		echo -e "$(YELLOW)Install it with:$(NC) sudo apt-get install qrencode"; \
+		exit 1; \
+	fi
+	@. ./.env 2>/dev/null || true; \
+	HOST_IP=$${HOST_IP:-192.168.1.13}; \
+	HTTPS_PORT=$${NGINX_HTTPS_PORT:-443}; \
+	if [ "$$HTTPS_PORT" = "443" ]; then \
+		URL="https://$$HOST_IP"; \
+	else \
+		URL="https://$$HOST_IP:$$HTTPS_PORT"; \
+	fi; \
+	echo -e "$(GREEN)Scan this QR code to access from your phone:$(NC)"; \
+	echo -e "$(BLUE)$$URL$(NC)"; \
+	echo ""; \
+	echo "$$URL" | qrencode -t ANSIUTF8
 
 # Help message
 help:
@@ -183,8 +216,10 @@ help:
 	@echo -e " $(GREEN)make stop_dock$(NC)    : Stops Docker containers."
 	@echo -e " $(GREEN)make show_img$(NC)     : Shows existing Docker images."
 	@echo -e " $(GREEN)make show_container$(NC): Shows running Docker containers."
-	@echo -e " $(GREEN)make go_in_container$(NC): Enters the running Docker container."
+	@echo -e " $(GREEN)make go_in_container$(NC): Enters the running game Docker container."
+	@echo -e " $(GREEN)make go_in_nginx$(NC)  : Enters the running nginx Docker container."
 	@echo -e " $(GREEN)make dock_logs$(NC)    : Displays container logs."
+	@echo -e " $(GREEN)make qrcode$(NC)       : Generate QR code for mobile access."
 	@echo -e " "
 
 	@echo -e "$(YELLOW)ℹ️ Additional Notes:$(NC)"

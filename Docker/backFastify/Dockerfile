@@ -5,7 +5,7 @@ WORKDIR /app
 COPY ./code/srcs/ srcs
 COPY ./code/*.json .
 
-RUN apk add --no-cache tree
+RUN apk add --no-cache tree curl
 
 RUN npm install typescript
 

@@ -1,24 +1,51 @@
 services:
+  nginx:
+    init: true
+    container_name: container-nginx-tr
+    build:
+      context: Docker/nginx
+      dockerfile: Dockerfile
+    environment:
+      - SERVER_NAME=${SERVER_NAME:-localhost}
+      - FASTIFY_PORT=${FASTIFY_PORT:-3000}
+    image: nginx-tr
+    networks:
+      - tr_network
+    depends_on:
+      - game
+    ports:
+      - "${NGINX_HTTPS_PORT:-443}:443"
+    restart: always
+
   game:
     image: game_project_img
     build:
       context: .
       dockerfile: Docker/backFastify/Dockerfile
-      
-    ports:
-      - "3000:3000"
+
+    networks:
+      - tr_network
     environment:
       - HOST_IP=192.168.1.13  # IP a definir manuellement pour telephone
+      - FASTIFY_PORT=${FASTIFY_PORT:-3000}
 
-    command:  sh -c "npm run build && npm run dev"
+    command:  sh -c "npm install && npm run build && npm run dev"
 
     volumes:
       - ./code/:/app/
+      - node_modules_cache:/app/node_modules
 
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
-      interval: 30s
-      retries: 3
-      start_period: 10s
-      timeout: 10s
+      test: ["CMD", "curl", "-f", "http://localhost:${FASTIFY_PORT:-3000}"]
+      interval: 10s
+      retries: 10
+      start_period: 40s
+      timeout: 5s
     container_name: game_project_cont
+
+networks:
+  tr_network:
+    driver: bridge
+
+volumes:
+  node_modules_cache:

@@ -61,17 +61,18 @@ function getLocalIP(): string {
 // 4. Démarrer le serveur
 const start = async () => {
   try {
-    const port = 3001;
+    const port = parseInt(process.env.FASTIFY_PORT || '3000', 10);
     const host = '0.0.0.0';
 
     await fastify.listen({ port, host });
 
     const hostIP = process.env.HOST_IP || getLocalIP(); // fallback si hors Docker
-    const localURL = `http://${hostIP}:${port}`;
+    const localURL = `https://${hostIP}`; // Maintenant on accède via HTTPS (nginx)
 ``
-    console.log(chalk.cyanBright(`\n🌐 Accessible sur ton PC : http://localhost:${port}`));
+    console.log(chalk.cyanBright(`\n🌐 Accessible sur ton PC : https://localhost`));
     console.log(chalk.greenBright(`📱 Scan ce QR code pour ouvrir sur ton téléphone :`));
     console.log(chalk.yellowBright(`(${localURL})\n`));
+    console.log(chalk.gray(`ℹ️  Fastify écoute en interne sur le port ${port} (forwarding via nginx HTTPS)`));
 
     // Générer le QR code
     qrcode.generate(localURL, { small: true });
