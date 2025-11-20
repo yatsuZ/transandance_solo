@@ -1,73 +1,12 @@
-import { DOMElements } from "./dom_gestion.js";
-import { SiteManagement } from "./SiteManagement.js";
-
-
-// --- Fonctions utilitaires qu'on export ---
-
-// --- Configuration globale ---
-// -- fonction utilie pour la classs tournoi
-const MAX_NAME_LENGTH = 16;
-const VALID_NAME_REGEX = /^[a-zA-Z0-9_-]+$/;
-
-export function collectPlayers(inputElements:DOMElements["tournamentElement"]["formPseudoTournament"]): string[] | null {
-  const players: string[] = [];
-
-  for (const input of inputElements) {
-    const pseudo = input.value.trim();
-    if (pseudo === "") {
-      alert("Tous les joueurs doivent avoir un pseudo !");
-      return null;
-    }
-    players.push(pseudo);
-  }
-
-  return players;
-}
-
-export function clear_Formulaire_Of_Tournament(inputElements:DOMElements["tournamentElement"]["formPseudoTournament"]): void {
-  inputElements.forEach(input => {
-    if (input) input.value = "";
-  });
-}
-
-export function arePlayersValid(players: string[]): boolean {
-  for (const pseudo of players) {
-    if (!isNameValid(pseudo) || !isNameLengthValid(pseudo)) return false;
-  }
-  return areNamesUnique(players);
-}
-
-// --- Fonctions utilitaires ---
-function isNameValid(name: string): boolean {
-  if (!VALID_NAME_REGEX.test(name)) {
-    alert(`Le pseudo "${name}" contient des caractères invalides.\nUtilise uniquement des lettres, chiffres, _ ou -`);
-    return false;
-  }
-  return true;
-}
-
-function isNameLengthValid(name: string): boolean {
-  if (name.length > MAX_NAME_LENGTH) {
-    alert(`Le pseudo "${name}" est trop long (${name.length}/${MAX_NAME_LENGTH}).`);
-    return false;
-  }
-  return true;
-}
-
-function areNamesUnique(players: string[]): boolean {
-  const uniquePlayers = new Set(players);
-  if (uniquePlayers.size !== players.length) {
-    alert("Les pseudos des joueurs doivent être uniques !");
-    return false;
-  }
-  return true;
-}
-
-// -- URL ---
+import { DOMElements } from "../core/dom-manager.js";
+import { SiteManagement } from "../SiteManagement.js";
 
 /**
  * Trouve la page correspondante à partir d'une URL
  * Gère les chemins imbriqués comme /tournament/match ou /tournament/result
+ * @param url - URL à analyser
+ * @param allPages - Toutes les pages disponibles
+ * @returns La page correspondante ou null si non trouvée
  */
 export function findPageFromUrl(url: string, allPages: DOMElements["pages"]): HTMLElement | null {
   // Nettoyer l'URL et séparer les segments
@@ -104,6 +43,11 @@ export function findPageFromUrl(url: string, allPages: DOMElements["pages"]): HT
   return targetPage;
 }
 
+/**
+ * Met à jour l'URL dans le navigateur et définit la page active
+ * @param page - Page à activer
+ * @param prefix - Préfixe optionnel pour l'URL (ex: "tournament")
+ */
 export function updateUrl(page: HTMLElement, prefix: string = "") {
   SiteManagement.activePage = page;
 
@@ -140,12 +84,4 @@ export function redirectToError(errorCode: 403 | 404, errorMessage: string, dO: 
 
   // Retourner la page pour l'activer dans spa_redirection
   return errorPage;
-}
-
-
-// --- LOGGER ---
-
-export function log(msg: string, type: "info"|"error"="info") {
-  if(type === "error") console.error("[SiteManagement]", msg);
-  else console.log("[SiteManagement]", msg);
 }

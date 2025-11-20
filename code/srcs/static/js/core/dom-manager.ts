@@ -41,6 +41,7 @@ export type DOMElements = {
     nextResult: HTMLButtonElement;
     giveUpTournament: HTMLButtonElement;
     startMatchTournament: HTMLButtonElement;
+    startMatch: HTMLButtonElement,
     startMusic: HTMLButtonElement;
     dontStartMusic: HTMLButtonElement;
     linkButtons: HTMLButtonElement[];
@@ -137,10 +138,7 @@ export function init_All_Dom(): DOMElements {
    * @param context - Contexte pour les messages d'erreur
    * @returns Tuple typé des 4 inputs
    */
-  function getInputArray(
-    ids: [string, string, string, string],
-    context: string
-  ): [HTMLInputElement, HTMLInputElement, HTMLInputElement, HTMLInputElement] {
+  function getInputArray(ids: [string, string, string, string], context: string): [HTMLInputElement, HTMLInputElement, HTMLInputElement, HTMLInputElement] {
     return ids.map(id => get<HTMLInputElement>(id, context)) as
       [HTMLInputElement, HTMLInputElement, HTMLInputElement, HTMLInputElement];
   }
@@ -213,6 +211,7 @@ export function init_All_Dom(): DOMElements {
   const nextResult = get<HTMLButtonElement>("next-btn_result", "Buttons");
   const giveUpTournament = get<HTMLButtonElement>("givUpTournament", "Buttons");
   const startMatchTournament = get<HTMLButtonElement>("doMatchTournament", "Buttons");
+  const startMatch = get<HTMLButtonElement>("doMatch", "Buttons");
   const startMusic = get<HTMLButtonElement>("start-music", "Buttons");
   const dontStartMusic = get<HTMLButtonElement>("dont-start-music", "Buttons");
   const linkButtons = queryAll<HTMLButtonElement>("button[data-link]", "Buttons");
@@ -293,6 +292,7 @@ export function init_All_Dom(): DOMElements {
       nextResult,
       giveUpTournament,
       startMatchTournament,
+      startMatch,
       startMusic,
       dontStartMusic,
       linkButtons,

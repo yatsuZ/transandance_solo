@@ -1,4 +1,4 @@
-import { init_All_Dom } from './dom_gestion.js';
+import { init_All_Dom } from './core/dom-manager.js';
 import { SiteManagement } from './SiteManagement.js';
 
 // la classe qui gere tout

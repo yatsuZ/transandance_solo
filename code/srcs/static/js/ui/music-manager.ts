@@ -1,4 +1,4 @@
-import { DOMElements } from "./dom_gestion";
+import { DOMElements } from "../core/dom-manager.js";
 // === GESTION DE LA MUSIQUE ===
 
 export function initMusicSystem(all_DO: DOMElements) {

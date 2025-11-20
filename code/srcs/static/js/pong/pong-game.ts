@@ -1,10 +1,11 @@
-import { Ball } from './game/geometry.js';
-import { Player, PlayerAI, PlayerHuman } from './game/player.js';
-import { Field } from './game/field.js';
-import { log, updateUrl } from './utils.js';
-import { activeAnotherPage } from './spa_redirection.js';
-import { SiteManagement } from './SiteManagement.js';
-import { DOMElements } from './dom_gestion.js';
+import { Ball } from './components/geometry.js';
+import { Player, PlayerAI, PlayerHuman } from './components/player.js';
+import { Field } from './components/field.js';
+import { updateUrl } from '../utils/url-helpers.js';
+import { activeAnotherPage } from '../navigation/page-manager.js';
+import { SiteManagement } from '../SiteManagement.js';
+import { DOMElements } from '../core/dom-manager.js';
+import { log } from 'console';
 
 export type ConfigMatch = {mode : "PvP" | "PvIA" | "IAvP" | "IAvIA", name: [string, string]};
 

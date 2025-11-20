@@ -1,4 +1,4 @@
-import { DOMElements } from './dom_gestion.js';
+import { DOMElements } from '../core/dom-manager.js';
 
 /**
  * Configure les animations et changements de description au survol des boutons
@@ -35,11 +35,24 @@ export function update_description_de_page(dom: DOMElements): void {
     if (!parentPage) return;
 
     const pageId = parentPage.id;
-    const defaultText = defaultTexts[pageId] ?? '...';
-    let currentText = defaultText;
     let fadeTimeout: number | undefined;
 
-    // Fonction d’animation fluide
+    /**
+     * Récupère le texte par défaut de la page
+     * Pour la page erreur, on prend le texte actuel (car il change dynamiquement)
+     */
+    function getDefaultText(): string {
+      // Pour la page erreur, lire le texte actuel du subtitle
+      if (pageId === 'pagesError') {
+        return subtitleEl.textContent || '...';
+      }
+      // Pour les autres pages, utiliser le texte statique
+      return defaultTexts[pageId] ?? '...';
+    }
+
+    let currentText = getDefaultText();
+
+    // Fonction d'animation fluide
     function changeSubtitle(newText: string): void {
       if (newText === currentText) return;
       currentText = newText;
@@ -58,12 +71,12 @@ export function update_description_de_page(dom: DOMElements): void {
     buttons.forEach((button) => {
       button.addEventListener('mouseenter', () => {
         const link = button.dataset.link;
-        const newText = (link && buttonTexts[link]) ? buttonTexts[link] : defaultText;
+        const newText = (link && buttonTexts[link]) ? buttonTexts[link] : getDefaultText();
         changeSubtitle(newText);
       });
 
       button.addEventListener('mouseleave', () => {
-        changeSubtitle(defaultText);
+        changeSubtitle(getDefaultText());
       });
     });
   });
