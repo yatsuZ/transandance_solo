@@ -63,20 +63,24 @@ export function updateUrl(page: HTMLElement, prefix: string = "") {
  * @param dO - Les éléments DOM
  * @returns La page d'erreur configurée (pour l'assigner à activePage)
  */
-export function redirectToError(errorCode: 403 | 404, errorMessage: string, dO: DOMElements): HTMLElement {
+export function redirectToError(errorCode: number, dO: DOMElements): HTMLElement {
   const errorPage = dO.pages.error;
   const errorCodeEl = dO.errorElement.codeEl;
   const errorDescriptionEl = dO.errorElement.descriptionEl;
   const errorImageEl = dO.errorElement.imageEl;
 
   // Mettre à jour le code d'erreur
-  errorCodeEl.textContent = `Erreur ${errorCode}`;
+  errorCodeEl.textContent = errorCode === 0 ? "Pas d'Erreur" : `Erreur ${errorCode}`;
 
   // Mettre à jour le message d'erreur
-  errorDescriptionEl.textContent = errorMessage;
+  const description = getMessageOfErrorCode(errorCode)
+  errorDescriptionEl.textContent = description;
 
   // Mettre à jour l'image selon le code d'erreur
-  errorImageEl.src = `/static/util/img/error_${errorCode}.jpg`;
+  if (description === "Pas encore de message pour cette erreur.")
+      errorImageEl.src = `/static/util/img/error_x.png`;
+  else
+    errorImageEl.src = `/static/util/img/error_${errorCode}.jpg`;
   errorImageEl.alt = `Erreur ${errorCode}`;
 
   // Mettre à jour l'URL
@@ -84,4 +88,18 @@ export function redirectToError(errorCode: 403 | 404, errorMessage: string, dO: 
 
   // Retourner la page pour l'activer dans spa_redirection
   return errorPage;
+}
+
+function getMessageOfErrorCode(errorCode: number) : string
+{
+  switch (errorCode) {
+    case 0:
+      return "Y a pas de probléme."
+    case 403:
+      return "VOUS NE PASSEREZ PAS, Passez par un chemin conventionnel, s'il vous plaît."
+    case 404:
+      return "La page demandée n'existe pas... Serieux tu t'es paumé ?";
+    default:
+      return "Pas encore de message pour cette erreur.";
+  }
 }

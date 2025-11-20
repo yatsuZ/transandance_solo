@@ -1,6 +1,5 @@
 description doit fonctioner pour page error
-la page error doit etre considerer comme une page 404
-changerlimmage avant de monter la page il y a un petit flitch aux depart
+remetre la page derreur no problemo par defaut 
 corriger le css
 ----------------
 https

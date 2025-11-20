@@ -60,11 +60,7 @@ export class NavigationEvents {
       console.warn("🚫 Accès direct interdit à:", currentPath);
 
       // Rediriger vers la page d'erreur 403 (Accès interdit)
-      activePage = redirectToError(
-        403,
-        "Cette page n'est pas accessible directement. Vous devez passer par la page d'accueil pour démarrer un match ou un tournoi.",
-        this._DO
-      );
+      activePage = redirectToError(403,this._DO);
       // Afficher les icônes sur la page d'erreur
       activeOrHiden(iconAccueil, "On");
       activeOrHiden(iconSettings, "On");
@@ -78,7 +74,7 @@ export class NavigationEvents {
         console.warn("⚠️ Route invalide:", currentPath, "→ Redirection vers page d'erreur");
 
         // Rediriger vers la page d'erreur 404 (Page introuvable)
-        activePage = redirectToError(404, "La page demandée n'existe pas... Serieux tu t'es paumé ?", this._DO);
+        activePage = redirectToError(404, this._DO);
         // Afficher les icônes sur la page d'erreur
         activeOrHiden(iconAccueil, "On");
         activeOrHiden(iconSettings, "On");
@@ -171,7 +167,7 @@ export class NavigationEvents {
     if (!targetPage) {
       console.error("[popstate] Impossible de trouver la page pour:", path);
       // Rediriger vers page d'erreur 404
-      activeAnotherPage(redirectToError(404, "La page demandée n'existe pas... Serieux tu t'es paumé ?", this._DO));
+      activeAnotherPage(redirectToError(404, this._DO));
       activeOrHiden(this._DO.icons.accueil, "On");
       activeOrHiden(this._DO.icons.settings, "On");
       return;
@@ -202,13 +198,7 @@ export class NavigationEvents {
         (targetPage.id === "pagesResult" && path === "/match/result"))
     ) {
       console.log("🚫 [MATCH SOLO] Accès interdit : Aucun match classique actif → Redirection page d'erreur");
-      activeAnotherPage(
-        redirectToError(
-          403,
-          "Vous ne pouvez pas accéder à la page de match car aucun match n'est actuellement en cours. Veuillez démarrer un nouveau match depuis la page d'accueil.",
-          this._DO
-        )
-      );
+      activeAnotherPage(redirectToError(403, this._DO));
       activeOrHiden(this._DO.icons.accueil, "On");
       activeOrHiden(this._DO.icons.settings, "On");
       return;
@@ -217,13 +207,7 @@ export class NavigationEvents {
     // BLOCAGE 1 : Interdire l'accès aux pages de tournoi si aucun tournoi actif
     if (!this.tournamentController.hasActiveTournament() && allowedTournamentPages.includes(targetPage.id)) {
       console.log("🚫 [TOURNOI] Accès interdit : Aucun tournoi actif → Redirection page d'erreur");
-      activeAnotherPage(
-        redirectToError(
-          403,
-          "Vous ne pouvez pas accéder aux pages du tournoi car aucun tournoi n'est actuellement actif. Veuillez créer un nouveau tournoi depuis la page d'accueil.",
-          this._DO
-        )
-      );
+      activeAnotherPage(redirectToError(403, this._DO));
       activeOrHiden(this._DO.icons.accueil, "On");
       activeOrHiden(this._DO.icons.settings, "On");
       return;
