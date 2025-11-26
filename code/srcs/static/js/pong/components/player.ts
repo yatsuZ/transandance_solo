@@ -1,6 +1,6 @@
 import { Ball, Paddle, Point } from "./geometry.js";
 import { InputHandler } from "./input.js";
-import { PADDLE_OFFSET, AI_ERROR_MARGIN_MIN, AI_ERROR_RANGE_DIVISOR, AI_ERROR_MULTIPLIER } from "../game-config.js";
+import { PADDLE_OFFSET, AI_ERROR_MARGIN_MIN, AI_ERROR_RANGE_DIVISOR, AI_ERROR_MULTIPLIER, AI_UPDATE_COOLDOWN } from "../game-config.js";
 
 export type PlayerSide = "L" | "R";
 type PlayerType = "IA" | "HUMAN" | "UNDEFINED";
@@ -144,6 +144,9 @@ export class PlayerHuman extends Player {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export class PlayerAI extends Player {
+  private lastUpdateTime: number = 0;
+  private lastKnownBallY: number = 0;
+
   constructor(side: "L" | "R", playerCards:{playerCardL: HTMLElement,playerCardR: HTMLElement}, canvasDimension: {height: number, width: number}, speed: number, name: string)
   {
     super(side, playerCards, canvasDimension, speed, name);
@@ -159,14 +162,22 @@ export class PlayerAI extends Player {
   }
 
   update(ball: Ball) {
-    const center = this.paddle.position.y + this.paddle.height / 2;
+    const currentTime = Date.now();
 
+    // ⏱️ L'IA ne peut voir le jeu qu'une fois par seconde (contrainte de vision)
+    if (currentTime - this.lastUpdateTime >= AI_UPDATE_COOLDOWN) {
+      this.lastKnownBallY = ball.y;
+      this.lastUpdateTime = currentTime;
+    }
+
+    // L'IA se base sur la dernière position connue de la balle
+    const center = this.paddle.position.y + this.paddle.height / 2;
     const errorMargin = Math.random() * (this.paddle.height - this.paddle.height / AI_ERROR_RANGE_DIVISOR) * AI_ERROR_MULTIPLIER;
 
-    if (center < ball.y - AI_ERROR_MARGIN_MIN + errorMargin) {
+    if (center < this.lastKnownBallY - AI_ERROR_MARGIN_MIN + errorMargin) {
         // ✅ Utiliser moveDown() pour respecter les limites
         this.paddle.moveDown();
-    } else if (center > ball.y + AI_ERROR_MARGIN_MIN + errorMargin) {
+    } else if (center > this.lastKnownBallY + AI_ERROR_MARGIN_MIN + errorMargin) {
         // ✅ Utiliser moveUp() pour respecter les limites
         this.paddle.moveUp();
     }

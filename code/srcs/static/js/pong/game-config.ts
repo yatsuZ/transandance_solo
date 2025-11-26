@@ -137,6 +137,12 @@ export const BALL_ANGLE_VARIATION_INTENSITY = 0.7;
 // ========================================
 
 /**
+ * Cooldown entre chaque mise à jour de vision de l'IA (en millisecondes)
+ * L'IA ne peut "voir" la position de la balle qu'une fois par seconde
+ */
+export const AI_UPDATE_COOLDOWN = 1000;
+
+/**
  * Marge d'erreur minimale de l'IA (en pixels)
  */
 export const AI_ERROR_MARGIN_MIN = 20;
