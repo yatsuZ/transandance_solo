@@ -6,7 +6,7 @@ import { activeAnotherPage } from '../navigation/page-manager.js';
 import { SiteManagement } from '../SiteManagement.js';
 import { log } from 'console';
 import { DOMElements } from '../core/dom-elements.js';
-import { PADDLE_SPEED, WINNING_SCORE } from './game-config.js';
+import { PADDLE_SPEED_RATIO, WINNING_SCORE, BALL_RESET_DELAY } from './game-config.js';
 
 export type ConfigMatch = {mode : "PvP" | "PvIA" | "IAvP" | "IAvIA", name: [string, string]};
 
@@ -28,6 +28,8 @@ export class PongGame {
   private shouldStop: boolean = false;
   private inTournament: boolean;
   private onMatchEndCallback?: () => void;
+  private isBallPaused: boolean = false;  // Pour pause temporaire après un point
+  private ballResetTimer: number | null = null;  // Timer pour le délai de reset
 
   // -------------------------
   // Constructeur
@@ -43,22 +45,25 @@ export class PongGame {
     this.field = new Field(this._DO.canva);
     const dim = this.field.getDimensions();
 
+    // Calculer la vitesse des paddles proportionnellement à la hauteur du terrain
+    const paddleSpeed = dim.height / PADDLE_SPEED_RATIO;
+
     switch (config.mode) {
       case "PvIA":
-        this.playerLeft = new PlayerHuman("L", this._DO.matchElement, dim, PADDLE_SPEED, config.name[0]);
-        this.playerRight = new PlayerAI("R", this._DO.matchElement, dim, PADDLE_SPEED, config.name[1]);
+        this.playerLeft = new PlayerHuman("L", this._DO.matchElement, dim, paddleSpeed, config.name[0]);
+        this.playerRight = new PlayerAI("R", this._DO.matchElement, dim, paddleSpeed, config.name[1]);
         break;
       case "IAvP":
-        this.playerLeft = new PlayerAI("L", this._DO.matchElement, dim, PADDLE_SPEED, config.name[0]);
-        this.playerRight = new PlayerHuman("R", this._DO.matchElement, dim, PADDLE_SPEED, config.name[1]);
+        this.playerLeft = new PlayerAI("L", this._DO.matchElement, dim, paddleSpeed, config.name[0]);
+        this.playerRight = new PlayerHuman("R", this._DO.matchElement, dim, paddleSpeed, config.name[1]);
         break;
       case "IAvIA":
-        this.playerLeft = new PlayerAI("L", this._DO.matchElement, dim, PADDLE_SPEED, config.name[0]);
-        this.playerRight = new PlayerAI("R", this._DO.matchElement, dim, PADDLE_SPEED, config.name[1]);
+        this.playerLeft = new PlayerAI("L", this._DO.matchElement, dim, paddleSpeed, config.name[0]);
+        this.playerRight = new PlayerAI("R", this._DO.matchElement, dim, paddleSpeed, config.name[1]);
         break;
       default: // PvP
-        this.playerLeft = new PlayerHuman("L", this._DO.matchElement, dim, PADDLE_SPEED, config.name[0]);
-        this.playerRight = new PlayerHuman("R", this._DO.matchElement, dim, PADDLE_SPEED, config.name[1]);
+        this.playerLeft = new PlayerHuman("L", this._DO.matchElement, dim, paddleSpeed, config.name[0]);
+        this.playerRight = new PlayerHuman("R", this._DO.matchElement, dim, paddleSpeed, config.name[1]);
     }
 
     // Initialisation de la balle
@@ -90,24 +95,57 @@ export class PongGame {
   // Update & Draw
   // -------------------------
   private update() {
+    // Les joueurs peuvent toujours bouger même quand la balle est en pause
     if (this.playerLeft.typePlayer === "HUMAN") this.playerLeft.update();
     else this.playerLeft.update(this.ball);
 
     if (this.playerRight.typePlayer === "HUMAN") this.playerRight.update();
     else this.playerRight.update(this.ball);
 
-    this.ball.update(this.field.width, this.field.height);
+    // Ne mettre à jour la balle que si elle n'est pas en pause
+    if (!this.isBallPaused) {
+      this.ball.update(this.field.width, this.field.height);
 
-    if (this.ball.collidesWith(this.playerLeft.paddle) || this.ball.collidesWith(this.playerRight.paddle))
-      this.ball.bounce();
+      // Vérifier collision avec paddle gauche
+      if (this.ball.collidesWith(this.playerLeft.paddle)) {
+        this.ball.bounce(this.playerLeft.paddle);
+      }
+      // Vérifier collision avec paddle droite
+      else if (this.ball.collidesWith(this.playerRight.paddle)) {
+        this.ball.bounce(this.playerRight.paddle);
+      }
 
-    if (this.ball.x < 0) {
-      this.playerRight.add_score();
-      this.ball.reset(this.field.width, this.field.height);
-    } else if (this.ball.x > this.field.width) {
-      this.playerLeft.add_score();
-      this.ball.reset(this.field.width, this.field.height);
+      // Vérifier si un joueur a marqué
+      if (this.ball.x < 0) {
+        this.playerRight.add_score();
+        this.pauseAndResetBall();
+      } else if (this.ball.x > this.field.width) {
+        this.playerLeft.add_score();
+        this.pauseAndResetBall();
+      }
     }
+  }
+
+  /**
+   * Met la balle en pause puis la reset après BALL_RESET_DELAY
+   */
+  private pauseAndResetBall() {
+    this.isBallPaused = true;
+
+    // Cacher la balle immédiatement
+    this.ball.isVisible = false;
+
+    // Nettoyer le timer précédent s'il existe
+    if (this.ballResetTimer !== null) {
+      clearTimeout(this.ballResetTimer);
+    }
+
+    // Programmer le reset après le délai (reset() rend la balle visible à nouveau)
+    this.ballResetTimer = window.setTimeout(() => {
+      this.ball.reset(this.field.width, this.field.height);
+      this.isBallPaused = false;
+      this.ballResetTimer = null;
+    }, BALL_RESET_DELAY);
   }
 
   private draw() {
@@ -154,6 +192,12 @@ export class PongGame {
     if (this.animationId !== null) {
       cancelAnimationFrame(this.animationId);
       this.animationId = null;
+    }
+
+    // Nettoyer le timer de reset de balle
+    if (this.ballResetTimer !== null) {
+      clearTimeout(this.ballResetTimer);
+      this.ballResetTimer = null;
     }
 
     // Nettoyer l'event listener resize

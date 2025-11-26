@@ -29,12 +29,8 @@
   background: #111;
   border: 3px solid #fff;
   border-radius: 12px;
-  width: 1000px;
-  height: 450px;
-  /* aspect-ratio: 16 / 9; */
-  /* width: 100%; */
-  /* max-width: 800px;
-  max-height: 450px; */
+  /* Les dimensions sont gérées dynamiquement par field.ts en utilisant game-config.ts */
+  /* Cela permet un redimensionnement responsive tout en maintenant le ratio 4/3 */
 }
 
 /* --- Cartes joueurs --- */

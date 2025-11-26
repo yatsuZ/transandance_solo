@@ -1,6 +1,6 @@
 import { Ball, Paddle, Point } from "./geometry.js";
 import { InputHandler } from "./input.js";
-import { PADDLE_SPEED, PADDLE_OFFSET, AI_ERROR_MARGIN_MIN, AI_ERROR_RANGE_DIVISOR, AI_ERROR_MULTIPLIER } from "../game-config.js";
+import { PADDLE_OFFSET, AI_ERROR_MARGIN_MIN, AI_ERROR_RANGE_DIVISOR, AI_ERROR_MULTIPLIER } from "../game-config.js";
 
 export type PlayerSide = "L" | "R";
 type PlayerType = "IA" | "HUMAN" | "UNDEFINED";
@@ -164,9 +164,11 @@ export class PlayerAI extends Player {
     const errorMargin = Math.random() * (this.paddle.height - this.paddle.height / AI_ERROR_RANGE_DIVISOR) * AI_ERROR_MULTIPLIER;
 
     if (center < ball.y - AI_ERROR_MARGIN_MIN + errorMargin) {
-        this.paddle.position.y += this.paddle.getSpeed();
+        // ✅ Utiliser moveDown() pour respecter les limites
+        this.paddle.moveDown();
     } else if (center > ball.y + AI_ERROR_MARGIN_MIN + errorMargin) {
-        this.paddle.position.y -= this.paddle.getSpeed();
+        // ✅ Utiliser moveUp() pour respecter les limites
+        this.paddle.moveUp();
     }
   }
 }

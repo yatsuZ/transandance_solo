@@ -1,4 +1,12 @@
-import { FIELD_RATIO, FIELD_BORDER_WIDTH, COLORS } from "../game-config.js";
+import {
+  FIELD_RATIO,
+  FIELD_BORDER_WIDTH,
+  FIELD_MIN_WIDTH,
+  FIELD_MIN_HEIGHT,
+  FIELD_MAX_WIDTH,
+  FIELD_MAX_HEIGHT,
+  COLORS
+} from "../game-config.js";
 
 export class Field {
   public width: number;
@@ -13,47 +21,60 @@ export class Field {
 
     if (!this.parent) throw new Error("Canvas parent element not found");
 
-    // On initialise et on met en place le resize
-    const maxWidth = this.parent.clientWidth;
-    const maxHeight = this.parent.clientHeight;
+    // Calcul des dimensions initiales avec contraintes min/max
+    const dimensions = this.calculateDimensions();
 
-    let width = maxWidth;
+    this.canvas.width = dimensions.width;
+    this.canvas.height = dimensions.height;
+
+    this.width = dimensions.width;
+    this.height = dimensions.height;
+
+    window.addEventListener("resize", () => this.resize());
+  }
+
+  /**
+   * Calcule les dimensions optimales du canvas en respectant :
+   * - Le ratio FIELD_RATIO (4/3)
+   * - Les dimensions du conteneur parent
+   * - Les limites min/max définies dans game-config.ts
+   */
+  private calculateDimensions(): { width: number; height: number } {
+    const parentWidth = this.parent.clientWidth;
+    const parentHeight = this.parent.clientHeight;
+
+    let width = parentWidth;
     let height = width / this.RATIO;
 
-    if (height > maxHeight) {
-      height = maxHeight;
+    // Si la hauteur calculée dépasse le parent, on recalcule depuis la hauteur
+    if (height > parentHeight) {
+      height = parentHeight;
       width = height * this.RATIO;
     }
 
-    this.canvas.width = width;
-    this.canvas.height = height;
+    // Application des contraintes min/max
+    width = Math.max(FIELD_MIN_WIDTH, Math.min(width, FIELD_MAX_WIDTH));
+    height = Math.max(FIELD_MIN_HEIGHT, Math.min(height, FIELD_MAX_HEIGHT));
 
-    this.width = width;
-    this.height = height;
-    window.addEventListener("resize", () => this.resize());
+    // Réajustement pour garantir le ratio exact après application des contraintes
+    height = width / this.RATIO;
+
+    return { width, height };
   }
 
   /**
    * Redimensionne le canvas en gardant le ratio 4/3,
    * et en s'adaptant à la taille de son conteneur parent.
+   * Utilise les contraintes min/max définies dans game-config.ts
    */
   resize() {
-    const maxWidth = this.parent.clientWidth;
-    const maxHeight = this.parent.clientHeight;
+    const dimensions = this.calculateDimensions();
 
-    let width = maxWidth;
-    let height = width / this.RATIO;
+    this.canvas.width = dimensions.width;
+    this.canvas.height = dimensions.height;
 
-    if (height > maxHeight) {
-      height = maxHeight;
-      width = height * this.RATIO;
-    }
-
-    this.canvas.width = width;
-    this.canvas.height = height;
-
-    this.width = width;
-    this.height = height;
+    this.width = dimensions.width;
+    this.height = dimensions.height;
   }
 
   getDimensions() {

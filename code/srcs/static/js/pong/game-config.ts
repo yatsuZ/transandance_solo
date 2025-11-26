@@ -16,6 +16,42 @@
 export const FIELD_RATIO = 4 / 3;
 
 /**
+ * Largeur par défaut du terrain (en pixels)
+ * Utilisé comme dimension de référence pour le canvas
+ */
+export const FIELD_DEFAULT_WIDTH = 1000;
+
+/**
+ * Hauteur par défaut du terrain (en pixels)
+ * Calculé automatiquement selon FIELD_RATIO : 1000 / (4/3) = 750
+ */
+export const FIELD_DEFAULT_HEIGHT = FIELD_DEFAULT_WIDTH / FIELD_RATIO;
+
+/**
+ * Largeur minimale du terrain (en pixels)
+ * En dessous de cette valeur, le jeu devient injouable
+ */
+export const FIELD_MIN_WIDTH = 400;
+
+/**
+ * Hauteur minimale du terrain (en pixels)
+ * Calculé automatiquement selon FIELD_RATIO
+ */
+export const FIELD_MIN_HEIGHT = FIELD_MIN_WIDTH / FIELD_RATIO;
+
+/**
+ * Largeur maximale du terrain (en pixels)
+ * Limite pour les très grands écrans
+ */
+export const FIELD_MAX_WIDTH = 1600;
+
+/**
+ * Hauteur maximale du terrain (en pixels)
+ * Calculé automatiquement selon FIELD_RATIO
+ */
+export const FIELD_MAX_HEIGHT = FIELD_MAX_WIDTH / FIELD_RATIO;
+
+/**
  * Épaisseur des bordures du terrain
  */
 export const FIELD_BORDER_WIDTH = 2;
@@ -46,9 +82,12 @@ export const PADDLE_OFFSET = 20;
 export const PADDLE_SLOPE = 0.2;
 
 /**
- * Vitesse de déplacement de la paddle
+ * Vitesse de déplacement de la paddle (en fraction de la hauteur du terrain)
+ * speed = fieldHeight / PADDLE_SPEED_RATIO
+ * Valeur plus élevée = vitesse plus lente
+ * Calibrée pour être légèrement plus lente que la balle (plus facile pour le joueur)
  */
-export const PADDLE_SPEED = 20;
+export const PADDLE_SPEED_RATIO = 75;
 
 // ========================================
 // BALL (BALLE)
@@ -57,20 +96,41 @@ export const PADDLE_SPEED = 20;
 /**
  * Rayon de la balle (en fraction de la hauteur du terrain)
  * radius = fieldHeight / BALL_RADIUS_RATIO
+ * Valeur plus élevée = balle plus petite
  */
-export const BALL_RADIUS_RATIO = 56.375;
+export const BALL_RADIUS_RATIO = 80;
 
 /**
  * Vitesse horizontale de la balle (en fraction de la hauteur du terrain)
  * speedX = fieldHeight / BALL_SPEED_X_RATIO
+ * Valeur plus élevée = vitesse plus lente
  */
-export const BALL_SPEED_X_RATIO = 112.75;
+export const BALL_SPEED_X_RATIO = 150;
 
 /**
  * Vitesse verticale de la balle (en fraction de la hauteur du terrain)
  * speedY = fieldHeight / BALL_SPEED_Y_RATIO
+ * Valeur plus élevée = vitesse plus lente
  */
-export const BALL_SPEED_Y_RATIO = 150.333;
+export const BALL_SPEED_Y_RATIO = 100;
+
+/**
+ * Facteur d'accélération de la balle à chaque rebond
+ * 1.10 = +10% de vitesse à chaque rebond (progression plus rapide)
+ */
+export const BALL_ACCELERATION_FACTOR = 1.10;
+
+/**
+ * Vitesse maximale de la balle (en multiple de la vitesse initiale)
+ * 1.5 = maximum 150% de la vitesse de départ
+ */
+export const BALL_MAX_SPEED_MULTIPLIER = 1.5;
+
+/**
+ * Intensité de la variation d'angle selon l'impact sur la paddle
+ * 0 = pas de variation, 1 = variation maximale
+ */
+export const BALL_ANGLE_VARIATION_INTENSITY = 0.7;
 
 // ========================================
 // IA (INTELLIGENCE ARTIFICIELLE)
