@@ -1,5 +1,6 @@
 import { Ball, Paddle, Point } from "./geometry.js";
 import { InputHandler } from "./input.js";
+import { PADDLE_SPEED, PADDLE_OFFSET, AI_ERROR_MARGIN_MIN, AI_ERROR_RANGE_DIVISOR, AI_ERROR_MULTIPLIER } from "../game-config.js";
 
 export type PlayerSide = "L" | "R";
 type PlayerType = "IA" | "HUMAN" | "UNDEFINED";
@@ -25,7 +26,7 @@ export abstract class Player {
     this.side = side;
     this.name = name ?? (side === "L" ? "Player 1" : "Player 2");
 
-    this.paddle = new Paddle(side, canvasDimension, speed, 20);
+    this.paddle = new Paddle(side, canvasDimension, speed, PADDLE_OFFSET);
 
     // Sélection de la carte du joueur
     if (side == "L")
@@ -160,11 +161,11 @@ export class PlayerAI extends Player {
   update(ball: Ball) {
     const center = this.paddle.position.y + this.paddle.height / 2;
 
-    const errorMargin = Math.random() * (this.paddle.height - this.paddle.height / 3 ) * 3;
+    const errorMargin = Math.random() * (this.paddle.height - this.paddle.height / AI_ERROR_RANGE_DIVISOR) * AI_ERROR_MULTIPLIER;
 
-    if (center < ball.y - 20 + errorMargin) {
+    if (center < ball.y - AI_ERROR_MARGIN_MIN + errorMargin) {
         this.paddle.position.y += this.paddle.getSpeed();
-    } else if (center > ball.y + 20 + errorMargin) {
+    } else if (center > ball.y + AI_ERROR_MARGIN_MIN + errorMargin) {
         this.paddle.position.y -= this.paddle.getSpeed();
     }
   }

@@ -1,8 +1,8 @@
-import { DOMElements } from "../core/dom-manager.js";
 import { ConfigMatch, PongGame } from "../pong/pong-game.js";
 import { activeAnotherPage, activeOrHiden } from "../navigation/page-manager.js";
 import { arePlayersValid, clear_Formulaire_Of_Tournament, collectPlayers } from "../utils/validators.js";
 import { updateUrl } from "../utils/url-helpers.js";
+import { DOMElements } from "../core/dom-elements.js";
 
 export type PlayerForTournament = {
   name: string;

@@ -1,4 +1,4 @@
-import { DOMElements } from "../core/dom-manager.js";
+import { DOMElements } from "../core/dom-elements.js";
 import { Tournament } from "../tournament/tournament.js";
 import { activeAnotherPage, activeOrHiden } from "../navigation/page-manager.js";
 import { updateUrl } from "../utils/url-helpers.js";

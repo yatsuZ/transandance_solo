@@ -1,5 +1,6 @@
-import { DOMElements } from "../core/dom-manager.js";
 // === GESTION DE LA MUSIQUE ===
+
+import { DOMElements } from "../core/dom-elements";
 
 export function initMusicSystem(all_DO: DOMElements) {
   const music = all_DO.media.music.main_theme;
@@ -54,5 +55,29 @@ function toggleMusic(music: HTMLAudioElement, iconSoundImg : HTMLImageElement) {
 function updateMusicUI(icon: HTMLImageElement, state: 'on' | 'off') {
   icon.src = `./static/util/icon/son_${state}.png`;
   localStorage.setItem('isPlaying', state === 'on' ? 'true' : 'false');
+}
+
+// === GESTION DU VOLUME ===
+export function initVolumeControl(all_DO: DOMElements) {
+  const music = all_DO.media.music.main_theme;
+  const volumeSlider = all_DO.parametreElement.volumeSlider;
+  const volumeValue = all_DO.parametreElement.volumeValue;
+
+  // Récupérer le volume sauvegardé (par défaut 50%)
+  const savedVolume = localStorage.getItem('musicVolume') || '50';
+  const volumePercent = parseInt(savedVolume, 10);
+
+  // Appliquer le volume initial
+  music.volume = volumePercent / 100;
+  volumeSlider.value = savedVolume;
+  volumeValue.textContent = `${volumePercent}%`;
+
+  // Événement sur le slider
+  volumeSlider.addEventListener('input', () => {
+    const value = parseInt(volumeSlider.value, 10);
+    music.volume = value / 100;
+    volumeValue.textContent = `${value}%`;
+    localStorage.setItem('musicVolume', value.toString());
+  });
 }
 

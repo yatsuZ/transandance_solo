@@ -1,0 +1,225 @@
+/* ===================================
+   PAGE: GAME CONFIG (Match 1v1)
+   =================================== */
+
+.game-config-wrapper {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 0;
+  overflow: auto;
+  box-sizing: border-box;
+}
+
+.game-config-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.game-config-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  background: rgba(20, 20, 20, 0.9);
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0, 255, 76, 0.6);
+  border: 1px solid rgba(0, 255, 76, 0.8);
+  text-align: center;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 360px;
+  box-sizing: border-box;
+}
+
+.game-config-form .form-title {
+  font-size: 1.2rem;
+  color: rgb(0, 255, 76);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* BLOC CHOIX DU JEU */
+
+.game-choice-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  gap: 0.5rem;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid rgba(0, 255, 76, 0.3);
+}
+
+.game-choice-block .label-title {
+  font-size: 0.85rem;
+  color: rgb(0, 255, 76);
+  font-weight: bold;
+}
+
+.game-options {
+  display: flex;
+  gap: 1.5rem;
+  width: 100%;
+  justify-content: center;
+}
+
+.game-options .radio-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: #ffcc00;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.game-options .radio-label:hover {
+  color: rgb(0, 255, 76);
+}
+
+.game-options input[type="radio"] {
+  accent-color: rgb(0, 255, 76);
+  transform: scale(1.2);
+  cursor: pointer;
+}
+
+/* BLOC CONFIGURATION JOUEUR */
+
+.player-config-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  gap: 0.5rem;
+  padding: 0.7rem;
+  background: rgba(0, 255, 76, 0.05);
+  border-radius: 10px;
+  border: 1px solid rgba(0, 255, 76, 0.2);
+}
+
+.player-config-title {
+  font-size: 0.9rem;
+  color: rgb(0, 255, 76);
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.2rem;
+  align-self: center;
+}
+
+/* BLOC JOUEUR */
+
+.player-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  gap: 0.4rem;
+}
+
+.player-block > label {
+  font-size: 0.85rem;
+  color: rgb(0, 255, 76);
+}
+
+.player-block input[type="text"] {
+  width: 100%;
+  padding: 0.6rem;
+  border-radius: 8px;
+  border: 1px solid #ffcc00;
+  background-color: transparent;
+  color: #ffcc00;
+  font-size: 0.85rem;
+  text-align: center;
+  transition: all 0.25s ease;
+  box-sizing: border-box;
+}
+
+.player-block input[type="text"]::placeholder {
+  color: rgba(0, 255, 76, 0.4);
+}
+
+.player-block input[type="text"]:focus {
+  outline: none;
+  background-color: rgba(0, 255, 76, 0.1);
+  box-shadow: 0 0 10px rgba(0, 255, 76, 0.6);
+  border-color: rgb(0, 255, 76);
+}
+
+/* BLOC TYPE JOUEUR (Humain/IA) */
+
+.player-type-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  gap: 0.5rem;
+}
+
+.player-type-block .label-title {
+  font-size: 0.85rem;
+  color: rgb(0, 255, 76);
+  font-weight: bold;
+}
+
+.player-type-options {
+  display: flex;
+  gap: 1.5rem;
+  width: 100%;
+  justify-content: center;
+}
+
+.player-type-options .radio-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: #ffcc00;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.player-type-options .radio-label:hover {
+  color: rgb(0, 255, 76);
+}
+
+.player-type-options input[type="radio"] {
+  accent-color: rgb(0, 255, 76);
+  transform: scale(1.2);
+  cursor: pointer;
+}
+
+/* BOUTON START */
+
+.game-config-form .start-btn {
+  margin-top: 1rem;
+  padding: 0.7rem 1.5rem;
+  border: none;
+  border-radius: 10px;
+  background-color: rgb(0, 255, 76);
+  color: #000;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 0 10px rgba(0, 255, 76, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.game-config-form .start-btn:hover {
+  background-color: #00ff6a;
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(0, 255, 76, 0.9);
+}
+
+.game-config-form .start-btn:active {
+  transform: scale(0.98);
+}

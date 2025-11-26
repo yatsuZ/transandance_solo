@@ -4,11 +4,30 @@
     <p class="arcade-subtitle">Parametre du site</p>
   </header>
 
-  <div class="menu-wrapper">
-    <nav class="menu-buttons">
+  <div class="parametre-wrapper">
+    <div class="parametre-container">
 
+      <!-- Contrôle du volume -->
+      <div class="parametre-section">
+        <h2 class="parametre-title">Volume de la musique</h2>
 
-    </nav>
+        <div class="volume-control">
+          <label for="volume-slider" class="volume-label">
+            <span class="volume-icon">🔊</span>
+            <span id="volume-value">50%</span>
+          </label>
+          <input
+            type="range"
+            id="volume-slider"
+            min="0"
+            max="100"
+            value="50"
+            class="volume-slider"
+          >
+        </div>
+      </div>
+
+    </div>
   </div>
 
 </div>

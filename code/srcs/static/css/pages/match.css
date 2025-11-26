@@ -25,14 +25,16 @@
 }
 
 /* --- Canvas --- */
-#pong-canvas {
+#game-canvas {
   background: #111;
   border: 3px solid #fff;
   border-radius: 12px;
-  aspect-ratio: 4 / 3;
-  width: 100%;
-  max-width: 600px;
-  max-height: 450px;
+  width: 1000px;
+  height: 450px;
+  /* aspect-ratio: 16 / 9; */
+  /* width: 100%; */
+  /* max-width: 800px;
+  max-height: 450px; */
 }
 
 /* --- Cartes joueurs --- */
@@ -87,7 +89,7 @@
     align-items: center;
   }
 
-  #pong-canvas {
+  #game-canvas {
     max-width: 90%;
     max-height: none;
   }

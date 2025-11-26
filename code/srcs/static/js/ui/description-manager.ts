@@ -1,4 +1,4 @@
-import { DOMElements } from '../core/dom-manager.js';
+import { DOMElements } from '../core/dom-elements.js';
 import { getMessageOfErrorCode } from '../utils/url-helpers.js';
 
 /**
@@ -15,6 +15,7 @@ export function update_description_de_page(dom: DOMElements): void {
   // Textes par défaut selon la page (id parent)
   const defaultTexts: Record<string, string> = {
     pagesAccueil: 'Que veux-tu faire ?',
+    pagesGame_Config: 'Choisis ton jeu et prépare ton duel !',
     pagesMatch: 'Le premier à 3 points gagne la partie',
     pagesBegin_Tournament: 'Prépare ton tournoi et affronte les meilleurs !',
     pagesResult: 'Voici les résultats de ton dernier match !',
@@ -24,11 +25,12 @@ export function update_description_de_page(dom: DOMElements): void {
 
   // Textes selon les boutons
   const buttonTexts: Record<string, string> = {
+    go_to_Game_Config: '🎮 Configure ton match et choisis tes adversaires !',
     go_to_match: '🎮 Jouer à Pong contre une IA — le premier à 3 gagne !',
     go_to_Begin_Tournament: '🏆 Configure ton tournoi, que le meilleur gagne !',
-    go_to_accueil: '🏠 Retour à l’accueil',
-    interupteur_du_son: 'Mettre le son ou l’arrêter.',
-    parametre: 'Accéder aux paramètres.'
+    go_to_accueil: `🏠 Retour à l'accueil`,
+    interupteur_du_son: `Mettre le son ou l'arrêter.`,
+    parametre: `Accéder aux paramètres.`
   };
 
   subtitles.forEach((subtitleEl) => {

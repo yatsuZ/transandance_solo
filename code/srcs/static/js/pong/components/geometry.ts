@@ -1,4 +1,13 @@
 import { PlayerSide } from "./player";
+import {
+  PADDLE_WIDTH,
+  PADDLE_HEIGHT_RATIO,
+  PADDLE_SLOPE,
+  BALL_RADIUS_RATIO,
+  BALL_SPEED_X_RATIO,
+  BALL_SPEED_Y_RATIO,
+  COLORS
+} from "../game-config.js";
 
 export class Point {
   public x: number;
@@ -73,8 +82,8 @@ export class Paddle {
     this.offset = offset ?? 0;
     this.speed = speed;
 
-    this.width = 10;
-    this.height = fieldDimension.height /7.5;
+    this.width = PADDLE_WIDTH;
+    this.height = fieldDimension.height / PADDLE_HEIGHT_RATIO;
 
     const x = side === "L" ? this.offset : fieldDimension.width - this.width - this.offset;
     const y = fieldDimension.height / 2 - this.height / 2;
@@ -92,22 +101,21 @@ export class Paddle {
   draw(ctx: CanvasRenderingContext2D) {
     const { x, y } = this.position;
     const { width, height } = this;
-    const slope = 0.2;
 
     ctx.beginPath();
 
   if (this.side === "L") {
     // Trapèze plus large à l'intérieur du terrain (droite)
-    ctx.moveTo(x, y + height * slope);            // coin haut gauche (descendu)
+    ctx.moveTo(x, y + height * PADDLE_SLOPE);            // coin haut gauche (descendu)
     ctx.lineTo(x + width, y);                     // coin haut droit (monté)
     ctx.lineTo(x + width, y + height);            // coin bas droit (descendu)
-    ctx.lineTo(x, y + height * (1 - slope));      // coin bas gauche (remonté)
+    ctx.lineTo(x, y + height * (1 - PADDLE_SLOPE));      // coin bas gauche (remonté)
   } else {
     // Trapèze plus large à l'intérieur du terrain (gauche)
-    ctx.moveTo(x + width, y + height * slope);    // coin haut droit (descendu)
+    ctx.moveTo(x + width, y + height * PADDLE_SLOPE);    // coin haut droit (descendu)
     ctx.lineTo(x, y);                             // coin haut gauche (monté)
     ctx.lineTo(x, y + height);                    // coin bas gauche (descendu)
-    ctx.lineTo(x + width, y + height * (1 - slope)); // coin bas droit (remonté)
+    ctx.lineTo(x + width, y + height * (1 - PADDLE_SLOPE)); // coin bas droit (remonté)
   }
     // if (this.side === "L") {
     //   // Trapèze pour le joueur de gauche
@@ -125,9 +133,9 @@ export class Paddle {
 
     ctx.closePath();
     if (this.side === "L")
-      ctx.fillStyle = "blue";
-    else if (this.side === "R") 
-      ctx.fillStyle= "red";
+      ctx.fillStyle = COLORS.PADDLE_LEFT;
+    else if (this.side === "R")
+      ctx.fillStyle = COLORS.PADDLE_RIGHT;
     ctx.fill();
 
   }
@@ -145,8 +153,8 @@ export class Paddle {
     const prevY = this.position.y;
 
     // recalcul des dimensions proportionnelles
-    this.height = newDimensions.height / 7.5;
-    this.width = 10; // peut être ajusté en fonction du ratio si tu veux
+    this.height = newDimensions.height / PADDLE_HEIGHT_RATIO;
+    this.width = PADDLE_WIDTH;
 
     // recalcule la position horizontale selon le côté
     this.position.x =
@@ -175,9 +183,9 @@ export class Ball {
     this.curentFieldDimension = canvasDimension;
     this.x = canvasDimension.width / 2;
     this.y = canvasDimension.height / 2;
-    this.radius = this.curentFieldDimension.height / 56.375;
-    this.speedX = this.curentFieldDimension.height / 112.75;
-    this.speedY = this.curentFieldDimension.height / 150.333;
+    this.radius = this.curentFieldDimension.height / BALL_RADIUS_RATIO;
+    this.speedX = this.curentFieldDimension.height / BALL_SPEED_X_RATIO;
+    this.speedY = this.curentFieldDimension.height / BALL_SPEED_Y_RATIO;
   }
 
   update(canvasWidth: number, canvasHeight: number) {
@@ -207,15 +215,15 @@ export class Ball {
     this.x *= xRatio;
     this.y *= yRatio;
 
-    this.radius = this.curentFieldDimension.height / 56.375;
-    this.speedX = this.curentFieldDimension.height / 112.75;
-    this.speedY = this.curentFieldDimension.height / 150.333;
+    this.radius = this.curentFieldDimension.height / BALL_RADIUS_RATIO;
+    this.speedX = this.curentFieldDimension.height / BALL_SPEED_X_RATIO;
+    this.speedY = this.curentFieldDimension.height / BALL_SPEED_Y_RATIO;
   }
 
   draw(ctx: CanvasRenderingContext2D) {
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    ctx.fillStyle= "white";
+    ctx.fillStyle = COLORS.BALL;
     ctx.fill();
   }
 

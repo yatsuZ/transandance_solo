@@ -1,7 +1,8 @@
-import { DOMElements } from "../core/dom-manager.js";
 import { ConfigMatch, PongGame } from "../pong/pong-game.js";
 import { activeAnotherPage, activeOrHiden } from "../navigation/page-manager.js";
 import { updateUrl } from "../utils/url-helpers.js";
+import { DOMElements } from "../core/dom-elements.js";
+import { arePlayersValid } from "../utils/validators.js";
 
 /**
  * Contrôleur pour gérer le cycle de vie des matchs solo (hors tournoi)
@@ -17,12 +18,12 @@ export class MatchController {
     // Bind the handler
     this.event_stop_MatchHandler = this.event_stop_Match.bind(this, getCurrentPage);
 
-    // Event listener pour démarrer un match depuis le bouton
-    const doMatchBtn = this._DO.buttons.startMatch;
-
-    doMatchBtn.addEventListener("click", () => {
+    // Event listener pour le formulaire gameConfig
+    const gameConfigForm = this._DO.gameConfigElement.formulaireGameConfig;
+    gameConfigForm.addEventListener("submit", (event) => {
+      event.preventDefault();
       if (!this.pongGameSingleMatch) {
-        this.startMatchFromButton();
+        this.startMatchFromGameConfig();
       }
     });
 
@@ -51,23 +52,66 @@ export class MatchController {
   }
 
   /**
-   * Démarre un match solo depuis la page d'accueil
-   * Change vers la page match PUIS crée le jeu
+   * Démarre un match depuis le formulaire gameConfig
+   * Récupère les données du formulaire et lance le match
    */
-  private startMatchFromButton() {
+  private startMatchFromGameConfig() {
     const matchPage = this._DO.pages.match;
     const iconAccueil = this._DO.icons.accueil;
+
+    // Récupérer le jeu sélectionné
+    const selectedGame = (document.querySelector('input[name="game"]:checked') as HTMLInputElement)?.value;
+
+    // Vérifier si c'est Tron (pas encore implémenté)
+    if (selectedGame === "tron") { 
+      alert("Le jeu Tron n'est pas encore prêt !\nRevenez plus tard 🎮");
+      return;
+    }
+
+    // Récupérer les données du formulaire
+    const playerLeftName = this._DO.gameConfigElement.inputFormulaireGameConfig_PlayerLeft.value.trim();
+    const playerRightName = this._DO.gameConfigElement.inputFormulaireGameConfig_PlayerRight.value.trim();
+
+    // Vérifier que les pseudos sont remplis
+    if (!playerLeftName || !playerRightName) {
+      alert("Tous les joueurs doivent avoir un pseudo !");
+      return;
+    }
+
+    // Valider les pseudos (caractères valides, longueur, unicité)
+    if (!arePlayersValid([playerLeftName, playerRightName]))
+      return;
+
+    // Récupérer les types des joueurs (humain/IA)
+    const playerLeftType = (document.querySelector('input[name="playerLeftType"]:checked') as HTMLInputElement)?.value;
+    const playerRightType = (document.querySelector('input[name="playerRightType"]:checked') as HTMLInputElement)?.value;
+
+    // Déterminer le mode
+    let mode: ConfigMatch["mode"];
+    if (playerLeftType === "human" && playerRightType === "human")
+      mode = "PvP";
+    else if (playerLeftType === "human" && playerRightType === "ia")
+      mode = "PvIA";
+    else if (playerLeftType === "ia" && playerRightType === "human")
+      mode = "IAvP";
+    else
+      mode = "IAvIA";
+
+    // Créer la config
+    const config: ConfigMatch = {
+      mode: mode,
+      name: [playerLeftName, playerRightName]
+    };
 
     // Afficher l'icône accueil
     activeOrHiden(iconAccueil, "On");
 
     // IMPORTANT: Afficher la page match AVANT de créer le PongGame
-    activeAnotherPage(matchPage);
     updateUrl(matchPage);
 
-    // Maintenant créer le jeu (le canvas est visible)
-    console.log("[MATCH CONTROLLER] Création du match solo");
-    this.initGame();
+    // Créer le jeu avec la config personnalisée
+    console.log("[MATCH CONTROLLER] Création du match avec config:", config);
+    this.pongGameSingleMatch = new PongGame(this._DO, config, false, () => this.onMatchEnd());
   }
 
   /**

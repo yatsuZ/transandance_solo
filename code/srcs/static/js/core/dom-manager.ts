@@ -1,78 +1,9 @@
+import { DOMElements } from "./dom-elements";
 /**
  * Types et utilitaires pour la gestion centralisée du DOM
  * Ce module initialise et type tous les éléments DOM de l'application
  */
 
-/**
- * Type représentant tous les éléments DOM de l'application
- */
-export type DOMElements = {
-  pages: Record<
-    "accueil" | "match" | "result" | "beginTournament" | "treeTournament" | "parametre" | "error",
-    HTMLElement
-  >;
-
-  errorElement: {
-    codeEl: HTMLElement;
-    descriptionEl: HTMLElement;
-    imageEl: HTMLImageElement;
-  };
-
-  resultElement: Record<
-    "winnerNameEl" | "player1NameEl" | "player1ScoreEl" | "player2NameEl" | "player2ScoreEl",
-    HTMLElement
-  >;
-
-  matchElement: Record<
-    "playerCardL" | "playerCardR",
-    HTMLElement
-  >;
-
-  tournamentElement: {
-    texteWhovsWho: HTMLElement;
-    spanWhoVsWho: HTMLElement;
-    divOfButton: HTMLElement;
-    form: HTMLFormElement;
-    formPseudoTournament: [HTMLInputElement, HTMLInputElement, HTMLInputElement, HTMLInputElement];
-    formIsHumanCheckbox: [HTMLInputElement, HTMLInputElement, HTMLInputElement, HTMLInputElement];
-  };
-
-  buttons: {
-    nextResult: HTMLButtonElement;
-    giveUpTournament: HTMLButtonElement;
-    startMatchTournament: HTMLButtonElement;
-    startMatch: HTMLButtonElement,
-    startMusic: HTMLButtonElement;
-    dontStartMusic: HTMLButtonElement;
-    linkButtons: HTMLButtonElement[];
-    allButtons: HTMLButtonElement[]; // Tous les boutons du document
-  };
-
-  icons: {
-    accueil: HTMLElement;
-    settings: HTMLElement;
-    sound: HTMLElement;
-  };
-
-  media: {
-    music: {
-      main_theme: HTMLAudioElement;
-    };
-    image: {
-      sound: HTMLImageElement;
-    };
-  };
-
-  popup: {
-    startOrNotMusic: HTMLElement;
-  };
-
-  subtitles: HTMLElement[];
-
-  canva: HTMLCanvasElement;
-  ctx: CanvasRenderingContext2D;
-  style: HTMLLinkElement;
-};
 
 /**
  * Initialise et récupère tous les éléments DOM de l'application
@@ -146,7 +77,7 @@ export function init_All_Dom(): DOMElements {
   // ========================================
   // CANVAS & CONTEXTE 2D
   // ========================================
-  const canva = get<HTMLCanvasElement>("pong-canvas", "Canvas");
+  const canva = get<HTMLCanvasElement>("game-canvas", "Canvas");
   const ctx = canva.getContext("2d");
   if (!ctx) {
     throw new Error("❌ [Canvas] Impossible de récupérer le contexte 2D");
@@ -156,6 +87,7 @@ export function init_All_Dom(): DOMElements {
   // PAGES DE L'APPLICATION
   // ========================================
   const pageAccueil = get<HTMLElement>("pagesAccueil", "Pages");
+  const pageGameConfig = get<HTMLElement>("pagesGame_Config", "Pages");
   const pageMatch = get<HTMLElement>("pagesMatch", "Pages");
   const pageResult = get<HTMLElement>("pagesResult", "Pages");
   const pageBeginTournament = get<HTMLElement>("pagesBegin_Tournament", "Pages");
@@ -180,10 +112,23 @@ export function init_All_Dom(): DOMElements {
   const player2ScoreEl = get<HTMLElement>("player2-score", "Result");
 
   // ========================================
+  // PAGE PARAMETRE
+  // ========================================
+  const volumeSlider = get<HTMLInputElement>("volume-slider", "Parametre");
+  const volumeValue = get<HTMLElement>("volume-value", "Parametre");
+
+  // ========================================
   // PAGE MATCH
   // ========================================
   const playerCardL = get<HTMLElement>("player-Left-Card-Match", "Match");
   const playerCardR = get<HTMLElement>("player-Right-Card-Match", "Match");
+
+  // ========================================
+  // GAME CONFIG (Formulaire Match Config)
+  // ========================================
+  const formulaireGameConfig = get<HTMLFormElement>("match-form", "GameConfig");
+  const inputFormulaireGameConfig_PlayerLeft = get<HTMLInputElement>("playerLeft", "GameConfig");
+  const inputFormulaireGameConfig_PlayerRight = get<HTMLInputElement>("playerRight", "GameConfig");
 
   // ========================================
   // TOURNOI
@@ -211,7 +156,6 @@ export function init_All_Dom(): DOMElements {
   const nextResult = get<HTMLButtonElement>("next-btn_result", "Buttons");
   const giveUpTournament = get<HTMLButtonElement>("givUpTournament", "Buttons");
   const startMatchTournament = get<HTMLButtonElement>("doMatchTournament", "Buttons");
-  const startMatch = get<HTMLButtonElement>("doMatch", "Buttons");
   const startMusic = get<HTMLButtonElement>("start-music", "Buttons");
   const dontStartMusic = get<HTMLButtonElement>("dont-start-music", "Buttons");
   const linkButtons = queryAll<HTMLButtonElement>("button[data-link]", "Buttons");
@@ -252,6 +196,7 @@ export function init_All_Dom(): DOMElements {
   return {
     pages: {
       accueil: pageAccueil,
+      gameConfig : pageGameConfig,
       match: pageMatch,
       result: pageResult,
       beginTournament: pageBeginTournament,
@@ -274,9 +219,20 @@ export function init_All_Dom(): DOMElements {
       player2ScoreEl,
     },
 
+    parametreElement: {
+      volumeSlider,
+      volumeValue,
+    },
+
     matchElement: {
       playerCardL,
       playerCardR,
+    },
+
+    gameConfigElement: {
+      formulaireGameConfig,
+      inputFormulaireGameConfig_PlayerLeft,
+      inputFormulaireGameConfig_PlayerRight,
     },
 
     tournamentElement: {
@@ -292,7 +248,6 @@ export function init_All_Dom(): DOMElements {
       nextResult,
       giveUpTournament,
       startMatchTournament,
-      startMatch,
       startMusic,
       dontStartMusic,
       linkButtons,

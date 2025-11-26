@@ -1,9 +1,11 @@
+import { FIELD_RATIO, FIELD_BORDER_WIDTH, COLORS } from "../game-config.js";
+
 export class Field {
   public width: number;
   public height: number;
   private canvas: HTMLCanvasElement;
   private parent: HTMLElement;
-  private readonly RATIO = 4 / 3;
+  private readonly RATIO = FIELD_RATIO;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -60,12 +62,12 @@ export class Field {
 
   draw(ctx: CanvasRenderingContext2D) {
     // 🎨 Fond noir
-    ctx.fillStyle = "black";
+    ctx.fillStyle = COLORS.FIELD_BACKGROUND;
     ctx.fillRect(0, 0, this.width, this.height);
 
     // ⚪ Lignes blanches
-    ctx.strokeStyle = "white";
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = COLORS.FIELD_BORDER;
+    ctx.lineWidth = FIELD_BORDER_WIDTH;
 
     // Ligne centrale
     // ctx.beginPath();

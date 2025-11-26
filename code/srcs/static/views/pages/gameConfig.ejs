@@ -1,0 +1,89 @@
+<div class="container">
+  <!-- HEADER -->
+  <header class="arcade-header">
+    <h1 class="arcade-title"><%= title %></h1>
+    <p class="arcade-subtitle">Choisis ton jeu et prépare ton duel !</p>
+  </header>
+
+  <!-- FORMULAIRE CONFIG MATCH -->
+  <div class="game-config-wrapper">
+    <nav class="game-config-container">
+      <form id="match-form" class="game-config-form">
+
+        <!-- TITRE FORM -->
+        <h2 class="form-title">Match 1 vs 1</h2>
+
+        <!-- CHOIX DU JEU -->
+        <div class="game-choice-block">
+          <label class="label-title">Choisis ton jeu :</label>
+          <div class="game-options">
+            <label class="radio-label">
+              <input type="radio" name="game" value="pong" checked>
+              Pong
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="game" value="tron">
+              Tron
+            </label>
+          </div>
+        </div>
+
+        <!-- JOUEUR GAUCHE -->
+        <div class="player-config-block">
+          <h3 class="player-config-title">Joueur Gauche</h3>
+
+          <!-- Pseudo Joueur Gauche -->
+          <div class="player-block">
+            <label for="playerLeft">Pseudo :</label>
+            <input type="text" id="playerLeft" name="playerLeft" placeholder="Pseudo joueur gauche" required>
+          </div>
+
+          <!-- Type Joueur Gauche -->
+          <div class="player-type-block">
+            <label class="label-title">Type :</label>
+            <div class="player-type-options">
+              <label class="radio-label">
+                <input type="radio" name="playerLeftType" value="human" checked>
+                Humain
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="playerLeftType" value="ia">
+                IA
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- JOUEUR DROIT -->
+        <div class="player-config-block">
+          <h3 class="player-config-title">Joueur Droit</h3>
+
+          <!-- Pseudo Joueur Droit -->
+          <div class="player-block">
+            <label for="playerRight">Pseudo :</label>
+            <input type="text" id="playerRight" name="playerRight" placeholder="Pseudo joueur droit" required>
+          </div>
+
+          <!-- Type Joueur Droit -->
+          <div class="player-type-block">
+            <label class="label-title">Type :</label>
+            <div class="player-type-options">
+              <label class="radio-label">
+                <input type="radio" name="playerRightType" value="human" checked>
+                Humain
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="playerRightType" value="ia">
+                IA
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUBMIT -->
+        <button type="submit" id="start_match_btn" class="start-btn">Start Match</button>
+
+      </form>
+    </nav>
+  </div>
+</div>

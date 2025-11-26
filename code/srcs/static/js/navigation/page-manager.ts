@@ -1,4 +1,4 @@
-import { DOMElements } from "../core/dom-manager.js";
+import { DOMElements } from "../core/dom-elements.js";
 import { SiteManagement } from "../SiteManagement.js";
 
 /**

@@ -1,4 +1,4 @@
-import { DOMElements } from "../core/dom-manager.js";
+import { DOMElements } from "../core/dom-elements.js";
 import { SiteManagement } from "../SiteManagement.js";
 
 /**
@@ -63,9 +63,8 @@ export function updateUrl(page: HTMLElement, prefix: string = "") {
  */
 async function findErrorImage(errorCode: number): Promise<string> {
   // Si c'est une erreur non gérée, retourner l'image par défaut
-  if (errorCode !== 0 && errorCode !== 403 && errorCode !== 404) {
+  if (errorCode !== 0 && errorCode !== 403 && errorCode !== 404)
     return '/static/util/img/error_x.png';
-  }
 
   const basePath = `/static/util/img/error_${errorCode}`;
   const extensions = ['jpg', 'png'];
@@ -75,9 +74,8 @@ async function findErrorImage(errorCode: number): Promise<string> {
     const url = `${basePath}.${ext}`;
     try {
       const response = await fetch(url, { method: 'HEAD' });
-      if (response.ok) {
+      if (response.ok)
         return url;
-      }
     } catch (e) {
       // Continuer avec l'extension suivante
     }

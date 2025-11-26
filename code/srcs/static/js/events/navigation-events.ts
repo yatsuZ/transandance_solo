@@ -1,8 +1,8 @@
-import { DOMElements } from "../core/dom-manager.js";
 import { activeAnotherPage, activeOrHiden, findPage } from "../navigation/page-manager.js";
 import { findPageFromUrl, redirectToError, resetErrorPage, updateUrl } from "../utils/url-helpers.js";
 import { isRestrictedRoute } from "../navigation/route-config.js";
 import { clear_Formulaire_Of_Tournament } from "../utils/validators.js";
+import { DOMElements } from "../core/dom-elements.js";
 
 /**
  * Classe pour gérer TOUTE la navigation de l'application

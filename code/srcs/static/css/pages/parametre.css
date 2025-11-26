@@ -1,0 +1,136 @@
+/* ===================================
+   PAGE: PARAMETRE
+   =================================== */
+
+.parametre-wrapper {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 0;
+  overflow: auto;
+  box-sizing: border-box;
+}
+
+.parametre-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  background: rgba(20, 20, 20, 0.9);
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 0 10px rgba(0, 255, 76, 0.6);
+  border: 1px solid rgba(0, 255, 76, 0.8);
+  width: 100%;
+  max-width: 500px;
+  box-sizing: border-box;
+}
+
+/* SECTION PARAMETRE */
+
+.parametre-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(0, 255, 76, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(0, 255, 76, 0.2);
+}
+
+.parametre-title {
+  font-size: 1.1rem;
+  color: rgb(0, 255, 76);
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0;
+  text-align: center;
+}
+
+/* CONTROLE VOLUME */
+
+.volume-control {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
+
+.volume-label {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 1rem;
+  color: #ffcc00;
+}
+
+.volume-icon {
+  font-size: 1.5rem;
+}
+
+#volume-value {
+  font-weight: bold;
+  min-width: 50px;
+  text-align: center;
+}
+
+/* SLIDER PERSONNALISE */
+
+.volume-slider {
+  width: 100%;
+  max-width: 350px;
+  height: 8px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(0, 255, 76, 0.2);
+  outline: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.volume-slider:hover {
+  background: rgba(0, 255, 76, 0.3);
+}
+
+/* Thumb pour Webkit (Chrome, Safari) */
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: rgb(0, 255, 76);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(0, 255, 76, 0.8);
+  transition: all 0.2s ease;
+}
+
+.volume-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 15px rgba(0, 255, 76, 1);
+}
+
+/* Thumb pour Firefox */
+.volume-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: rgb(0, 255, 76);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(0, 255, 76, 0.8);
+  transition: all 0.2s ease;
+}
+
+.volume-slider::-moz-range-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 15px rgba(0, 255, 76, 1);
+}
+
+/* Track pour Firefox */
+.volume-slider::-moz-range-track {
+  background: rgba(0, 255, 76, 0.2);
+  border-radius: 10px;
+}

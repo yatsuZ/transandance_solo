@@ -18,14 +18,14 @@
 
 **Fichier :** `game_config.ejs`
 
-- [ ] Choix du jeu (Pong / Tron)
-  - [ ] Radio ou boutons visuels
+- [X] Choix du jeu (Pong / Tron)
+  - [X] Radio ou boutons visuels
   - [ ] Tron grisé pour l'instant (activé après module)
-- [ ] Choix adversaire
-  - [ ] PvP (Joueur vs Joueur)
-  - [ ] PvIA (Joueur vs IA)
-  - [ ] IAvIA (IA vs IA)
-- [ ] Bouton "Lancer"
+- [X] Choix adversaire
+  - [X] PvP (Joueur vs Joueur)
+  - [X] PvIA (Joueur vs IA)
+  - [X] IAvIA (IA vs IA)
+- [X] Bouton "Lancer"
 - [ ] Intégrer dans le flow (route + DOM + controller)
 
 ---
@@ -34,12 +34,14 @@
 
 **Fichier :** `parametre.ejs`
 
-- [ ] Slider volume musique (0-100%)
+- [X] Slider volume musique (0-100%)
 
 ---
 
 ## 🎨 3. Améliorer le Game Design
 
+choisir les bonne dimension du canvas
+plus ajuter langle de la balle faire que ce soit plus aleatoire 
 - [ ] Changer ratio terrain (4:3 → 16:9)
 - [ ] Ajuster vitesse balle si besoin
 - [ ] Animations (countdown, goal, victoire)

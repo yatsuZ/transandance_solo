@@ -4,8 +4,9 @@ import { Field } from './components/field.js';
 import { updateUrl } from '../utils/url-helpers.js';
 import { activeAnotherPage } from '../navigation/page-manager.js';
 import { SiteManagement } from '../SiteManagement.js';
-import { DOMElements } from '../core/dom-manager.js';
 import { log } from 'console';
+import { DOMElements } from '../core/dom-elements.js';
+import { PADDLE_SPEED, WINNING_SCORE } from './game-config.js';
 
 export type ConfigMatch = {mode : "PvP" | "PvIA" | "IAvP" | "IAvIA", name: [string, string]};
 
@@ -41,24 +42,23 @@ export class PongGame {
     // Initialisation du terrain et des joueurs
     this.field = new Field(this._DO.canva);
     const dim = this.field.getDimensions();
-    const vitessePaddle = dim.height / 150.333;
 
     switch (config.mode) {
       case "PvIA":
-        this.playerLeft = new PlayerHuman("L", this._DO.matchElement, dim, vitessePaddle, config.name[0]);
-        this.playerRight = new PlayerAI("R", this._DO.matchElement, dim, vitessePaddle, config.name[1]);
+        this.playerLeft = new PlayerHuman("L", this._DO.matchElement, dim, PADDLE_SPEED, config.name[0]);
+        this.playerRight = new PlayerAI("R", this._DO.matchElement, dim, PADDLE_SPEED, config.name[1]);
         break;
       case "IAvP":
-        this.playerLeft = new PlayerAI("L", this._DO.matchElement, dim, vitessePaddle, config.name[0]);
-        this.playerRight = new PlayerHuman("R", this._DO.matchElement, dim, vitessePaddle, config.name[1]);
+        this.playerLeft = new PlayerAI("L", this._DO.matchElement, dim, PADDLE_SPEED, config.name[0]);
+        this.playerRight = new PlayerHuman("R", this._DO.matchElement, dim, PADDLE_SPEED, config.name[1]);
         break;
       case "IAvIA":
-        this.playerLeft = new PlayerAI("L", this._DO.matchElement, dim, vitessePaddle, config.name[0]);
-        this.playerRight = new PlayerAI("R", this._DO.matchElement, dim, vitessePaddle, config.name[1]);
+        this.playerLeft = new PlayerAI("L", this._DO.matchElement, dim, PADDLE_SPEED, config.name[0]);
+        this.playerRight = new PlayerAI("R", this._DO.matchElement, dim, PADDLE_SPEED, config.name[1]);
         break;
       default: // PvP
-        this.playerLeft = new PlayerHuman("L", this._DO.matchElement, dim, vitessePaddle, config.name[0]);
-        this.playerRight = new PlayerHuman("R", this._DO.matchElement, dim, vitessePaddle, config.name[1]);
+        this.playerLeft = new PlayerHuman("L", this._DO.matchElement, dim, PADDLE_SPEED, config.name[0]);
+        this.playerRight = new PlayerHuman("R", this._DO.matchElement, dim, PADDLE_SPEED, config.name[1]);
     }
 
     // Initialisation de la balle
@@ -134,8 +134,8 @@ export class PongGame {
     this.update();
     this.draw();
 
-    // Vérifier si le match est terminé (3 points)
-    if (this.playerLeft.get_score() >= 3 || this.playerRight.get_score() >= 3) {
+    // Vérifier si le match est terminé
+    if (this.playerLeft.get_score() >= WINNING_SCORE || this.playerRight.get_score() >= WINNING_SCORE) {
       this.stop("Le match est terminé normalement.");
       this.goToResult();
     }

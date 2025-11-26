@@ -1,10 +1,10 @@
-import { initMusicSystem } from './ui/music-manager.js';
+import { initMusicSystem, initVolumeControl } from './ui/music-manager.js';
 import { update_description_de_page } from './ui/description-manager.js';
 import { activeOrHiden } from './navigation/page-manager.js';
-import { DOMElements } from './core/dom-manager.js';
 import { MatchController } from './game-management/match-controller.js';
 import { TournamentController } from './game-management/tournament-controller.js';
 import { NavigationEvents } from './events/navigation-events.js';
+import { DOMElements } from './core/dom-elements.js';
 
 /**
  * Classe principale pour orchestrer l'application
@@ -64,6 +64,7 @@ export class SiteManagement {
   private initApp() {
     // Initialiser les systèmes de base
     initMusicSystem(this._DO);
+    initVolumeControl(this._DO);
     update_description_de_page(this._DO);
 
     // Initialiser les controllers
