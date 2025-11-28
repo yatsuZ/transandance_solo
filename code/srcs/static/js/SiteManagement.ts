@@ -4,6 +4,7 @@ import { activeOrHiden } from './navigation/page-manager.js';
 import { MatchController } from './game-management/match-controller.js';
 import { TournamentController } from './game-management/tournament-controller.js';
 import { NavigationEvents } from './events/navigation-events.js';
+import { AuthEvents } from './auth/auth-events.js';
 import { DOMElements } from './core/dom-elements.js';
 
 /**
@@ -25,6 +26,7 @@ export class SiteManagement {
   private matchController: MatchController | null = null;
   private tournamentController: TournamentController | null = null;
   private navigationEvents: NavigationEvents | null = null;
+  private authEvents: AuthEvents | null = null;
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Constructeur et Initialisation
@@ -71,13 +73,16 @@ export class SiteManagement {
     this.matchController = new MatchController(this._DO, () => SiteManagement.currentActivePage);
     this.tournamentController = new TournamentController(this._DO, () => SiteManagement.currentActivePage);
 
-    // Initialiser NavigationEvents (qui initialise le SPA + attache les events)
+    // Initialiser NavigationEvents (gère TOUTES les redirections + navigation)
     this.navigationEvents = new NavigationEvents(
       this._DO,
       this.matchController,
       this.tournamentController,
       () => SiteManagement.currentActivePage
     );
+
+    // Initialiser AuthEvents (gère les événements des formulaires login/signup)
+    this.authEvents = new AuthEvents(this._DO);
 
     // APRÈS l'initialisation de la navigation, vérifier si on doit démarrer un match au chargement
     this.matchController.initMatchOnStartup(() => SiteManagement.currentActivePage);

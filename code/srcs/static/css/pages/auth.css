@@ -1,0 +1,316 @@
+/* ===================================
+   PAGES: LOGIN & SIGNUP
+   Style arcade rétro pour auth
+   =================================== */
+
+/* Container principal auth */
+.auth-wrapper {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 0;
+  overflow: auto;
+  box-sizing: border-box;
+  padding: 1rem;
+}
+
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+/* Formulaire auth (plus grand que game-config) */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  background: rgba(20, 20, 20, 0.95);
+  padding: 2rem 2rem;
+  border-radius: 12px;
+  box-shadow:
+    0 0 20px rgba(0, 255, 76, 0.6),
+    inset 0 0 30px rgba(0, 255, 76, 0.1);
+  border: 2px solid rgba(0, 255, 76, 0.8);
+  text-align: center;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 420px;
+  min-height: 480px;
+  box-sizing: border-box;
+}
+
+.auth-form .form-title {
+  font-size: 1.5rem;
+  color: rgb(0, 255, 76);
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 0 0 10px rgba(0, 255, 76, 0.8);
+}
+
+/* Bloc input auth */
+.auth-input-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  gap: 0.5rem;
+}
+
+.auth-input-block > label {
+  font-size: 0.9rem;
+  color: rgb(0, 255, 76);
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Inputs stylés */
+.auth-input-block input[type="text"],
+.auth-input-block input[type="email"],
+.auth-input-block input[type="password"] {
+  width: 100%;
+  padding: 0.9rem;
+  border-radius: 8px;
+  border: 2px solid #ffcc00;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #ffcc00;
+  font-size: 1rem;
+  text-align: left;
+  transition: all 0.25s ease;
+  box-sizing: border-box;
+  font-family: 'Press Start 2P', monospace;
+  text-transform: none;
+}
+
+.auth-input-block input::placeholder {
+  color: rgba(255, 204, 0, 0.4);
+  font-size: 0.75rem;
+}
+
+.auth-input-block input:focus {
+  outline: none;
+  background-color: rgba(0, 255, 76, 0.15);
+  box-shadow:
+    0 0 15px rgba(0, 255, 76, 0.8),
+    inset 0 0 10px rgba(0, 255, 76, 0.2);
+  border-color: rgb(0, 255, 76);
+  color: rgb(0, 255, 76);
+}
+
+/* ===================================
+   INPUT COLORIZER - Différenciation majuscules/minuscules
+   =================================== */
+
+/* Wrapper pour l'input + overlay */
+.input-colorizer-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* Overlay pour afficher le texte coloré */
+.input-colorizer-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0.9rem;
+  pointer-events: none;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 1rem;
+  text-align: left;
+  display: none;
+  white-space: nowrap;
+  overflow: hidden;
+  box-sizing: border-box;
+  line-height: 1.5;
+}
+
+/* Majuscules - Couleur principale (jaune ou vert selon focus) */
+.input-colorizer-overlay .char-upper {
+  color: #ffcc00;
+  transition: color 0.25s ease;
+}
+
+/* Minuscules - Couleur secondaire (orange) */
+.input-colorizer-overlay .char-lower {
+  color: #ff9933;
+  transition: color 0.25s ease;
+}
+
+/* Quand l'input est focus, changer les couleurs */
+.input-colorizer-wrapper input:focus ~ .input-colorizer-overlay .char-upper {
+  color: rgb(0, 255, 76);
+}
+
+.input-colorizer-wrapper input:focus ~ .input-colorizer-overlay .char-lower {
+  color: rgb(0, 200, 255);
+}
+
+/* Hints petits textes */
+.input-hint {
+  font-size: 0.65rem;
+  color: rgba(255, 204, 0, 0.6);
+  font-style: italic;
+  margin-top: -0.2rem;
+}
+
+/* Message d'erreur */
+.error-message {
+  width: 100%;
+  padding: 0.8rem;
+  background-color: rgba(255, 0, 0, 0.2);
+  border: 1px solid rgba(255, 0, 0, 0.6);
+  border-radius: 8px;
+  color: #ff4444;
+  font-size: 0.8rem;
+  text-align: center;
+  margin: 0.5rem 0;
+}
+
+/* Bouton submit auth (plus gros) */
+.auth-submit-btn {
+  margin-top: 1.5rem;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 10px;
+  background-color: rgb(0, 255, 76);
+  color: #000;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow:
+    0 0 15px rgba(0, 255, 76, 0.7),
+    0 4px 8px rgba(0, 0, 0, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  width: 100%;
+  font-family: 'Press Start 2P', monospace;
+}
+
+.auth-submit-btn:hover {
+  background-color: #00ff6a;
+  transform: translateY(-2px) scale(1.02);
+  box-shadow:
+    0 0 25px rgba(0, 255, 76, 1),
+    0 6px 12px rgba(0, 0, 0, 0.5);
+}
+
+.auth-submit-btn:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow:
+    0 0 10px rgba(0, 255, 76, 0.6),
+    0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Texte switch (vers signup/login) */
+.auth-switch {
+  margin-top: 1.5rem;
+  font-size: 0.75rem;
+  color: rgba(255, 204, 0, 0.8);
+  text-align: center;
+}
+
+/* Bouton switch stylé arcade */
+.auth-switch-btn {
+  position: relative;
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 0.6rem 1.5rem;
+  background: rgba(0, 0, 0, 0.8);
+  color: #ffcc00;
+  border: 2px solid #ffcc00;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-decoration: none;
+  font-family: 'Press Start 2P', monospace;
+}
+
+.auth-switch-btn::before,
+.auth-switch-btn::after {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  box-sizing: border-box;
+  pointer-events: none;
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.auth-switch-btn::before {
+  top: -2px;
+  left: -2px;
+  border-top: 2px solid #ffcc00;
+  border-left: 2px solid #ffcc00;
+}
+
+.auth-switch-btn::after {
+  bottom: -2px;
+  right: -2px;
+  border-bottom: 2px solid #ffcc00;
+  border-right: 2px solid #ffcc00;
+}
+
+.auth-switch-btn:hover {
+  background: rgb(0, 255, 76);
+  color: #000;
+  border-color: rgb(0, 255, 76);
+  box-shadow:
+    0 0 15px rgba(0, 255, 76, 0.8),
+    0 0 5px rgba(255, 204, 0, 0.5);
+  transform: translateY(-2px);
+}
+
+.auth-switch-btn:hover::before,
+.auth-switch-btn:hover::after {
+  transform: scale(1.5);
+  border-color: rgb(0, 255, 76);
+}
+
+.auth-switch-btn:active {
+  transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 500px) {
+  .auth-form {
+    padding: 1.5rem 1.2rem;
+    max-width: 100%;
+    min-height: 420px;
+  }
+
+  .auth-form .form-title {
+    font-size: 1.2rem;
+  }
+
+  .auth-input-block input {
+    font-size: 0.9rem;
+    padding: 0.75rem;
+  }
+
+  .auth-submit-btn {
+    font-size: 0.85rem;
+    padding: 0.85rem 1.5rem;
+  }
+
+  .auth-switch {
+    font-size: 0.7rem;
+  }
+
+  .auth-switch-btn {
+    font-size: 0.7rem;
+    padding: 0.5rem 1.2rem;
+  }
+}

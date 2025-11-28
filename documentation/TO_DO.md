@@ -100,16 +100,16 @@ Il servira de base pour créer les tickets.
 **Technologie choisie :** SQLite3 (better-sqlite3)
 
 **Critères de validation :**
-- [ ] Base de données SQLite configurée
-- [ ] Schéma de tables créé (users, matches, tournaments, scores)
-- [ ] Intégration avec Fastify
-- [ ] CRUD fonctionnel
+- [X] Base de données SQLite configurée
+- [X] Schéma de tables créé (users, matches, tournaments, scores)
+- [X] Intégration avec Fastify
+- [X] CRUD fonctionnel
 
 **Tâches :**
-- [ ] Installer `better-sqlite3`
-- [ ] Créer le fichier de schéma SQL
-- [ ] Créer les helpers/repository pour les requêtes
-- [ ] Initialisation automatique de la DB au démarrage
+- [X] Installer `better-sqlite3`
+- [X] Créer le fichier de schéma SQL
+- [X] Créer les helpers/repository pour les requêtes
+- [X] Initialisation automatique de la DB au démarrage
 
 ---
 
