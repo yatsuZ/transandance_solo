@@ -6,6 +6,9 @@ module.exports = {
   // 🌍 Environnement d'exécution : 'node' (pas 'jsdom' car on n'a pas besoin du DOM)
   testEnvironment: 'node',
 
+  // 🔇 Désactive les console.log de la BDD pendant les tests
+  setupFiles: ['<rootDir>/tests/setup.ts'],
+
   // 📁 Dossier racine où Jest cherche les tests
   roots: ['<rootDir>/tests'],
 
@@ -23,6 +26,8 @@ module.exports = {
   collectCoverageFrom: [
     'srcs/static/js/pong/**/*.ts',      // Tous les fichiers .ts du dossier pong
     '!srcs/static/js/pong/**/*.d.ts',   // SAUF les fichiers de déclaration TypeScript (.d.ts)
+    'srcs/backend/core/db/**/*.ts',     // Tous les fichiers .ts de la BDD
+    '!srcs/backend/core/db/**/*.d.ts',  // SAUF les fichiers de déclaration
   ],
 
   // 📁 Dossier de sortie pour les rapports de couverture
