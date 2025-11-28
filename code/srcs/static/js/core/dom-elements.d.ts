@@ -3,7 +3,7 @@
  */
 export type DOMElements = {
   pages: Record<
-    "accueil" | "gameConfig" | "match" | "result" | "beginTournament" | "treeTournament" | "parametre" | "error",
+    "login" | "signup" | "accueil" | "gameConfig" | "match" | "result" | "beginTournament" | "treeTournament" | "parametre" | "error",
     HTMLElement
   >;
 

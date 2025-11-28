@@ -12,8 +12,8 @@ module.exports = {
   // 📁 Dossier racine où Jest cherche les tests
   roots: ['<rootDir>/tests'],
 
-  // 🎯 Pattern pour identifier les fichiers de test (tous les *.test.ts)
-  testMatch: ['**/*.test.ts'],
+  // 🎯 Pattern pour identifier les fichiers de test (seulement les index.test.ts et les tests à la racine)
+  testMatch: ['**/index.test.ts', '**/logic/**/*.test.ts'],
 
   // 📦 Extensions de fichiers supportées (dans l'ordre de priorité)
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
@@ -28,6 +28,8 @@ module.exports = {
     '!srcs/static/js/pong/**/*.d.ts',   // SAUF les fichiers de déclaration TypeScript (.d.ts)
     'srcs/backend/core/db/**/*.ts',     // Tous les fichiers .ts de la BDD
     '!srcs/backend/core/db/**/*.d.ts',  // SAUF les fichiers de déclaration
+    'srcs/backend/routes/**/*.ts',      // Tous les fichiers .ts des routes API
+    '!srcs/backend/routes/**/*.d.ts',   // SAUF les fichiers de déclaration
   ],
 
   // 📁 Dossier de sortie pour les rapports de couverture

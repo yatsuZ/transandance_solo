@@ -6,6 +6,7 @@ import { updateScore, updateScoreSchema } from './handlers/update-score.js';
 import { endMatch, endMatchSchema } from './handlers/end-match.js';
 import { getMatchesByStatus, getMatchesByStatusSchema } from './handlers/get-matches-by-status.js';
 import { deleteMatch, deleteMatchSchema } from './handlers/delete-match.js';
+import { authMiddleware } from '../../core/auth/auth.middleware.js';
 
 /**
  * Routes matches - fichier principal
@@ -21,15 +22,15 @@ export default async function matchRoutes(fastify: FastifyInstance) {
   // GET /api/matches/:id - Récupérer un match par ID
   fastify.get('/:id', { schema: getMatchByIdSchema }, getMatchById);
 
-  // PUT /api/matches/:id/score - Mettre à jour le score
-  fastify.put('/:id/score', { schema: updateScoreSchema }, updateScore);
+  // PUT /api/matches/:id/score - Mettre à jour le score (protégé)
+  fastify.put('/:id/score', { schema: updateScoreSchema, preHandler: [authMiddleware] }, updateScore as any);
 
-  // POST /api/matches/:id/end - Terminer un match
-  fastify.post('/:id/end', { schema: endMatchSchema }, endMatch);
+  // POST /api/matches/:id/end - Terminer un match (protégé)
+  fastify.post('/:id/end', { schema: endMatchSchema, preHandler: [authMiddleware] }, endMatch as any);
 
   // GET /api/matches/status/:status - Récupérer les matchs par statut
   fastify.get('/status/:status', { schema: getMatchesByStatusSchema }, getMatchesByStatus);
 
-  // DELETE /api/matches/:id - Supprimer un match
-  fastify.delete('/:id', { schema: deleteMatchSchema }, deleteMatch);
+  // DELETE /api/matches/:id - Supprimer un match (protégé)
+  fastify.delete('/:id', { schema: deleteMatchSchema, preHandler: [authMiddleware] }, deleteMatch as any);
 }

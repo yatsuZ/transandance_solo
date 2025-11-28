@@ -1,0 +1,57 @@
+<div class="container">
+  <!-- HEADER -->
+  <header class="arcade-header">
+    <h1 class="arcade-title"><%= title %></h1>
+    <p class="arcade-subtitle">Aller connecte TOI!! ONE MORE GAME. ONE MORE GAME !!</p>
+  </header>
+
+  <div class="for-center">
+
+    <!-- FORMULAIRE LOGIN -->
+    <div class="login-signup-wrapper">
+      <form id="login-form">
+        
+        <!-- TITRE FORM -->
+        <h2 class="form-title">🎮 Connexion</h2>
+        
+        <!-- USERNAME -->
+        <div class="input-block">
+          <label for="login-username">Pseudo :</label>
+          <input
+          type="text"
+          id="login-username"
+          name="username"
+          placeholder="Ton pseudo"
+          required
+          minlength="1"
+          maxlength="16">
+        </div>
+        
+        <!-- PASSWORD -->
+        <div class="input-block">
+          <label for="login-password">Mot de passe :</label>
+          <input
+          type="password"
+          id="login-password"
+          name="password"
+          placeholder="Ton mot de passe"
+          required
+          minlength="6">
+        </div>
+        
+        <!-- ERROR MESSAGE -->
+        <div id="login-error" class="error-message" style="display: none;"></div>
+        
+        <!-- SUBMIT -->
+        <button type="submit" id="login-btn" class="btn-send-connection">Se connecter</button>
+        
+        <!-- LIEN VERS SIGNUP -->
+        <p class="auth-switch">
+          Pas encore de compte ?
+          <button data-link="go_to_Signup" class="auth-link">Créer un compte</button>
+        </p>
+        
+      </form>
+    </div>
+  </div>
+</div>

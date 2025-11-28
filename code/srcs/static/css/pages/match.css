@@ -1,5 +1,5 @@
 
-.arcade-header {
+/* .arcade-header {
   text-align: center;
   margin-bottom: 1.5rem;
 }
@@ -13,7 +13,7 @@
   font-size: 0.7rem;
   opacity: 0.8;
 }
-
+ */
 /* --- Disposition centrale du jeu --- */
 .match-wrapper {
   display: flex; /* ← le bon choix pour aligner horizontalement */

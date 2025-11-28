@@ -1,0 +1,146 @@
+.for-center {
+  flex: 1;                    /* IMPORTANT */
+  display: flex;
+  justify-content: center;    /* centre horizontalement login-signup-wrapper */
+  align-items: center;        /* centre verticalement login-signup-wrapper */
+  width: 100%;
+}
+
+/* ====== LOGIN WRAPPER (Fond en glassmorphism) ====== */
+.login-signup-wrapper {
+  display: flex;
+  justify-content: center;    /* centre login-form horizontalement */
+  align-items: center;        /* centre login-form verticalement */
+
+  /* ton style */
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 24px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 15px rgba(160, 50, 255, 0.4);
+}
+
+#login-form {
+  width: 100%;
+  max-width: 380px;
+}
+
+/* ====== TITRE FORM ====== */
+.form-title {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 1.6rem;
+  color: #e6caff;
+  text-shadow: 0 0 1px #b056ff; /* glow réduit */
+}
+
+/* ====== CHAMPS DE FORMULAIRE ====== */
+
+.signup-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 2 colonnes */
+  gap: 20px;                     /* espace entre colonnes et lignes */
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.signup-grid .input-block {
+  width: 100%;
+}
+
+.input-block {
+  margin-bottom: 18px;
+}
+
+.input-block label {
+  font-size: 0.95rem;
+  margin-bottom: 6px;
+  display: block;
+  opacity: 0.9;
+}
+
+.input-block input::placeholder {
+  font-size: 0.8rem;   /* 🔥 plus petit */
+  opacity: 0.7;        /* un peu plus discret */
+  color: #e3d0ff;      /* légèrement différent du texte */
+}
+
+.input-block input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  font-size: 1rem;
+  transition: 0.25s;
+}
+
+.input-block input:focus {
+  outline: 2px solid #c084fc;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* ====== MESSAGE D’ERREUR ====== */
+.error-message {
+  background: rgba(255, 0, 70, 0.2);
+  border-left: 4px solid #ff0033;
+  padding: 10px 12px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+}
+
+/* ====== BOUTON DE CONNEXION ====== */
+.btn-send-connection {
+  width: 100%;
+  background: #b056ff;
+  border: none;
+  padding: 12px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 12px;
+  color: white;
+  cursor: pointer;
+  transition: 0.2s;
+  margin-top: 10px;
+  box-shadow: 0 0 12px #b056ff;
+}
+
+.btn-send-connection:hover {
+  background: #9b3df9;
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px #be6bff;
+}
+
+/* ====== SWITCH LOGIN / SIGNUP ====== */
+.auth-switch {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 0.9rem;
+}
+
+.auth-link {
+  background: none;
+  border: none;
+  color: #d8a8ff;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 0.9rem;
+  transition: 0.2s;
+}
+
+.auth-link:hover {
+  color: #f2d5ff;
+  text-shadow: 0 0 6px #c084fc;
+}
+
+
+.input-hint {
+  font-size: 0.75rem;            /* plus petit */
+  opacity: 0.6;                  /* couleur douce */
+  color: #d8a8ff;                /* violet clair lisible */
+  margin-top: 4px;
+  display: block;
+}

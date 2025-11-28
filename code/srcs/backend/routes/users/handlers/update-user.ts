@@ -21,7 +21,7 @@ type UpdateUserResponse =
   | SuccessResponse<SafeUser>
   | ErrorResponse;
 
-// Schéma de validation
+// Schéma de validation (réutilise les propriétés de userSchema)
 export const updateUserSchema = {
   description: 'Met à jour un utilisateur',
   tags: ['users'],
@@ -29,9 +29,9 @@ export const updateUserSchema = {
   body: {
     type: 'object' as const,
     properties: {
-      username: { type: 'string', minLength: 1, maxLength: 16 },
-      email: { type: 'string', format: 'email' },
-      avatar_url: { type: 'string' }
+      username: userSchema.properties.username,
+      email: userSchema.properties.email,
+      avatar_url: userSchema.properties.avatar_url
     }
   },
   response: {

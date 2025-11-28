@@ -25,6 +25,8 @@ services:
 
     networks:
       - tr_network
+    env_file:
+      - .env
     environment:
       - HOST_IP=192.168.1.13  # IP a definir manuellement pour telephone
       - FASTIFY_PORT=${FASTIFY_PORT:-3000}

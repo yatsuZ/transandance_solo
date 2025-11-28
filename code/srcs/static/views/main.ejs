@@ -1,6 +1,14 @@
 <%- include('partials/header') %>
 
-<div id="pagesAccueil" class="page active">
+<div id="pagesLogin" class="page active">
+  <%- include('pages/login', { title: "Login" }) %>
+</div>
+
+<div id="pagesSignup" class="page hidden">
+  <%- include('pages/signup', { title: "Sign Up" }) %>
+</div>
+
+<div id="pagesAccueil" class="page hidden">
   <%- include('pages/accueil', { title: "Accueil" }) %>
 </div>
 

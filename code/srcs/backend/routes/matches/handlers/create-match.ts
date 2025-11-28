@@ -17,7 +17,7 @@ type CreateMatchResponse =
   | SuccessResponse<Match>
   | ErrorResponse;
 
-// Schéma de validation
+// Schéma de validation (réutilise les propriétés de matchSchema)
 export const createMatchSchema = {
   description: 'Crée un nouveau match',
   tags: ['matches'],
@@ -25,11 +25,11 @@ export const createMatchSchema = {
     type: 'object' as const,
     required: ['player_left_name', 'player_right_name'],
     properties: {
-      player_left_id: { type: ['number', 'null'], description: 'ID joueur gauche' },
-      player_left_name: { type: 'string', minLength: 1, maxLength: 16 },
-      player_right_id: { type: ['number', 'null'], description: 'ID joueur droit' },
-      player_right_name: { type: 'string', minLength: 1, maxLength: 16 },
-      game_type: { type: 'string', enum: ['pong', 'tron'] }
+      player_left_id: matchSchema.properties.player_left_id,
+      player_left_name: matchSchema.properties.player_left_name,
+      player_right_id: matchSchema.properties.player_right_id,
+      player_right_name: matchSchema.properties.player_right_name,
+      game_type: matchSchema.properties.game_type
     }
   },
   response: {

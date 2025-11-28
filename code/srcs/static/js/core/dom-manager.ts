@@ -86,6 +86,8 @@ export function init_All_Dom(): DOMElements {
   // ========================================
   // PAGES DE L'APPLICATION
   // ========================================
+  const pageLogin = get<HTMLElement>("pagesLogin", "Pages");
+  const pageSignup = get<HTMLElement>("pagesSignup", "Pages");
   const pageAccueil = get<HTMLElement>("pagesAccueil", "Pages");
   const pageGameConfig = get<HTMLElement>("pagesGame_Config", "Pages");
   const pageMatch = get<HTMLElement>("pagesMatch", "Pages");
@@ -195,6 +197,8 @@ export function init_All_Dom(): DOMElements {
   // ========================================
   return {
     pages: {
+      login: pageLogin,
+      signup: pageSignup,
       accueil: pageAccueil,
       gameConfig : pageGameConfig,
       match: pageMatch,

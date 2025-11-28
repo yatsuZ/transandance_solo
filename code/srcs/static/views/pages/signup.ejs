@@ -1,0 +1,91 @@
+<div class="container">
+  <!-- HEADER -->
+  <header class="arcade-header">
+    <h1 class="arcade-title"><%= title %></h1>
+    <p class="arcade-subtitle">Aller Inscrit toi sur YARE GATRA !!</p>
+  </header>
+
+  <!-- ZONE DE CENTRAGE -->
+  <div class="for-center">
+
+    <!-- WRAPPER IDENTIQUE À LOGIN -->
+    <div class="login-signup-wrapper">
+
+      <!-- FORMULAIRE SIGNUP -->
+      <form id="signup-form">
+
+        <!-- TITRE FORM -->
+        <h2 class="form-title">🏆 Inscription</h2>
+
+          <div class="signup-grid">
+
+            <!-- USERNAME -->
+            <div class="input-block">
+              <label for="signup-username">Pseudo :</label>
+              <input
+              type="text"
+              id="signup-username"
+              name="username"
+              placeholder="Choisis ton pseudo"
+              required
+              minlength="1"
+              maxlength="16">
+              <small class="input-hint">1-16 caractères</small>
+            </div>
+            
+            <!-- EMAIL -->
+            <div class="input-block">
+              <label for="signup-email">Email (optionnel) :</label>
+              <input
+              type="email"
+              id="signup-email"
+              name="email"
+              placeholder="ton.email@exemple.com">
+              <small class="input-hint">Pour récupérer ton compte</small>
+            </div>
+            
+            <!-- PASSWORD -->
+            <div class="input-block">
+              <label for="signup-password">Mot de passe :</label>
+              <input
+              type="password"
+              id="signup-password"
+              name="password"
+              placeholder="Crée un mot de passe"
+              required
+              minlength="6">
+              <small class="input-hint">Minimum 6 caractères</small>
+            </div>
+            
+            <!-- CONFIRM PASSWORD -->
+            <div class="input-block">
+              <label for="signup-password-confirm">Confirme :</label>
+              <input
+              type="password"
+              id="signup-password-confirm"
+              name="passwordConfirm"
+              placeholder="Répète ton mot de passe"
+              required
+              minlength="6">
+            </div>
+        </div>
+
+        <!-- ERROR MESSAGE -->
+        <div id="signup-error" class="error-message" style="display: none;"></div>
+
+        <!-- SUBMIT -->
+        <button type="submit" id="signup-btn" class="btn-send-connection">
+          Créer mon compte
+        </button>
+
+        <!-- LIEN VERS LOGIN -->
+        <p class="auth-switch">
+          Déjà un compte ?
+          <button data-link="go_to_Login" class="auth-link">Se connecter</button>
+        </p>
+
+      </form>
+
+    </div>
+  </div>
+</div>

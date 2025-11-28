@@ -14,6 +14,8 @@ export function update_description_de_page(dom: DOMElements): void {
 
   // Textes par défaut selon la page (id parent)
   const defaultTexts: Record<string, string> = {
+    pagesLogin: `Aller connecte TOI!! ONE MORE GAME. ONE MORE GAME !!`,
+    pagesSignup: 'Aller Inscrit toi sur YARE GATRA !!',
     pagesAccueil: 'Que veux-tu faire ?',
     pagesGame_Config: 'Choisis ton jeu et prépare ton duel !',
     pagesMatch: 'Le premier à 3 points gagne la partie',

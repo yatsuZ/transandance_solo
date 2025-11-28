@@ -1,60 +1,60 @@
-import Fastify from 'fastify';
-import path from 'path';
+import Fastify, { FastifyInstance } from 'fastify';
 import fastifyStatic from '@fastify/static';
 import fastifyView from '@fastify/view';
 import ejs from 'ejs';
 import chalk from 'chalk';
 import os from 'os';
 import qrcode from 'qrcode-terminal';
-
-console.log(chalk.magenta("\n🚀 Serveur démarré avec Fastify + EJS\n"));
-
-
-// Divisé en plusieur fichier
-// 1. config fastify
-
-const fastify = Fastify({
-  logger: true,
-});
-
-// Plugin EJS
-fastify.register(fastifyView, {
-  engine: { ejs },
-  root: path.join(__dirname, './../../static/views'),
-});
-
-// Fichiers statiques (CSS / JS / images)
-fastify.register(fastifyStatic, {
-  root: path.join(__dirname, './../../static'),
-  prefix: '/static/',
-});
-
-// 2. Routes API
 import userRoutes from './routes/users/index.js';
 import matchRoutes from './routes/matches/index.js';
+import authRoutes from './routes/auth/index.js';
+import tournamentRoutes from './routes/tournaments/index.js';
+import path from 'path';
 
-fastify.register(userRoutes, { prefix: '/api/users' });
-fastify.register(matchRoutes, { prefix: '/api/matches' });
+/**
+ * Fonction pour construire l'application Fastify
+ * Utilisée par main.ts ET par les tests
+ */
+export async function buildApp(): Promise<FastifyInstance> {
+  const fastify = Fastify({
+    logger: process.env.NODE_ENV !== 'test', // Désactiver les logs en mode test
+  });
 
-// 3. Routes frontend
-// Fallback SPA : servir main.ejs pour toutes les routes
-fastify.setNotFoundHandler(async (request, reply) => {
-  // Si c'est une requête pour un fichier statique, renvoyer 404
-  if (request.url.startsWith('/static/')) {
-    return reply.code(404).send({ error: 'File not found' });
-  }
-  // Si c'est une requête API, renvoyer une erreur JSON
-  if (request.url.startsWith('/api/')) {
-    return reply.code(404).send({ success: false, error: 'API endpoint not found' });
-  }
-  // Sinon, servir la SPA (le client gérera la validation de route)
-  return reply.view('main.ejs');
-});
+  // Plugin EJS
+  await fastify.register(fastifyView, {
+    engine: { ejs },
+    root: path.join(__dirname, './../../static/views'),
+  });
 
-// Route principale
-fastify.get('/', async (request, reply) => {
-  return reply.view('main.ejs');
-});
+  // Fichiers statiques (CSS / JS / images)
+  await fastify.register(fastifyStatic, {
+    root: path.join(__dirname, './../../static'),
+    prefix: '/static/',
+  });
+
+  // Routes API
+  await fastify.register(authRoutes, { prefix: '/api/auth' });
+  await fastify.register(userRoutes, { prefix: '/api/users' });
+  await fastify.register(matchRoutes, { prefix: '/api/matches' });
+  await fastify.register(tournamentRoutes, { prefix: '/api/tournaments' });
+
+  // Routes frontend
+  fastify.setNotFoundHandler(async (request, reply) => {
+    if (request.url.startsWith('/static/')) {
+      return reply.code(404).send({ error: 'File not found' });
+    }
+    if (request.url.startsWith('/api/')) {
+      return reply.code(404).send({ success: false, error: 'API endpoint not found' });
+    }
+    return reply.view('main.ejs');
+  });
+
+  fastify.get('/', async (request, reply) => {
+    return reply.view('main.ejs');
+  });
+
+  return fastify;
+}
 
 // 4. Fonction pour récupérer l'adresse IP locale
 function getLocalIP(): string {
@@ -69,28 +69,32 @@ function getLocalIP(): string {
   return 'localhost';
 }
 
-// 5. Démarrer le serveur
-const start = async () => {
-  try {
-    const port = parseInt(process.env.FASTIFY_PORT || '3000', 10);
-    const host = '0.0.0.0';
+// Démarrer le serveur SEULEMENT si on n'est pas en mode test
+if (process.env.NODE_ENV !== 'test') {
+  const start = async () => {
+    console.log(chalk.magenta("\n🚀 Serveur démarré avec Fastify + EJS\n"));
 
-    await fastify.listen({ port, host });
+    try {
+      const fastify = await buildApp();
+      const port = parseInt(process.env.FASTIFY_PORT || '3000', 10);
+      const host = '0.0.0.0';
 
-    const hostIP = process.env.HOST_IP || getLocalIP(); // fallback si hors Docker
-    const localURL = `https://${hostIP}`; // Maintenant on accède via HTTPS (nginx)
+      await fastify.listen({ port, host });
 
-    console.log(chalk.cyanBright(`\n🌐 Accessible sur ton PC : https://localhost`));
-    console.log(chalk.greenBright(`📱 Scan ce QR code pour ouvrir sur ton téléphone :`));
-    console.log(chalk.yellowBright(`(${localURL})\n`));
-    console.log(chalk.gray(`ℹ️  Fastify écoute en interne sur le port ${port} (forwarding via nginx HTTPS)`));
+      const hostIP = process.env.HOST_IP || getLocalIP();
+      const localURL = `https://${hostIP}`;
 
-    // Générer le QR code
-    qrcode.generate(localURL, { small: true });
-  } catch (err) {
-    fastify.log.error(err);
-    process.exit(1);
-  }
-};
+      console.log(chalk.cyanBright(`\n🌐 Accessible sur ton PC : https://localhost`));
+      console.log(chalk.greenBright(`📱 Scan ce QR code pour ouvrir sur ton téléphone :`));
+      console.log(chalk.yellowBright(`(${localURL})\n`));
+      console.log(chalk.gray(`ℹ️  Fastify écoute en interne sur le port ${port} (forwarding via nginx HTTPS)`));
 
-start();
+      qrcode.generate(localURL, { small: true });
+    } catch (err) {
+      console.error(err);
+      process.exit(1);
+    }
+  };
+
+  start();
+}

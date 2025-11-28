@@ -11,10 +11,10 @@ interface EndMatchParams {
 }
 
 interface EndMatchBody {
-  winner_id: number | null;
-  winner_name: string | null;
-  score_left: number;
-  score_right: number;
+  winner_id?: number | null;
+  winner_name?: string | null;
+  score_left?: number;
+  score_right?: number;
   status?: 'completed' | 'leave';
 }
 
@@ -22,19 +22,18 @@ type EndMatchResponse =
   | SuccessResponse<Match>
   | ErrorResponse;
 
-// Schéma de validation
+// Schéma de validation (réutilise les propriétés de matchSchema)
 export const endMatchSchema = {
   description: 'Termine un match et met à jour les statistiques',
   tags: ['matches'],
   params: idParamSchema,
   body: {
     type: 'object' as const,
-    required: ['score_left', 'score_right'],
     properties: {
-      winner_id: { type: ['integer', 'null'] },
-      winner_name: { type: ['string', 'null'] },
-      score_left: { type: 'integer', minimum: 0 },
-      score_right: { type: 'integer', minimum: 0 },
+      winner_id: matchSchema.properties.winner_id,
+      winner_name: matchSchema.properties.winner_name,
+      score_left: matchSchema.properties.score_left,
+      score_right: matchSchema.properties.score_right,
       status: { type: 'string', enum: ['completed', 'leave'] }
     }
   },
@@ -78,11 +77,13 @@ export async function endMatch(request: FastifyRequest<{ Params: EndMatchParams;
     });
   }
 
-  // Mettre à jour le score final
-  matchRepo.updateMatchScore(matchId, { score_left, score_right });
+  // Mettre à jour le score final (si fourni)
+  if (score_left !== undefined && score_right !== undefined) {
+    matchRepo.updateMatchScore(matchId, { score_left, score_right });
+  }
 
   // Terminer le match
-  const endedMatch = matchRepo.endMatch(matchId, winner_id, winner_name, status || 'completed');
+  const endedMatch = matchRepo.endMatch(matchId, winner_id || null, winner_name || null, status || 'completed');
 
   // Mettre à jour les stats si le match est complété
   if (status !== 'leave' && winner_id) {

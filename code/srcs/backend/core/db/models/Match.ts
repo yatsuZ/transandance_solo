@@ -53,7 +53,7 @@ export class MatchRepository {
       VALUES (?, ?, ?, ?, ?)
     `);
 
-    const result = stmt.run(
+    const result: Database.RunResult  = stmt.run(
       data.player_left_id,
       data.player_left_name,
       data.player_right_id,

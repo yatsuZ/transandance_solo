@@ -18,7 +18,7 @@ type UpdateScoreResponse =
   | SuccessResponse<Match>
   | ErrorResponse;
 
-// Schéma de validation
+// Schéma de validation (réutilise les propriétés de matchSchema)
 export const updateScoreSchema = {
   description: 'Met à jour le score d\'un match en cours',
   tags: ['matches'],
@@ -27,8 +27,8 @@ export const updateScoreSchema = {
     type: 'object' as const,
     required: ['score_left', 'score_right'],
     properties: {
-      score_left: { type: 'integer', minimum: 0 },
-      score_right: { type: 'integer', minimum: 0 }
+      score_left: matchSchema.properties.score_left,
+      score_right: matchSchema.properties.score_right
     }
   },
   response: {
