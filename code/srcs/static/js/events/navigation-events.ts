@@ -82,15 +82,24 @@ export class NavigationEvents {
     }
 
     // Gérer l'affichage des icônes selon la page active
-    if (activePage.id !== "pagesAccueil")
-      activeOrHiden(iconAccueil, "On");
-    else
-      activeOrHiden(iconAccueil, "Off");
-
-    if (activePage.id !== "pagesParametre")
-      activeOrHiden(iconSettings, "On");
-    else
+    if (activePage.id === "pagesLogin" || activePage.id === "pagesSignup")
+    {
       activeOrHiden(iconSettings, "Off");
+      activeOrHiden(iconAccueil, "Off");
+      console.log("OUI");
+    }
+    else
+    {
+      console.log("NON");
+      if (activePage.id !== "pagesAccueil")
+        activeOrHiden(iconAccueil, "On");
+      else
+        activeOrHiden(iconAccueil, "Off"); 
+      if (activePage.id === "pagesParametre")
+        activeOrHiden(iconSettings, "Off");
+      else
+        activeOrHiden(iconSettings, "On");
+    }
 
     // Activer la page initiale
     activeAnotherPage(activePage);
@@ -140,8 +149,17 @@ export class NavigationEvents {
     const iconAccueil = this._DO.icons.accueil;
     const iconSettings = this._DO.icons.settings;
 
-    activeOrHiden(iconAccueil, pageName === "accueil" ? "Off" : "On");
-    activeOrHiden(iconSettings, pageName === "parametre" ? "Off" : "On");
+    // Gérer l'affichage des icônes selon la page active
+    if (pageName === "Login" || pageName === "Signup")
+    {
+      activeOrHiden(iconSettings, "Off");
+      activeOrHiden(iconAccueil, "Off");
+    }
+    else
+    {
+      activeOrHiden(iconAccueil, pageName === "accueil" ? "Off" : "On");
+      activeOrHiden(iconSettings, pageName === "parametre" ? "Off" : "On");
+    }
 
     const targetId = "pages" + pageName.charAt(0).toUpperCase() + pageName.slice(1);
     const targetPage = findPage(this._DO.pages, targetId);
