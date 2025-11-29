@@ -68,7 +68,7 @@ export class NavigationEvents {
 
     // 3️⃣ VÉRIF AUTH (AVANT LE CONTEXTE)
     // Si route protégée mais pas de JWT → 403
-    if (isAuthProtectedRoute(currentPath) || isContextRestrictedRoute(currentPath) && !isLoggedIn) {
+    if ((isAuthProtectedRoute(currentPath) || isContextRestrictedRoute(currentPath)) && !isLoggedIn) {
       console.warn("🔒 [403] Accès interdit sans JWT:", currentPath);
       this.showErrorPage(403, isLoggedIn);
       return;

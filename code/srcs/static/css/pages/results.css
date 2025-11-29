@@ -1,9 +1,13 @@
-.results-section 
+.results-section
 {
+  flex: 1; /* Prend tout l'espace disponible */
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  min-height: 0;
+  overflow: auto;
+  box-sizing: border-box;
 }
 
 .winner-display{

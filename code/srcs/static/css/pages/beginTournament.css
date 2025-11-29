@@ -1,9 +1,10 @@
 .tournament-config-wrapper {
+  flex: 1; /* Prend tout l'espace disponible */
   display: flex;
   justify-content: center;
-  align-items: flex-start; /* on aligne en haut pour éviter de trop descendre */
-  height: auto; /* ne force plus une grande hauteur */
-  min-height: 60vh; /* hauteur visuelle équilibrée */
+  align-items: center; /* Centré verticalement */
+  min-height: 0;
+  overflow: auto;
   box-sizing: border-box;
 }
 
@@ -59,8 +60,8 @@
   border: 1px solid #ffcc00;
   background-color: transparent;
   color: #ffcc00;
-  font-size: 0.8rem;
-  text-align: center;
+  font-size: 0.75rem;
+  text-align: left; /* Curseur à gauche */
   transition: all 0.25s ease;
 }
 
@@ -75,17 +76,19 @@
 }
 
 .start-btn {
-  margin-top: 0.5rem;
-  padding: 0.6rem 1rem;
+  margin-top: 1rem;
+  padding: 1rem 2.5rem; /* Plus gros */
   border: none;
   border-radius: 10px;
   background-color: rgb(0, 255, 76);
   color: #000;
-  font-size: 0.85rem;
+  font-size: 1.1rem; /* Plus gros */
   font-weight: bold;
   cursor: pointer;
   transition: 0.25s ease;
   box-shadow: 0 0 10px rgba(0, 255, 76, 0.6);
+  text-transform: uppercase;
+  width: 100%; /* Prend toute la largeur */
 }
 
 .start-btn:hover {

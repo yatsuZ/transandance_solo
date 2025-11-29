@@ -6,7 +6,6 @@ import { AuthManager } from './auth-manager.js';
 import { activeAnotherPage, activeOrHiden } from '../navigation/page-manager.js';
 import { updateUrl } from '../utils/url-helpers.js';
 import { DOMElements } from '../core/dom-elements.js';
-import { InputColorizer } from '../utils/input-colorizer.js';
 
 export class AuthEvents {
   private _DO: DOMElements;
@@ -14,23 +13,6 @@ export class AuthEvents {
   constructor(dO: DOMElements) {
     this._DO = dO;
     this.attachEventListeners();
-    this.initColorizers();
-  }
-
-  /**
-   * Initialise les colorizers sur les inputs des formulaires
-   */
-  private initColorizers(): void {
-    const loginForm = document.getElementById('login-form') as HTMLFormElement | null;
-    const signupForm = document.getElementById('signup-form') as HTMLFormElement | null;
-
-    if (loginForm) {
-      InputColorizer.applyToForm(loginForm);
-    }
-
-    if (signupForm) {
-      InputColorizer.applyToForm(signupForm);
-    }
   }
 
   /**

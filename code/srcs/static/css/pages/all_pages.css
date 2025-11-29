@@ -12,4 +12,4 @@
 
 @import url('./error.css');
 
-@import url('./login_signup.css');
+/* Auth styles déplacés dans /components/auth.css */

@@ -32,32 +32,24 @@
 **Urgence : HAUTE - À faire demain matin**
 
 #### Problèmes à résoudre :
-- [ ] **Résoudre le problème de différenciation majuscules/minuscules dans les inputs**
+- [X] **Résoudre le problème de différenciation majuscules/minuscules dans les inputs**
   - Actuellement : `InputColorizer` créé (`/srcs/static/js/utils/input-colorizer.ts`)
   - Problème : Police "Press Start 2P" ne différencie pas visuellement maj/min
   - Solution testée : Colorisation des caractères (maj en jaune, min en orange)
   - **À VALIDER : Est-ce que cette solution fonctionne correctement ?**
 
-- [ ] **Vérifier que les formulaires envoient correctement à la BDD**
+- [X] **Vérifier que les formulaires envoient correctement à la BDD**
   - Fichier concerné : `/srcs/static/js/auth/auth-events.ts`
   - Méthodes : `handleLogin()` et `handleSignup()`
   - Test à faire : Login → Vérifier JWT stocké → Vérifier redirection accueil
 
-- [ ] **Tester le flow complet login/signup end-to-end**
+- [X] **Tester le flow complet login/signup end-to-end**
   - Signup → Créer utilisateur en BDD
   - Login → Récupérer JWT
   - Navigation protégée → Vérifier accès pages
 
-**Fichiers concernés :**
-```
-/srcs/static/js/auth/auth-events.ts
-/srcs/static/js/auth/auth-manager.ts
-/srcs/static/js/utils/input-colorizer.ts
-/srcs/static/css/pages/auth.css
-/srcs/static/views/pages/login.ejs
-/srcs/static/views/pages/signup.ejs
-```
 
+netoyer les fichier css et factoriser netoyer navigatio
 ---
 
 ### **PRIORITÉ 2 : Refactoriser & Simplifier `navigation-events.ts`**

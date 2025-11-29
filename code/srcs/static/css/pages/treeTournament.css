@@ -1,11 +1,15 @@
 #TournamentTree {
+  flex: 1; /* Prend tout l'espace disponible */
   width: 100%;
-  height: 100%;
+  height: auto;
   display: flex;
   justify-content: center;
   align-items: center;
   background: transparent;
   margin: 0;
+  overflow: auto;
+  box-sizing: border-box;
+  padding: 1rem 0; /* Petit espacement vertical */
 }
 
 /* === 2 CONTAINER TOURNAMENT === */
@@ -13,7 +17,8 @@
   display: flex;
   flex-direction: column; /* Empile les éléments verticalement */
   align-items: center; /* Centre horizontalement */
-  overflow: hidden; /* Empêche le débordement global du conteneur */
+  gap: 1.5rem; /* Espacement entre les éléments */
+  max-width: 100%;
 }
 
 /* === 3 ARBRE DE TOURNOI === */
@@ -44,14 +49,18 @@
   display: flex;
   justify-content: center; /* Centre horizontalement les boutons */
   align-items: center; /* Centre verticalement les boutons */
-  flex: 1;
   width: 100%; /* S'assurer que le menu prend toute la largeur disponible */
+  margin: 0.5rem 0; /* Petit espacement vertical */
 }
 .next-match-info p {
-  margin: 0;;
+  margin: 0;
 }
 .texte-next-match {
   text-align: center;
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   margin: 0;
+  padding: 0.5rem 1rem;
+  background: rgba(0, 255, 76, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(0, 255, 76, 0.3);
 }

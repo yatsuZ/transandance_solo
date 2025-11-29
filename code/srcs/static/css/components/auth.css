@@ -1,3 +1,8 @@
+/* ===================================
+   COMPONENTS: AUTH
+   Styles pour l'authentification (login/signup)
+   =================================== */
+
 .for-center {
   flex: 1;                    /* IMPORTANT */
   display: flex;
@@ -11,19 +16,21 @@
   display: flex;
   justify-content: center;    /* centre login-form horizontalement */
   align-items: center;        /* centre login-form verticalement */
+  width: 65%;              /* Largeur fixe plus grande */
 
   /* ton style */
   background: rgba(255, 255, 255, 0.08);
   border-radius: 18px;
-  padding: 24px;
+  padding: 40px;              /* Plus d'espace */
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.15);
   box-shadow: 0 0 15px rgba(160, 50, 255, 0.4);
 }
 
-#login-form {
+#login-form,
+#signup-form {
   width: 100%;
-  max-width: 380px;
+  max-width: 900px !important; /* Très large et !important pour forcer */
 }
 
 /* ====== TITRE FORM ====== */
@@ -43,10 +50,12 @@
   gap: 20px;                     /* espace entre colonnes et lignes */
   width: 100%;
   margin-bottom: 15px;
+  align-items: start;            /* Aligner en haut pour éviter décalage */
 }
 
 .signup-grid .input-block {
   width: 100%;
+  margin-bottom: 0;              /* Retirer margin pour alignement propre */
 }
 
 .input-block {
@@ -75,6 +84,7 @@
   color: #fff;
   font-size: 1rem;
   transition: 0.25s;
+  font-family: 'VT323', 'Courier New', monospace; /* Police VT323 pour différencier maj/min */
 }
 
 .input-block input:focus {
@@ -82,7 +92,7 @@
   background: rgba(255, 255, 255, 0.25);
 }
 
-/* ====== MESSAGE D’ERREUR ====== */
+/* ====== MESSAGE D'ERREUR ====== */
 .error-message {
   background: rgba(255, 0, 70, 0.2);
   border-left: 4px solid #ff0033;
@@ -135,7 +145,6 @@
   color: #f2d5ff;
   text-shadow: 0 0 6px #c084fc;
 }
-
 
 .input-hint {
   font-size: 0.75rem;            /* plus petit */

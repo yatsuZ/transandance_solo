@@ -1,3 +1,6 @@
+/* Import VT323 from Google Fonts - Police rétro avec majuscules/minuscules distinctes */
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
 @font-face {
   font-family: "Joystix Mono";
   src: url("./../../util/fonts/joystix_monospace.woff2") format("woff2"),
@@ -10,4 +13,23 @@
 html, body {
   font-family: "Joystix Mono", "Press Start 2P", monospace;
   color: #fff;
+}
+
+/* Augmenter la taille de VT323 partout (elle est plus fine que Joystix) */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+.username-text,
+.player-name {
+  font-family: 'VT323', 'Courier New', monospace !important;
+  font-size: 1.8em !important; /* 80% plus grand pour compenser */
+  line-height: 1.2;
+}
+
+/* Placeholder aussi en VT323 avec la même taille */
+input[type="text"]::placeholder,
+input[type="email"]::placeholder,
+input[type="password"]::placeholder {
+  font-family: 'VT323', 'Courier New', monospace !important;
+  font-size: 1em !important; /* Relatif à la taille de l'input (1.8em) */
 }
