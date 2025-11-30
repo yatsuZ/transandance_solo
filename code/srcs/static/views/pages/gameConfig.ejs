@@ -7,8 +7,8 @@
 
   <!-- FORMULAIRE CONFIG MATCH -->
   <div class="game-config-wrapper">
-    <nav class="game-config-container">
-      <form id="match-form" class="game-config-form">
+    <div class="game-config-container">
+      <form id="match-form" class="game-config-form" aria-label="Configuration du match">
 
         <!-- TITRE FORM -->
         <h2 class="form-title">Match 1 vs 1</h2>
@@ -54,6 +54,14 @@
                 </label>
               </div>
             </div>
+
+            <!-- Checkbox "C'est moi" -->
+            <div class="player-block">
+              <label class="checkbox-label">
+                <input type="checkbox" id="playerLeftIsMe" name="playerLeftIsMe">
+                C'est moi (user connecté)
+              </label>
+            </div>
           </div>
 
           <!-- JOUEUR DROIT -->
@@ -80,13 +88,20 @@
                 </label>
               </div>
             </div>
+
+            <!-- Checkbox "C'est moi" -->
+            <div class="player-block">
+              <label class="checkbox-label">
+                <input type="checkbox" id="playerRightIsMe" name="playerRightIsMe">
+                C'est moi (user connecté)
+              </label>
+            </div>
           </div>
         </div>
 
         <!-- SUBMIT -->
         <button type="submit" id="start_match_btn" class="start-btn">Start Match</button>
-
       </form>
-    </nav>
+    </div>
   </div>
 </div>

@@ -163,6 +163,13 @@ export class PongGame {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
     ctx.fillText(`${this.playerLeft.get_score()} - ${this.playerRight.get_score()}`, this.field.width / 2, 30);
+
+    // Afficher la vitesse de la balle en bas du terrain
+    const ballSpeed = this.ball.getSpeed();
+    const speedMultiplier = this.ball.getSpeedMultiplier();
+    const speedPercentage = Math.round(speedMultiplier * 100);
+    ctx.textBaseline = 'bottom';
+    ctx.fillText(`Vitesse: ${speedPercentage}%`, this.field.width / 2, this.field.height - 15);
   }
 
   // -------------------------

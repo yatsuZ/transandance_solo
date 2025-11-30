@@ -20,127 +20,106 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.8rem;
-  background: rgba(20, 20, 20, 0.9);
-  padding: 1.5rem 2rem;
+  gap: 1rem;
+  background: var(--bg-gray-dark);
+  padding: 1.5rem;
   border-radius: 16px;
-  box-shadow: 0 0 10px rgba(0, 255, 76, 0.6);
-  border: 1px solid rgba(0, 255, 76, 0.8);
+  box-shadow: var(--shadow-primary);
+  border: 1px solid var(--color-primary-light);
   text-align: center;
   margin: 0 auto;
-
-  /* 🔧 Changement ici : on élargit légèrement le formulaire */
   width: 100%;
-  max-width: 420px; /* était 320px */
+  max-width: 650px;
   box-sizing: border-box;
 }
 
 .form-title-of-beginTournament {
-  font-size: 1rem;
+  font-size: 1.2rem;
   color: rgb(0, 255, 76);
-  margin-bottom: 0.8rem;
+  margin-bottom: 0;
 }
 
-.players-inputs {
+/* Grid 2x2 pour les 4 joueurs */
+.tournament-players-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 1rem;
+  width: 100%;
+}
+
+/* Carte pour chaque joueur */
+.tournament-player-card {
   display: flex;
   flex-direction: column;
-  width: 100%;
   gap: 0.6rem;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 255, 76, 0.3);
+  transition: all 0.3s ease;
 }
 
-.players-inputs label {
-  font-size: 0.8rem;
-  color: rgb(0, 255, 76);
-  text-align: left;
+.tournament-player-card:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 15px rgba(0, 255, 76, 0.2);
 }
 
-.players-inputs input {
-  padding: 0.5rem;
+.player-card-title {
+  font-size: 0.9rem;
+  color: var(--color-primary);
+  margin: 0;
+  text-align: center;
+}
+
+.tournament-player-card input[type="text"] {
+  padding: 0.6rem;
   border-radius: 8px;
   border: 1px solid #ffcc00;
   background-color: transparent;
   color: #ffcc00;
-  font-size: 0.75rem;
-  text-align: left; /* Curseur à gauche */
+  font-size: 0.85rem;
+  text-align: center;
   transition: all 0.25s ease;
+  width: 100%;
 }
 
-.players-inputs input::placeholder {
-  color: rgba(0, 255, 76, 0.4);
+.tournament-player-card input[type="text"]::placeholder {
+  color: rgba(255, 204, 0, 0.4);
 }
 
-.players-inputs input:focus {
+.tournament-player-card input[type="text"]:focus {
   outline: none;
   background-color: rgba(0, 255, 76, 0.1);
   box-shadow: 0 0 10px rgba(0, 255, 76, 0.6);
+  border-color: var(--color-primary);
 }
 
-.start-btn {
-  margin-top: 1rem;
-  padding: 1rem 2.5rem; /* Plus gros */
-  border: none;
-  border-radius: 10px;
-  background-color: rgb(0, 255, 76);
-  color: #000;
-  font-size: 1.1rem; /* Plus gros */
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.25s ease;
-  box-shadow: 0 0 10px rgba(0, 255, 76, 0.6);
-  text-transform: uppercase;
-  width: 100%; /* Prend toute la largeur */
-}
-
-.start-btn:hover {
-  background-color: #00ff6a;
-  transform: scale(1.05);
-  box-shadow: 0 0 20px rgba(0, 255, 76, 0.9);
-}
-
-/*  */
-
-
-/* Bloc global d’un joueur */
-.player-block {
+/* Container pour les 2 checkboxes */
+.player-card-checkboxes {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  width: 100%;
+  flex-direction: row;
+  gap: 1rem;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Label au-dessus */
-.player-block > label {
+.player-card-checkboxes .checkbox-label {
+  display: flex;
+  align-items: center;
   font-size: 0.8rem;
-  color: rgb(0, 255, 76);
-  margin-bottom: 0.2rem;
-}
-
-/* Ligne contenant input + checkbox à droite */
-.player-line {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.8rem;
-  width: 100%;
-}
-
-/* Champ texte extensible */
-.player-line input[type="text"] {
-  flex: 1;
-  min-width: 0;
-}
-
-/* Label de la checkbox à droite */
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  font-size: 0.75rem;
   color: #ffcc00;
-  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.2s ease;
 }
 
-.checkbox-label input {
-  margin-right: 5px;
-  transform: scale(1.1);
+.player-card-checkboxes .checkbox-label:hover {
+  color: var(--color-primary);
+}
+
+.player-card-checkboxes .checkbox-label input {
+  margin-right: 0.5rem;
+  transform: scale(1.2);
   accent-color: rgb(0, 255, 76);
+  cursor: pointer;
 }

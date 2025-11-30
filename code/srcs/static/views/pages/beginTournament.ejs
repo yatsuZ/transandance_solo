@@ -8,56 +8,72 @@
     <nav class="tournament-config-buttons">
       <form id="tournament-form" class="tournament-form">
         <h2 class="form-title-of-beginTournament">Tournoi à 4 joueurs</h2>
-        <div class="players-inputs">
+        <div class="tournament-players-grid">
 
             <!-- Joueur 1 -->
-            <div class="player-block">
-              <label for="player1">Joueur 1 :</label>
-              <div class="player-line">
-                <input type="text" id="player1" name="player1" placeholder="Pseudo du joueur 1" required>
+            <div class="tournament-player-card">
+              <h3 class="player-card-title">Joueur 1</h3>
+              <input type="text" id="player1" name="player1" placeholder="Pseudo" required>
+              <div class="player-card-checkboxes">
                 <label class="checkbox-label">
                   <input type="checkbox" id="human1" name="human1" checked>
                   Humain
                 </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" id="isMe1" name="isMe1">
+                  C'est moi
+                </label>
               </div>
             </div>
-          
+
             <!-- Joueur 2 -->
-            <div class="player-block">
-              <label for="player2">Joueur 2 :</label>
-              <div class="player-line">
-                <input type="text" id="player2" name="player2" placeholder="Pseudo du joueur 2" required>
+            <div class="tournament-player-card">
+              <h3 class="player-card-title">Joueur 2</h3>
+              <input type="text" id="player2" name="player2" placeholder="Pseudo" required>
+              <div class="player-card-checkboxes">
                 <label class="checkbox-label">
                   <input type="checkbox" id="human2" name="human2">
                   Humain
                 </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" id="isMe2" name="isMe2">
+                  C'est moi
+                </label>
               </div>
             </div>
-          
+
             <!-- Joueur 3 -->
-            <div class="player-block">
-              <label for="player3">Joueur 3 :</label>
-              <div class="player-line">
-                <input type="text" id="player3" name="player3" placeholder="Pseudo du joueur 3" required>
+            <div class="tournament-player-card">
+              <h3 class="player-card-title">Joueur 3</h3>
+              <input type="text" id="player3" name="player3" placeholder="Pseudo" required>
+              <div class="player-card-checkboxes">
                 <label class="checkbox-label">
                   <input type="checkbox" id="human3" name="human3">
                   Humain
                 </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" id="isMe3" name="isMe3">
+                  C'est moi
+                </label>
               </div>
             </div>
-          
+
             <!-- Joueur 4 -->
-            <div class="player-block">
-              <label for="player4">Joueur 4 :</label>
-              <div class="player-line">
-                <input type="text" id="player4" name="player4" placeholder="Pseudo du joueur 4" required>
+            <div class="tournament-player-card">
+              <h3 class="player-card-title">Joueur 4</h3>
+              <input type="text" id="player4" name="player4" placeholder="Pseudo" required>
+              <div class="player-card-checkboxes">
                 <label class="checkbox-label">
                   <input type="checkbox" id="human4" name="human4">
                   Humain
                 </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" id="isMe4" name="isMe4">
+                  C'est moi
+                </label>
               </div>
             </div>
-  
+
           </div>
         <button type="submit" id="list_of_player_tournament" class="start-btn">Start Tournament</button>
       </form>

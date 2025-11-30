@@ -1,6 +1,5 @@
-.results-section
-{
-  flex: 1; /* Prend tout l'espace disponible */
+.results-section {
+  flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -10,7 +9,7 @@
   box-sizing: border-box;
 }
 
-.winner-display{
+.winner-display {
   display: flex;
   justify-content: center;
   align-items: center;

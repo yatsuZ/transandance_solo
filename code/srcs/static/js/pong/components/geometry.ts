@@ -355,4 +355,20 @@ export class Ball {
       this.speedX = this.baseSpeedX * this.currentSpeedMultiplier * speedSign;
     }
   }
+
+  /**
+   * Retourne la vitesse actuelle de la balle (magnitude du vecteur vitesse)
+   * @returns La vitesse totale en pixels/frame
+   */
+  getSpeed(): number {
+    return Math.sqrt(this.speedX * this.speedX + this.speedY * this.speedY);
+  }
+
+  /**
+   * Retourne le multiplicateur de vitesse actuel
+   * @returns Le multiplicateur (1.0 = vitesse initiale, 1.5 = vitesse max)
+   */
+  getSpeedMultiplier(): number {
+    return this.currentSpeedMultiplier;
+  }
 }

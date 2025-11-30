@@ -2,6 +2,7 @@ import { DOMElements } from "../core/dom-elements.js";
 import { Tournament } from "../tournament/tournament.js";
 import { activeAnotherPage, activeOrHiden } from "../navigation/page-manager.js";
 import { updateUrl } from "../utils/url-helpers.js";
+import { TournamentForm } from "../forms/tournament-form.js";
 
 /**
  * Contrôleur pour gérer le cycle de vie des tournois
@@ -12,9 +13,11 @@ export class TournamentController {
   private event_GivUpTournamentHandler: () => void;
   private event_LeaveTournamentHandler: () => void;
   private event_Btn_next_After_MatchHandler: () => void;
+  private tournamentForm: TournamentForm;
 
   constructor(dO: DOMElements, getCurrentPage: () => HTMLElement | null) {
     this._DO = dO;
+    this.tournamentForm = new TournamentForm();
 
     // Bind handlers
     this.event_GivUpTournamentHandler = this.event_GivUpTournament.bind(this);
@@ -36,13 +39,14 @@ export class TournamentController {
    * Initialise la gestion du tournoi (écoute le formulaire)
    */
   private initTournamentManagement() {
-    Tournament.checkPlayerForTournament(this._DO, (players) => {
+    Tournament.checkPlayerForTournament(this._DO, this.tournamentForm, (players, authenticatedPlayerIndex) => {
       if (!players) {
         return console.error("❌ Le tournoi n'est pas prêt.");
       }
       this.tournament = new Tournament(
         this._DO,
         players,
+        authenticatedPlayerIndex,
         () => {
           // Callback appelé quand le tournoi se termine naturellement
           this.tournament = null;

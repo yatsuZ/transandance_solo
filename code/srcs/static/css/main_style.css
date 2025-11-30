@@ -1,8 +1,10 @@
-@import url('./other/Treant.css');
-
 @import url('./other/reset.css');
 
+@import url('./other/variables.css');
+
 @import url('./other/fonts.css');
+
+@import url('./other/Treant.css');
 
 @import url('./layout/layout.css');
 

@@ -56,26 +56,15 @@ netoyer les fichier css et factoriser netoyer navigatio
 **Urgence : HAUTE - Fichier fait 444 lignes (trop long)**
 
 #### Tâches :
-- [ ] **Factoriser `handleButtonClick()`**
+- [X] **Factoriser `handleButtonClick()`**
   - Créer des helpers pour vérifications d'auth
   - Simplifier la logique (s'inspirer de `initSPA()`)
   - Réutiliser les fonctions de `route-config.ts`
 
-- [ ] **Factoriser `handlePopStateNavigation()`**
+- [X] **Factoriser `handlePopStateNavigation()`**
   - Appliquer la même logique que `initSPA()`
   - Ordre : Racine → 404 → Auth → Contexte
   - Réutiliser les helpers (`resolveTargetPage`, `updateIconsForPage`, etc.)
-
-- [ ] **Extraire certaines fonctions dans des fichiers séparés si nécessaire**
-  - Exemple : Créer `/srcs/static/js/navigation/navigation-helpers.ts`
-  - Y mettre les fonctions utilitaires communes
-
-**Fichier concerné :**
-```
-/srcs/static/js/events/navigation-events.ts (444 lignes actuellement)
-```
-
-**Objectif :** Réduire à ~250-300 lignes max
 
 ---
 
@@ -83,21 +72,21 @@ netoyer les fichier css et factoriser netoyer navigatio
 **Urgence : MOYENNE - Après avoir fini navigation**
 
 #### Tâches :
-- [ ] **Créer modèles BDD pour Match et Tournament**
+- [X] **Créer modèles BDD pour Match et Tournament**
   - Définir schéma Prisma ou TypeORM
   - Relations avec User (many-to-many pour Tournament, many-to-one pour Match)
 
-- [ ] **Routes API pour :**
+- [X] **Routes API pour :**
   - `POST /api/matches` - Enregistrer un match
   - `POST /api/tournaments` - Enregistrer un tournoi
   - `GET /api/users/:id/matches` - Récupérer historique matches
   - `GET /api/users/:id/tournaments` - Récupérer historique tournois
 
-- [ ] **Lier les matches/tournois à l'utilisateur connecté (via JWT)**
+- [X] **Lier les matches/tournois à l'utilisateur connecté (via JWT)**
   - Utiliser le middleware d'auth
   - Récupérer `userId` depuis le token JWT
 
-- [ ] **Tests pour ces routes**
+- [X] **Tests pour ces routes**
   - Créer tests dans `/tests/`
   - Tester CRUD complet
 
@@ -114,7 +103,30 @@ netoyer les fichier css et factoriser netoyer navigatio
 ---
 
 ### **PRIORITÉ 4 : Page Profile**
-**Urgence : MOYENNE - Après routes API**
+● Parfait ! Donc il te reste :
+
+  Page Paramètre
+
+  - ✅ Bouton "Déconnexion" pour logout (supprimer JWT + redirect login)
+  - ❓ Choix input clavier (gauche/droite) → À décider si ici ou dans Profile
+
+  Page Profile
+
+  - ✅ Afficher les infos du user (username, email)
+  - ✅ Historique des matchs (liste des matchs joués)
+  - ✅ Statistiques (victoires, défaites, ratio, etc.)
+  - ❓ Choix input clavier → À décider si ici ou dans Paramètre
+
+  Mon avis :
+  - Paramètre = Réglages techniques (déconnexion, contrôles clavier, son, etc.)
+  - Profile = Stats et historique (infos perso, matchs, perf)
+
+  Donc je mettrais les contrôles clavier dans Paramètre avec la déconnexion.
+
+  Tu veux que je commence par quoi ?
+  1. Bouton déconnexion dans Paramètre ?
+  2. Page Profile avec stats + historique ?
+  3. Les deux en même temps ?
 
 #### Tâches :
 - [ ] **Créer la page profile**

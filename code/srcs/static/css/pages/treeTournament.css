@@ -39,18 +39,17 @@
   width: 100%; /* S'assurer que le menu prend toute la largeur disponible */
 }
 
-.menu-buttons-tree-tournament-padding
-{
+.menu-buttons-tree-tournament-padding {
   padding-right: 30px;
-  padding-left: 30px;;
+  padding-left: 30px;
 }
 
-.next-match-info{
+.next-match-info {
   display: flex;
-  justify-content: center; /* Centre horizontalement les boutons */
-  align-items: center; /* Centre verticalement les boutons */
-  width: 100%; /* S'assurer que le menu prend toute la largeur disponible */
-  margin: 0.5rem 0; /* Petit espacement vertical */
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin: 0.5rem 0;
 }
 .next-match-info p {
   margin: 0;

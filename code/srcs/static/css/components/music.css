@@ -7,9 +7,9 @@
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  z-index: 999;
-  color: #fff;
-  text-align: center; /* Assure que le texte dans le pop-up est centré */
+  z-index: var(--z-popup);
+  color: var(--text-white);
+  text-align: center;
 }
 
 #music-popup p {
@@ -25,19 +25,19 @@
 #start-music, #dont-start-music {
   padding: 15px 30px;
   font-size: 16px;
-  border-radius: 83x;
+  border-radius: 3px;
   cursor: pointer;
-  min-width: 140px;  /* La même largeur minimale pour chaque bouton */
-  text-align: center; /* Centrer le texte à l'intérieur des boutons */
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease, border-radius 0.3s ease;
-  border: none; /* Ajouté pour éviter un flash de bordure si non défini */
-  transform: scale(1); /* Pour permettre un retour fluide à la taille normale */
-  box-shadow: none;    /* Pour permettre un retour fluide de l’effet néon */
+  min-width: 140px;
+  text-align: center;
+  transition: transform var(--transition-slow) ease, box-shadow var(--transition-slow) ease,
+              border var(--transition-slow) ease, border-radius var(--transition-slow) ease;
+  border: none;
+  transform: scale(1);
+  box-shadow: none;
 }
 
-
 #start-music {
-  background: #ffcc00;
+  background: var(--color-secondary);
 }
 
 #dont-start-music {
@@ -45,18 +45,18 @@
 }
 
 #start-music:hover, #dont-start-music:hover {
-  border: 5px solid #000;
-  border-radius : 3px;
+  border: 5px solid var(--bg-black);
+  border-radius: 3px;
 }
 
 #start-music:hover {
-  background: #e6b800;  /* Couleur au survol du bouton PLAY */
-  transform: scale(1.05);  /* Légère augmentation de taille */
+  background: var(--color-secondary-dark);
+  transform: scale(1.05);
   box-shadow: 0 0 15px #ffe100, 0 0 30px #ffe100, 0 0 45px #ffe100;
 }
 
 #dont-start-music:hover {
-  background: #00cc7a;  /* Couleur au survol du bouton Non merci */
-  transform: scale(1.05);  /* Légère augmentation de taille */
+  background: #00cc7a;
+  transform: scale(1.05);
   box-shadow: 0 0 15px #00ffb3, 0 0 30px #00ffb3, 0 0 45px #00ffb3;
 }

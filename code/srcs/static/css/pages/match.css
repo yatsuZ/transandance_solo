@@ -1,19 +1,3 @@
-
-/* .arcade-header {
-  text-align: center;
-  margin-bottom: 1.5rem;
-}
-
-.arcade-title {
-  font-size: 1.2rem;
-  margin-bottom: 0.5rem;
-}
-
-.arcade-subtitle {
-  font-size: 0.7rem;
-  opacity: 0.8;
-}
- */
 /* --- Disposition centrale du jeu --- */
 .match-wrapper {
   display: flex; /* ← le bon choix pour aligner horizontalement */
@@ -74,9 +58,6 @@
   filter: invert(1);
 }
 
-.hidden {
-  display: none;
-}
 
 /* --- Responsive --- */
 @media (max-width: 768px) {

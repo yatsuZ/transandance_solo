@@ -3,6 +3,8 @@ import { activeAnotherPage, activeOrHiden } from "../navigation/page-manager.js"
 import { arePlayersValid, clear_Formulaire_Of_Tournament, collectPlayers } from "../utils/validators.js";
 import { updateUrl } from "../utils/url-helpers.js";
 import { DOMElements } from "../core/dom-elements.js";
+import { AuthManager } from "../auth/auth-manager.js";
+import { TournamentForm } from "../forms/tournament-form.js";
 
 export type PlayerForTournament = {
   name: string;
@@ -23,9 +25,14 @@ export class Tournament {
   private resizeHandler = () => this.handleResize();
   private onTournamentEndCallback?: () => void;
 
-  constructor(DO_of_SiteManagement: DOMElements, players: [PlayerForTournament, PlayerForTournament, PlayerForTournament, PlayerForTournament], onTournamentEnd?: () => void) {
+  private tournamentId: number | null = null;
+  private participantIds: Map<string, number> = new Map(); // Map player name → participant_id
+  private authenticatedPlayerIndex: number; // Index du joueur qui est le user (-1 si aucun)
+
+  constructor(DO_of_SiteManagement: DOMElements, players: [PlayerForTournament, PlayerForTournament, PlayerForTournament, PlayerForTournament], authenticatedPlayerIndex: number, onTournamentEnd?: () => void) {
     this._DO = DO_of_SiteManagement;
     this.onTournamentEndCallback = onTournamentEnd;
+    this.authenticatedPlayerIndex = authenticatedPlayerIndex;
     // update whovs who ici
     this.players = players;
 
@@ -42,6 +49,9 @@ export class Tournament {
     updateUrl(this._DO.pages.treeTournament, '/tournament')
     this.createTree();
     window.addEventListener("resize", this.resizeHandler);
+
+    // Créer le tournoi en BDD
+    this.createTournamentInDatabase();
   }
 
   // met a jour larbre et re affiche correctmeent on fonction de la taille de la fenetre
@@ -57,7 +67,7 @@ export class Tournament {
   /**
    * Écoute le submit du formulaire et crée un tournoi si tout est valide
    */
-  public static checkPlayerForTournament(dO: DOMElements, createTournament: (players: [PlayerForTournament, PlayerForTournament, PlayerForTournament, PlayerForTournament] | null) => void): void {
+  public static checkPlayerForTournament(dO: DOMElements, tournamentForm: TournamentForm, createTournament: (players: [PlayerForTournament, PlayerForTournament, PlayerForTournament, PlayerForTournament] | null, authenticatedPlayerIndex: number) => void): void {
     const form = dO.tournamentElement.form;
 
     form.addEventListener("submit", (event) => {
@@ -65,18 +75,21 @@ export class Tournament {
 
       const playerNames = collectPlayers(dO.tournamentElement.formPseudoTournament);
       if (!playerNames || !arePlayersValid(playerNames))
-        return createTournament(null);
+        return createTournament(null, -1);
 
-      // Récupérer si c’est un humain ou une IA
+      // Récupérer si c'est un humain ou une IA
       const players  = playerNames.map((name, i) => {
           const isHuman = dO.tournamentElement.formIsHumanCheckbox[i].checked;
           return { name, isHuman, aLive: true };
         }
       ) as [PlayerForTournament, PlayerForTournament, PlayerForTournament, PlayerForTournament];
 
+      // Récupérer quel joueur est le user connecté
+      const authenticatedPlayerIndex = tournamentForm.getAuthenticatedPlayerIndex();
+
       clear_Formulaire_Of_Tournament(dO.tournamentElement.formPseudoTournament);
 
-      createTournament(players);
+      createTournament(players, authenticatedPlayerIndex);
     });
   }
 
@@ -227,6 +240,13 @@ export class Tournament {
       activeOrHiden(boutonDeTournoi, "Off");
       console.log("FIN du tournoi montrer le vainquer du tournoi.");
 
+      // Envoyer la fin du tournoi en BDD (completed avec winner)
+      if (this.tournamentId && alivePlayers.length === 1) {
+        const winnerName = alivePlayers[0].name;
+        const winnerParticipantId = this.participantIds.get(winnerName);
+        this.endTournamentInDatabase(winnerParticipantId || null, 'completed');
+      }
+
       // Notifier SiteManagement que le tournoi est terminé
       if (this.onTournamentEndCallback) {
         this.onTournamentEndCallback();
@@ -262,8 +282,126 @@ export class Tournament {
     window.removeEventListener("resize", this.resizeHandler);
     console.log("🧹 Listener resize supprimé du tournoi");
 
+    // Envoyer la fin du tournoi en BDD (leave)
+    if (this.tournamentId) {
+      this.endTournamentInDatabase(null, 'leave');
+    }
+
     if (this.currentMatch) this.currentMatch.stop("Leave Tournament");
     this.currentMatch = null;
     this.stopTournament = true;
+  }
+
+  /**
+   * Crée un tournoi en BDD et ajoute les participants
+   */
+  private async createTournamentInDatabase(): Promise<void> {
+    try {
+      // Récupérer l'ID du user connecté (manager du tournoi)
+      const userData = AuthManager.getUserData();
+      if (!userData) {
+        console.log('⚠️ Pas de user connecté, impossible de créer le tournoi en BDD');
+        return;
+      }
+
+      // Créer le tournoi
+      const response = await fetch('/api/tournaments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...AuthManager.getAuthHeader()
+        },
+        body: JSON.stringify({
+          manager_id: userData.id,
+          nbr_of_matches: 3
+        })
+      });
+
+      if (!response.ok) {
+        console.log('⚠️ Échec création tournoi en BDD');
+        return;
+      }
+
+      const data = await response.json();
+      this.tournamentId = data.data.id;
+      console.log('✅ Tournoi créé en BDD avec ID:', this.tournamentId);
+
+      // Ajouter les 4 participants
+      for (let i = 0; i < this.players.length; i++) {
+        await this.addParticipantToDatabase(this.players[i], i);
+      }
+    } catch (error) {
+      console.log('⚠️ Erreur lors de la création du tournoi en BDD');
+    }
+  }
+
+  /**
+   * Ajoute un participant au tournoi en BDD
+   */
+  private async addParticipantToDatabase(player: PlayerForTournament, playerIndex: number): Promise<void> {
+    if (!this.tournamentId) return;
+
+    try {
+      // Récupérer le user connecté
+      const userData = AuthManager.getUserData();
+
+      // Si ce joueur est le user connecté (via l'index de la checkbox)
+      const userId = (playerIndex === this.authenticatedPlayerIndex && userData) ? userData.id : null;
+
+      const response = await fetch(`/api/tournaments/${this.tournamentId}/participants`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...AuthManager.getAuthHeader()
+        },
+        body: JSON.stringify({
+          user_id: userId,
+          display_name: player.name,
+          is_bot: !player.isHuman
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        this.participantIds.set(player.name, data.data.id);
+        console.log(`✅ Participant ${player.name} ajouté (ID: ${data.data.id})`);
+      } else {
+        console.log(`⚠️ Échec ajout participant ${player.name}`);
+      }
+    } catch (error) {
+      console.log(`⚠️ Erreur ajout participant ${player.name}`);
+    }
+  }
+
+  /**
+   * Termine le tournoi en BDD
+   */
+  private async endTournamentInDatabase(
+    winnerParticipantId: number | null,
+    status: 'completed' | 'leave'
+  ): Promise<void> {
+    if (!this.tournamentId) return;
+
+    try {
+      const response = await fetch(`/api/tournaments/${this.tournamentId}/end`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...AuthManager.getAuthHeader()
+        },
+        body: JSON.stringify({
+          winner_participant_id: winnerParticipantId,
+          status: status
+        })
+      });
+
+      if (response.ok) {
+        console.log(`✅ Tournoi ${this.tournamentId} terminé en BDD (${status})`);
+      } else {
+        console.log('⚠️ Échec fin tournoi en BDD');
+      }
+    } catch (error) {
+      console.log('⚠️ Erreur lors de la fin du tournoi en BDD');
+    }
   }
 }

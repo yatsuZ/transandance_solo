@@ -56,7 +56,7 @@ export class AuthManager {
 
       return true;
     } catch (error) {
-      console.error('❌ Erreur vérification token:', error);
+      console.log('⚠️ Token invalide, déconnexion');
       this.logout();
       return false;
     }
@@ -79,7 +79,7 @@ export class AuthManager {
     try {
       return JSON.parse(userData);
     } catch (error) {
-      console.error('❌ Erreur parsing user data:', error);
+      console.log('⚠️ Données utilisateur corrompues');
       return null;
     }
   }
@@ -135,17 +135,19 @@ export class AuthManager {
         body: JSON.stringify({ username, password }),
       });
 
+      // Toujours parser la réponse, même si status != 200
       const data: LoginResponse = await response.json();
 
+      // Si succès, sauvegarder les données
       if (response.ok && data.success && data.data) {
-        // Sauvegarder le token et user data
         this.saveAuthData(data.data.token, data.data.user);
-        return data;
       }
 
+      // Retourner la réponse (succès ou échec) sans lever d'erreur
       return data;
     } catch (error) {
-      console.error('❌ Erreur login:', error);
+      // Seulement si erreur réseau (pas de réponse du serveur)
+      console.log('⚠️ Impossible de se connecter au serveur');
       return {
         success: false,
         error: 'Erreur de connexion au serveur',
@@ -174,17 +176,19 @@ export class AuthManager {
         }),
       });
 
+      // Toujours parser la réponse, même si status != 200
       const data: SignupResponse = await response.json();
 
+      // Si succès, sauvegarder les données
       if (response.ok && data.success && data.data) {
-        // Sauvegarder le token et user data
         this.saveAuthData(data.data.token, data.data.user);
-        return data;
       }
 
+      // Retourner la réponse (succès ou échec) sans lever d'erreur
       return data;
     } catch (error) {
-      console.error('❌ Erreur signup:', error);
+      // Seulement si erreur réseau (pas de réponse du serveur)
+      console.log('⚠️ Impossible de créer le compte');
       return {
         success: false,
         error: 'Erreur de connexion au serveur',

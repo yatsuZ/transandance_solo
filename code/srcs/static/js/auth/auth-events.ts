@@ -44,9 +44,12 @@ export class AuthEvents {
     const errorDiv = document.getElementById('login-error') as HTMLElement;
     const submitBtn = document.getElementById('login-btn') as HTMLButtonElement;
 
-    // Récupérer les valeurs
+    // Récupérer les valeurs AVANT de reset
     const username = usernameInput.value.trim();
     const password = passwordInput.value;
+
+    // Nettoyer le formulaire immédiatement après submit
+    form.reset();
 
     // Validation basique
     if (!username || !password) {
@@ -77,7 +80,7 @@ export class AuthEvents {
         submitBtn.textContent = 'Se connecter';
       }
     } catch (error) {
-      console.error('❌ Erreur login:', error);
+      console.log('⚠️ Erreur lors de la connexion');
       this.showError(errorDiv, 'Erreur de connexion');
       submitBtn.disabled = false;
       submitBtn.textContent = 'Se connecter';
@@ -98,11 +101,14 @@ export class AuthEvents {
     const errorDiv = document.getElementById('signup-error') as HTMLElement;
     const submitBtn = document.getElementById('signup-btn') as HTMLButtonElement;
 
-    // Récupérer les valeurs
+    // Récupérer les valeurs AVANT de reset
     const username = usernameInput.value.trim();
     const email = emailInput.value.trim() || undefined;
     const password = passwordInput.value;
     const passwordConfirm = confirmInput.value;
+
+    // Nettoyer le formulaire immédiatement après submit
+    form.reset();
 
     // Validation
     if (!username || !password || !passwordConfirm) {
@@ -143,8 +149,8 @@ export class AuthEvents {
         submitBtn.textContent = 'Créer mon compte';
       }
     } catch (error) {
-      console.error('❌ Erreur signup:', error);
-      this.showError(errorDiv, 'Erreur de connexion');
+      console.log('⚠️ Erreur lors de l\'inscription');
+      this.showError(errorDiv, 'Erreur d\'inscription');
       submitBtn.disabled = false;
       submitBtn.textContent = 'Créer mon compte';
     }

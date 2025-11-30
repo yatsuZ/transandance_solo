@@ -6,6 +6,22 @@ import { AuthManager } from "../auth/auth-manager.js";
 import { DOMElements } from "../core/dom-elements.js";
 
 /**
+ * Constantes pour les noms de pages
+ */
+const PAGE_IDS = {
+  ACCUEIL: "pagesAccueil",
+  LOGIN: "pagesLogin",
+  SIGNUP: "pagesSignup",
+  MATCH: "pagesMatch",
+  RESULT: "pagesResult",
+  ERROR: "pagesError",
+  PARAMETRE: "pagesParametre",
+  TREE_TOURNAMENT: "pagesTree_Tournament",
+} as const;
+
+const PROTECTED_PAGE_NAMES = ["Accueil", "Game_Config", "Begin_Tournament", "Parametre"];
+
+/**
  * Classe pour gérer TOUTE la navigation de l'application
  * - Initialisation du SPA (reload F5)
  * - Navigation via boutons
@@ -35,10 +51,9 @@ export class NavigationEvents {
     this.attachEventListeners();
   }
 
-
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // Chargement de la page de base
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Chargement de la page de base
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   /**
    * Initialise le système SPA au démarrage (gère reload F5)
@@ -62,114 +77,35 @@ export class NavigationEvents {
     const targetPage = this.resolveTargetPage(currentPath);
     if (!targetPage) {
       console.warn("⚠️ [404] Route invalide:", currentPath);
-      this.showErrorPage(404, isLoggedIn, currentPath);
+      this.redirectToErrorWithIcons(404, isLoggedIn, currentPath);
       return;
     }
 
     // 3️⃣ VÉRIF AUTH (AVANT LE CONTEXTE)
     // Si route protégée mais pas de JWT → 403
-    if ((isAuthProtectedRoute(currentPath) || isContextRestrictedRoute(currentPath)) && !isLoggedIn) {
+    if (!isLoggedIn && (isAuthProtectedRoute(currentPath) || isContextRestrictedRoute(currentPath))) {
       console.warn("🔒 [403] Accès interdit sans JWT:", currentPath);
-      this.showErrorPage(403, isLoggedIn);
+      this.redirectToErrorWithIcons(403, isLoggedIn);
       return;
     }
 
     // Si déjà connecté et sur login/signup → Redirect accueil
     if (isLoggedIn && isPublicRoute(currentPath)) {
       console.log("🚫 [403] Déjà authentifié, pour re acceder a login etc deconecter vous dans param :", currentPath);
-      this.showErrorPage(403, isLoggedIn);
+      this.redirectToErrorWithIcons(403, isLoggedIn);
       return;
     }
 
     // 4️⃣ VÉRIF ROUTES AVEC CONTEXTE (match/tournoi actif requis)
     if (isContextRestrictedRoute(currentPath)) {
       console.warn("🚫 [403] Route nécessite un contexte actif:", currentPath);
-      this.showErrorPage(403, isLoggedIn);
+      this.redirectToErrorWithIcons(403, isLoggedIn);
       return;
     }
 
     // 5️⃣ NAVIGATION NORMALE : Afficher la page demandée
     console.log("✅ Navigation vers:", targetPage.id);
     this.navigateToPage(targetPage, isLoggedIn);
-  }
-
-//////////////////////////// UTILS
-
-  /**
-   * Résout la page cible depuis l'URL
-   * @returns La page ou null si invalide (404)
-   */
-  private resolveTargetPage(path: string): HTMLElement | null {
-    if (path === '/') return null; // Géré séparément
-    return findPageFromUrl(path, this._DO.pages);
-  }
-
-  /**
-   * Gère la navigation vers la route racine "/"
-   */
-  private handleRootPath(isLoggedIn: boolean): void {
-    if (isLoggedIn) {
-      console.log("🏠 Route racine → Accueil (connecté)");
-      this.navigateToPage(this._DO.pages.accueil, isLoggedIn, true);
-    } else {
-      console.log("🔒 Route racine → Login (non connecté)");
-      this.navigateToPage(this._DO.pages.login, isLoggedIn, true);
-    }
-  }
-
-  /**
-   * Affiche une page d'erreur (403 ou 404)
-   */
-  private showErrorPage(errorCode: number, isLoggedIn: boolean, originalUrl?: string): void {
-    const errorPage = redirectToError(errorCode, this._DO, originalUrl);
-    this.updateIconsForPage(errorPage, isLoggedIn);
-    activeAnotherPage(errorPage);
-  }
-
-  /**
-   * Navigue vers une page et gère l'affichage des icônes
-   */
-  private navigateToPage(page: HTMLElement, isLoggedIn: boolean, replaceHistory = false): void {
-    // Gérer les icônes selon JWT et page
-    this.updateIconsForPage(page, isLoggedIn);
-
-    // Activer la page
-    activeAnotherPage(page);
-
-    // Mettre à jour l'URL
-    if (replaceHistory) {
-      const pageName = page.id.slice("pages".length).toLowerCase();
-      window.history.replaceState({ page: pageName }, "", `/${pageName}`);
-    }
-  }
-
-  /**
-   * Gère l'affichage des icônes selon la page et l'auth
-   * - Pas de JWT → Tout caché
-   * - Avec JWT → Dépend de la page
-   */
-  private updateIconsForPage(page: HTMLElement, isLoggedIn: boolean): void {
-    const iconAccueil = this._DO.icons.accueil;
-    const iconSettings = this._DO.icons.settings;
-
-    // Pas de JWT → Tout caché
-    if (!isLoggedIn) {
-      activeOrHiden(iconAccueil, "Off");
-      activeOrHiden(iconSettings, "Off");
-      return;
-    }
-
-    // Avec JWT → Dépend de la page
-    if (page.id === "pagesAccueil") {
-      activeOrHiden(iconAccueil, "Off");
-      activeOrHiden(iconSettings, "On");
-    } else if (page.id === "pagesParametre") {
-      activeOrHiden(iconAccueil, "On");
-      activeOrHiden(iconSettings, "Off");
-    } else {
-      activeOrHiden(iconAccueil, "On");
-      activeOrHiden(iconSettings, "On");
-    }
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -204,63 +140,42 @@ export class NavigationEvents {
     if (!link) return console.error("Bouton avec data-link introuvable");
 
     const get_data_link = link.getAttribute("data-link");
-    if (!get_data_link || get_data_link.startsWith("go_to_") === false)
+    if (!get_data_link || !get_data_link.startsWith("go_to_"))
       return console.log("it s not a data-link for redirection:", get_data_link);
 
     const pageName = get_data_link.slice("go_to_".length);
     const isLoggedIn = AuthManager.isLoggedIn();
 
-    // 🔒 BLOQUER navigation vers login/signup si déjà connecté
+// cette partie la peut etre considerer comme obsolete 
+
+///// d'ici a 
+
+    // BLOQUER navigation vers login/signup si déjà connecté
     if (isLoggedIn && (pageName === "Login" || pageName === "Signup")) {
       console.log('🔒 Déjà connecté, navigation vers login/signup bloquée');
       return;
     }
 
-    // 🔒 BLOQUER navigation vers pages protégées si pas connecté → REDIRIGER VERS LOGIN
-    const protectedPages = ["Accueil", "accueil", "Game_Config", "Begin_Tournament", "Parametre", "parametre"];
-    if (!isLoggedIn && protectedPages.includes(pageName)) {
+    // BLOQUER navigation vers pages protégées si pas connecté → REDIRIGER VERS LOGIN
+    if (!isLoggedIn && PROTECTED_PAGE_NAMES.includes(pageName)) {
       console.log('🔒 Non authentifié, redirection vers login');
-      const loginPage = redirectToError(403,this._DO);
-      activeOrHiden(this._DO.icons.accueil, "Off");
-      activeOrHiden(this._DO.icons.settings, "Off");
-      activeAnotherPage(loginPage);
-      updateUrl(loginPage);
+      this.redirectToErrorWithIcons(403, false);
+      updateUrl(this._DO.pages.error);
       return;
     }
 
-    const iconAccueil = this._DO.icons.accueil;
-    const iconSettings = this._DO.icons.settings;
-
-    // Gérer l'affichage des icônes selon la page active
-    if (pageName === "Login" || pageName === "Signup")
-    {
-      activeOrHiden(iconSettings, "Off");
-      activeOrHiden(iconAccueil, "Off");
-    }
-    else
-    {
-      activeOrHiden(iconAccueil, pageName === "accueil" ? "Off" : "On");
-      activeOrHiden(iconSettings, pageName === "parametre" ? "Off" : "On");
-    }
+////// LA
 
     const targetId = "pages" + pageName.charAt(0).toUpperCase() + pageName.slice(1);
     const targetPage = findPage(this._DO.pages, targetId);
     if (targetPage === null) return;
 
-    // Réinitialiser la page error si on la quitte (sauf si c'est une 404)
+    // Réinitialiser la page error si on la quitte
     const currentPage = this.getCurrentPage();
-    if (currentPage?.id === "pagesError") {
-      const errorCodeEl = this._DO.errorElement.codeEl;
-      const errorCodeText = errorCodeEl.textContent || '';
-      const is404 = errorCodeText.includes("404");
+    this.resetErrorPageIfNeeded(currentPage, targetPage);
 
-      if (!is404) {
-        console.log("🔄 Réinitialisation de la page error (code 0)");
-        resetErrorPage(0, this._DO);
-      } else {
-        console.log("📌 Page error 404 conservée pour navigation back/forward");
-      }
-    }
+    // Gérer l'affichage des icônes
+    this.setIconsVisibility(targetPage.id, isLoggedIn);
 
     // Reset inputs
     clear_Formulaire_Of_Tournament(this._DO.tournamentElement.formPseudoTournament);
@@ -279,158 +194,259 @@ export class NavigationEvents {
     const path = window.location.pathname;
     const isLoggedIn = AuthManager.isLoggedIn();
 
-    // 🔒 VÉRIF AUTH : Si pas connecté et pas sur login/signup → Redirect login
-    if (!isLoggedIn && path !== '/login' && path !== '/signup') {
-      console.log('🔒 [POPSTATE] Non authentifié, redirection vers login');
-      activeAnotherPage(this._DO.pages.login);
-      activeOrHiden(this._DO.icons.accueil, "Off");
-      activeOrHiden(this._DO.icons.settings, "Off");
-      updateUrl(this._DO.pages.login);
+    // 🔒 Vérifications d'authentification
+    if (this.handlePopstateAuthChecks(path, isLoggedIn))
       return;
-    }
 
-    // ✅ VÉRIF AUTH : Si connecté et sur login/signup → Redirect accueil
-    if (isLoggedIn && (path === '/login' || path === '/signup')) {
-      console.log('✅ [POPSTATE] Déjà authentifié, redirection vers accueil');
-      activeAnotherPage(this._DO.pages.accueil);
-      activeOrHiden(this._DO.icons.accueil, "Off");
-      activeOrHiden(this._DO.icons.settings, "On");
-      window.history.replaceState({ page: 'accueil' }, "", "/accueil");
+    // 🔀 Routes spéciales (/, /error)
+    if (this.handleSpecialRoutes(path, isLoggedIn)) {
       return;
     }
 
     const targetPage = findPageFromUrl(path, this._DO.pages);
 
+    // 404 - Page introuvable
     if (!targetPage) {
       console.error("[popstate] Impossible de trouver la page pour:", path);
-      // Rediriger vers page d'erreur 404
-      activeAnotherPage(redirectToError(404, this._DO, path));
-      if (isLoggedIn) {
-        activeOrHiden(this._DO.icons.accueil, "On");
-        activeOrHiden(this._DO.icons.settings, "On");
-      } else {
-        activeOrHiden(this._DO.icons.accueil, "Off");
-        activeOrHiden(this._DO.icons.settings, "Off");
-      }
+      this.redirectToErrorWithIcons(404, isLoggedIn, path);
       return;
     }
 
+    const currentPage = this.getCurrentPage();
+
+    // Reset page error si on la quitte (sauf 404)
+    this.resetErrorPageIfNeeded(currentPage, targetPage);
+
+    // 🚫 Vérifier les restrictions de contexte (match/tournoi)
+    if (this.checkContextRestrictions(path, targetPage, isLoggedIn)) {
+      return;
+    }
+
+    // 🛑 Cleanup des contextes actifs
+    if (this.handleContextCleanup(currentPage, targetPage)) {
+      return;
+    }
+
+    // ✅ Afficher la nouvelle page
+    this.setIconsVisibility(targetPage.id, isLoggedIn);
+    activeAnotherPage(targetPage);
+    console.log("✅ Page affichée:", targetPage.id);
+  }
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Méthodes utilitaires pour réduire la duplication
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  /**
+   * Gère l'affichage des icônes selon la page et l'état d'authentification
+   * Centralise toute la logique des icônes pour éviter la duplication
+   */
+  private setIconsVisibility(pageId: string, isLoggedIn: boolean): void {
+    const iconAccueil = this._DO.icons.accueil;
+    const iconSettings = this._DO.icons.settings;
+
+    if (!isLoggedIn) {
+      activeOrHiden(iconAccueil, "Off");
+      activeOrHiden(iconSettings, "Off");
+      return;
+    }
+
+    const showAccueil = pageId !== PAGE_IDS.ACCUEIL;
+    const showSettings = pageId !== PAGE_IDS.PARAMETRE;
+
+    activeOrHiden(iconAccueil, showAccueil ? "On" : "Off");
+    activeOrHiden(iconSettings, showSettings ? "On" : "Off");
+  }
+
+  /**
+   * Redirige vers une page d'erreur et gère les icônes
+   */
+  private redirectToErrorWithIcons(errorCode: number, isLoggedIn: boolean, originalUrl?: string): void {
+    const errorPage = redirectToError(errorCode, this._DO, originalUrl);
+    this.setIconsVisibility(errorPage.id, isLoggedIn);
+    activeAnotherPage(errorPage);
+  }
+
+  /**
+   * Redirige vers la page de login et cache toutes les icônes
+   */
+  private redirectToLoginPage(): void {
+    const loginPage = this._DO.pages.login;
+    this.setIconsVisibility(loginPage.id, false);
+    activeAnotherPage(loginPage);
+    updateUrl(loginPage);
+  }
+
+  /**
+   * Réinitialise la page d'erreur si nécessaire (hors 404)
+   */
+  private resetErrorPageIfNeeded(currentPage: HTMLElement | null, targetPage: HTMLElement): void {
+    if (currentPage?.id !== PAGE_IDS.ERROR || targetPage.id === PAGE_IDS.ERROR)
+      return;
+
+    const errorCodeEl = this._DO.errorElement.codeEl;
+    const errorCodeText = errorCodeEl.textContent || '';
+    const is404 = errorCodeText.includes("404");
+
+    if (!is404) {
+      console.log("🔄 Réinitialisation de la page error (code 0)");
+      resetErrorPage(0, this._DO);
+    } else
+      console.log("📌 Page error 404 conservée pour navigation back/forward");
+  }
+
+//////////////////////////// UTILS
+
+  /**
+   * Résout la page cible depuis l'URL
+   * @returns La page ou null si invalide (404)
+   */
+  private resolveTargetPage(path: string): HTMLElement | null {
+    if (path === '/') return null; // Géré séparément
+    return findPageFromUrl(path, this._DO.pages);
+  }
+
+  /**
+   * Gère la navigation vers la route racine "/"
+   */
+  private handleRootPath(isLoggedIn: boolean): void {
+    if (isLoggedIn) {
+      console.log("🏠 Route racine → Accueil (connecté)");
+      this.navigateToPage(this._DO.pages.accueil, isLoggedIn, true);
+    } else {
+      console.log("🔒 Route racine → Login (non connecté)");
+      this.navigateToPage(this._DO.pages.login, isLoggedIn, true);
+    }
+  }
+
+  /**
+   * Navigue vers une page et gère l'affichage des icônes
+   */
+  private navigateToPage(page: HTMLElement, isLoggedIn: boolean, replaceHistory = false): void {
+    // Gérer les icônes selon JWT et page
+    this.setIconsVisibility(page.id, isLoggedIn);
+
+    // Activer la page
+    activeAnotherPage(page);
+
+    // Mettre à jour l'URL
+    if (replaceHistory) {
+      const pageName = page.id.slice("pages".length).toLowerCase();
+      window.history.replaceState({ page: pageName }, "", `/${pageName}`);
+    }
+  }
+
+  /**
+   * Gère les cas spéciaux de routes (/, /error)
+   * @returns true si une route spéciale a été traitée
+   */
+  private handleSpecialRoutes(path: string, isLoggedIn: boolean): boolean {
+    // Route racine
+    if (path === "/") {
+      this.handleRootPath(isLoggedIn);
+      return true;
+    }
+
+    // Route error
+    if (path === "/error") {
+      console.log("🔄 Navigation vers /error → Affichage code 0");
+      resetErrorPage(0, this._DO);
+      activeAnotherPage(this._DO.pages.error);
+      this.setIconsVisibility(PAGE_IDS.ERROR, isLoggedIn);
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * Vérifie les blocages de contexte (match/tournoi)
+   * @returns true si l'accès est bloqué
+   */
+  private checkContextRestrictions(path: string, targetPage: HTMLElement, isLoggedIn: boolean): boolean {
     const allowedTournamentPages = [
       this._DO.pages.match.id,
       this._DO.pages.result.id,
       this._DO.pages.treeTournament.id,
     ];
 
-    const currentPage = this.getCurrentPage();
-
-    // ===== RESET : Réinitialiser la page error si on la quitte (sauf 404) =====
-    if (currentPage?.id === "pagesError" && targetPage.id !== "pagesError") {
-      const errorCodeEl = this._DO.errorElement.codeEl;
-      const errorCodeText = errorCodeEl.textContent || '';
-      const is404 = errorCodeText.includes("404");
-
-      if (!is404) {
-        console.log("🔄 Réinitialisation de la page error (code 0)");
-        resetErrorPage(0, this._DO);
-      } else {
-        console.log("📌 Page error 404 conservée pour navigation back/forward");
-      }
-    }
-
-    // ===== BLOCAGES : Interdire l'accès AVANT d'afficher la page =====
-
-    if (path === "/") {
-      activeAnotherPage(this._DO.pages.accueil);
-      activeOrHiden(this._DO.icons.accueil, "Off");
-      window.history.replaceState({ page: 'accueil' }, "", "/accueil");
-      return;
-    }
-
-    // Si on navigue vers /error via back/forward, afficher la page error avec code 0
-    if (path === "/error") {
-      console.log("🔄 Navigation vers /error → Affichage code 0");
-      resetErrorPage(0, this._DO);
-      activeAnotherPage(this._DO.pages.error);
-      const isLoggedIn = AuthManager.isLoggedIn();
-      if (isLoggedIn) {
-        activeOrHiden(this._DO.icons.accueil, "On");
-        activeOrHiden(this._DO.icons.settings, "On");
-      } else {
-        activeOrHiden(this._DO.icons.accueil, "Off");
-        activeOrHiden(this._DO.icons.settings, "Off");
-      }
-      return;
-    }
-
-    // BLOCAGE 2 : Interdire l'accès à la page match si aucun match actif (hors tournoi)
+    // BLOCAGE 1 : Match solo sans contexte
     if (
       !this.tournamentController.hasActiveTournament() &&
       !this.matchController.hasActiveMatch() &&
-      ((targetPage.id === "pagesMatch" && path === "/match") ||
-        (targetPage.id === "pagesResult" && path === "/match/result"))
+      ((targetPage.id === PAGE_IDS.MATCH && path === "/match") ||
+        (targetPage.id === PAGE_IDS.RESULT && path === "/match/result"))
     ) {
-      console.log("🚫 [MATCH SOLO] Accès interdit : Aucun match classique actif → Redirection page d'erreur");
-      activeAnotherPage(redirectToError(403, this._DO));
-      const isLoggedIn = AuthManager.isLoggedIn();
-      if (isLoggedIn) {
-        activeOrHiden(this._DO.icons.accueil, "On");
-        activeOrHiden(this._DO.icons.settings, "On");
-      } else {
-        activeOrHiden(this._DO.icons.accueil, "Off");
-        activeOrHiden(this._DO.icons.settings, "Off");
-      }
-      return;
+      console.log("🚫 [MATCH SOLO] Accès interdit : Aucun match classique actif");
+      this.redirectToErrorWithIcons(403, isLoggedIn);
+      return true;
     }
 
-    // BLOCAGE 1 : Interdire l'accès aux pages de tournoi si aucun tournoi actif
+    // BLOCAGE 2 : Tournoi sans contexte
     if (!this.tournamentController.hasActiveTournament() && allowedTournamentPages.includes(targetPage.id)) {
-      console.log("🚫 [TOURNOI] Accès interdit : Aucun tournoi actif → Redirection page d'erreur");
-      activeAnotherPage(redirectToError(403, this._DO));
-      const isLoggedIn = AuthManager.isLoggedIn();
-      if (isLoggedIn) {
-        activeOrHiden(this._DO.icons.accueil, "On");
-        activeOrHiden(this._DO.icons.settings, "On");
-      } else {
-        activeOrHiden(this._DO.icons.accueil, "Off");
-        activeOrHiden(this._DO.icons.settings, "Off");
-      }
-      return;
+      console.log("🚫 [TOURNOI] Accès interdit : Aucun tournoi actif");
+      this.redirectToErrorWithIcons(403, isLoggedIn);
+      return true;
     }
 
-    // ===== CLEANUP : Arrêter match/tournoi si on quitte leurs pages =====
+    return false;
+  }
 
-    // CAS SPÉCIAL 1 : Si on fait BACKWARD depuis une page de TOURNOI
-    // → Arrêter le tournoi ET rediriger vers accueil directement
+  /**
+   * Gère le cleanup des contextes actifs lors de la navigation
+   */
+  private handleContextCleanup(currentPage: HTMLElement | null, targetPage: HTMLElement): boolean {
+    const allowedTournamentPages = [
+      this._DO.pages.match.id,
+      this._DO.pages.result.id,
+      this._DO.pages.treeTournament.id,
+    ];
+
+    // Backward depuis tournoi → Arrêt et redirection accueil
     if (this.tournamentController.hasActiveTournament() && allowedTournamentPages.includes(currentPage?.id ?? "")) {
       console.log("🛑 [TOURNOI] Backward depuis tournoi → Arrêt du tournoi et redirection accueil");
       this.tournamentController.stopTournament("Backward depuis tournoi → Arrêt du tournoi et redirection accueil");
-      // Forcer la redirection vers accueil
       activeAnotherPage(this._DO.pages.accueil);
-      activeOrHiden(this._DO.icons.accueil, "Off");
+      this.setIconsVisibility(PAGE_IDS.ACCUEIL, true);
       window.history.replaceState({ page: 'accueil' }, "", "/accueil");
-      return;
+      return true;
     }
 
-    // Si on quitte la page match (et pas dans un tournoi), stopper le match solo
+    // Backward depuis match solo
     if (
       !this.tournamentController.hasActiveTournament() &&
       this.matchController.hasActiveMatch() &&
-      targetPage.id !== "pagesMatch"
+      targetPage.id !== PAGE_IDS.MATCH
     ) {
       console.log("🛑 [MATCH SOLO] Backward depuis match classique → Arrêt du match");
       this.matchController.stopMatch("Navigation back/forward du navigateur");
     }
 
-    // ===== AFFICHAGE : Afficher la nouvelle page =====
+    return false;
+  }
 
-    const pageName = targetPage.id.slice("pages".length).toLowerCase();
 
-    // Mettre à jour les icônes
-    activeOrHiden(this._DO.icons.accueil, pageName === "accueil" ? "Off" : "On");
-    activeOrHiden(this._DO.icons.settings, pageName === "parametre" ? "Off" : "On");
+  /**
+   * Vérifie l'auth lors du popstate et redirige si nécessaire
+   * @returns true si une redirection a été effectuée
+   */
+  private handlePopstateAuthChecks(path: string, isLoggedIn: boolean): boolean {
+    // 🔒 Non connecté et pas sur login/signup → Redirect login
+    if (!isLoggedIn && path !== '/login' && path !== '/signup') {
+      console.log('🔒 [POPSTATE] Non authentifié, redirection vers login');
+      this.redirectToLoginPage();
+      return true;
+    }
 
-    // Afficher la page
-    activeAnotherPage(targetPage);
-    console.log("✅ Page affichée:", targetPage.id);
+    // ✅ Connecté et sur login/signup → Redirect accueil
+    if (isLoggedIn && (path === '/login' || path === '/signup')) {
+      console.log('✅ [POPSTATE] Déjà authentifié, redirection vers accueil');
+      activeAnotherPage(this._DO.pages.accueil);
+      this.setIconsVisibility(PAGE_IDS.ACCUEIL, true);
+      window.history.replaceState({ page: 'accueil' }, "", "/accueil");
+      return true;
+    }
+
+    return false;
   }
 }
