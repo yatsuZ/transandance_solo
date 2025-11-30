@@ -116,7 +116,7 @@ Il servira de base pour créer les tickets.
 ### 🟡 MODULE 3 : Standard User Management (Majeur - 1 pt)
 
 **Critères de validation :**
-- [ ] Inscription utilisateur (username, email, password hashé)
+- [X] Inscription utilisateur (username, email, password hashé)
 - [ ] Connexion / Déconnexion
 - [ ] Profil utilisateur avec avatar (upload ou URL)
 - [ ] Historique des matchs joués
@@ -125,11 +125,11 @@ Il servira de base pour créer les tickets.
 - [ ] Voir les profils des autres utilisateurs
 
 **Tâches :**
-- [ ] API routes : POST /register, POST /login, GET /logout
+- [X] API routes : POST /register, POST /login, GET /logout
 - [ ] API routes : GET /profile/:id, PUT /profile, DELETE /profile
 - [ ] API routes : GET /friends, POST /friends/:id, DELETE /friends/:id
 - [ ] API routes : GET /matches/history
-- [ ] Hash des mots de passe (bcrypt)
+- [X] Hash des mots de passe (bcrypt)
 - [ ] Upload d'avatar (ou URL externe)
 - [ ] Pages frontend : inscription, connexion, profil, amis
 

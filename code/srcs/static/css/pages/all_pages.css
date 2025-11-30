@@ -12,4 +12,5 @@
 
 @import url('./error.css');
 
+@import url('./profile.css');
 /* Auth styles déplacés dans /components/auth.css */

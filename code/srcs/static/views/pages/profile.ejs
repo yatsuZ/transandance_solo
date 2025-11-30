@@ -4,7 +4,63 @@
     <p class="arcade-subtitle">Voici la page profile DE :</p>
   </header>
 
-<!-- ICI metre les information pour profile plus tard -->
+  <div class="profile-wrapper">
+    <!-- PROFILE HEADER + STATS + TOUCHES -->
+    <section class="profile-card">
+      <div class="profile-main">
+        <!-- PHOTO -->
+        <div class="profile-picture-box">
+          <img id="profile-picture" alt="Photo de profil" class="profile-picture">
+        </div>
 
+        <!-- STATS + TOUCHES -->
+        <div class="profile-right">
+          <div class="stats-grid">
+            <div class="stat-item">
+              <span class="stat-label">Matchs joués</span>
+              <span class="stat-value" id="stat-matches"></span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Victoires</span>
+              <span class="stat-value stat-win" id="stat-wins"></span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Défaites</span>
+              <span class="stat-value stat-lose" id="stat-losses"></span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Buts marqués</span>
+              <span class="stat-value" id="stat-goals-for"></span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Buts encaissés</span>
+              <span class="stat-value" id="stat-goals-against"></span>
+            </div>
+          </div>
+
+          <div class="controls-box">
+            <h3>Vos touches</h3>
+            <div class="controls">
+              <p>Si vous jouez à gauche :
+                <strong id="control-left-up"></strong> /
+                <strong id="control-left-down"></strong>
+              </p>
+              <p>Si vous jouez à droite :
+                <strong id="control-right-up"></strong> /
+                <strong id="control-right-down"></strong>
+              </p>
+            </div>
+            <button id="edit-controls-btn" class="btn-edit">Modifier mes touches</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HISTORIQUE DES MATCHS -->
+    <section class="history-section">
+      <h3>Historique des parties</h3>
+      <ul class="match-history" id="history-list"></ul>
+      <p id="history-empty">Aucune partie jouée pour le moment.</p>
+    </section>
+  </div>
 </div>
-
