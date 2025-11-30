@@ -10,6 +10,7 @@ import { DOMElements } from "../core/dom-elements.js";
  */
 const PAGE_IDS = {
   ACCUEIL: "pagesAccueil",
+  PROFILE: "pagesProfile",
   LOGIN: "pagesLogin",
   SIGNUP: "pagesSignup",
   MATCH: "pagesMatch",
@@ -19,7 +20,7 @@ const PAGE_IDS = {
   TREE_TOURNAMENT: "pagesTree_Tournament",
 } as const;
 
-const PROTECTED_PAGE_NAMES = ["Accueil", "Game_Config", "Begin_Tournament", "Parametre"];
+const PROTECTED_PAGE_NAMES = ["Accueil", "Profile", "Game_Config", "Begin_Tournament", "Parametre"];
 
 /**
  * Classe pour gérer TOUTE la navigation de l'application
@@ -244,8 +245,10 @@ export class NavigationEvents {
   private setIconsVisibility(pageId: string, isLoggedIn: boolean): void {
     const iconAccueil = this._DO.icons.accueil;
     const iconSettings = this._DO.icons.settings;
+    const iconProfile = this._DO.icons.profile;
 
     if (!isLoggedIn) {
+      activeOrHiden(iconProfile, "Off");
       activeOrHiden(iconAccueil, "Off");
       activeOrHiden(iconSettings, "Off");
       return;
@@ -253,7 +256,9 @@ export class NavigationEvents {
 
     const showAccueil = pageId !== PAGE_IDS.ACCUEIL;
     const showSettings = pageId !== PAGE_IDS.PARAMETRE;
+    const showProfile = pageId !== PAGE_IDS.PROFILE;
 
+    activeOrHiden(iconProfile, showProfile ? "On" : "Off");
     activeOrHiden(iconAccueil, showAccueil ? "On" : "Off");
     activeOrHiden(iconSettings, showSettings ? "On" : "Off");
   }

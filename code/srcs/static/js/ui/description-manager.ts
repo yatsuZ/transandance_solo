@@ -17,8 +17,9 @@ export function update_description_de_page(dom: DOMElements): void {
     pagesLogin: `Aller connecte TOI!! ONE MORE GAME. ONE MORE GAME !!`,
     pagesSignup: 'Aller Inscrit toi sur YARE GATRA !!',
     pagesAccueil: 'Que veux-tu faire ?',
+    pagesProfile: 'Voici la page profile DE :',
     pagesGame_Config: 'Choisis ton jeu et prépare ton duel !',
-    pagesMatch: 'Le premier à 3 points gagne la partie',
+    pagesMatch: 'Le premier à 5 points gagne la partie',// faire gaffe c'est en fonctione de game config modifier sa
     pagesBegin_Tournament: 'Prépare ton tournoi et affronte les meilleurs !',
     pagesResult: 'Voici les résultats de ton dernier match !',
     pagesParametre: 'Parametre du site',

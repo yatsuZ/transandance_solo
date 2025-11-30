@@ -3,7 +3,7 @@
  */
 export type DOMElements = {
   pages: Record<
-    "login" | "signup" | "accueil" | "gameConfig" | "match" | "result" | "beginTournament" | "treeTournament" | "parametre" | "error",
+    "login" | "signup" | "accueil" | "profile" | "gameConfig" | "match" | "result" | "beginTournament" | "treeTournament" | "parametre" | "error",
     HTMLElement
   >;
 
@@ -54,6 +54,7 @@ export type DOMElements = {
   };
 
   icons: {
+    profile: HTMLElement;
     accueil: HTMLElement;
     settings: HTMLElement;
     sound: HTMLElement;

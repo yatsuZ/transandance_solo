@@ -1,3 +1,4 @@
+import { profile } from "console";
 import { DOMElements } from "./dom-elements";
 /**
  * Types et utilitaires pour la gestion centralisée du DOM
@@ -89,6 +90,7 @@ export function init_All_Dom(): DOMElements {
   const pageLogin = get<HTMLElement>("pagesLogin", "Pages");
   const pageSignup = get<HTMLElement>("pagesSignup", "Pages");
   const pageAccueil = get<HTMLElement>("pagesAccueil", "Pages");
+  const pageProfile = get<HTMLElement>("pagesProfile", "Pages");
   const pageGameConfig = get<HTMLElement>("pagesGame_Config", "Pages");
   const pageMatch = get<HTMLElement>("pagesMatch", "Pages");
   const pageResult = get<HTMLElement>("pagesResult", "Pages");
@@ -166,6 +168,7 @@ export function init_All_Dom(): DOMElements {
   // ========================================
   // ICÔNES
   // ========================================
+  const iconProfile = get<HTMLElement>("icon-profile", "Icons");
   const iconAccueil = get<HTMLElement>("icon-accueil", "Icons");
   const iconSettings = get<HTMLElement>("icon-settings", "Icons");
   const iconSound = get<HTMLElement>("icon-sound", "Icons");
@@ -200,6 +203,7 @@ export function init_All_Dom(): DOMElements {
       login: pageLogin,
       signup: pageSignup,
       accueil: pageAccueil,
+      profile: pageProfile,
       gameConfig : pageGameConfig,
       match: pageMatch,
       result: pageResult,
@@ -259,6 +263,7 @@ export function init_All_Dom(): DOMElements {
     },
 
     icons: {
+      profile: iconProfile,
       accueil: iconAccueil,
       settings: iconSettings,
       sound: iconSound,

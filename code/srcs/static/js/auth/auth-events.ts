@@ -178,11 +178,13 @@ export class AuthEvents {
   private redirectToHome(): void {
     const accueilPage = this._DO.pages.accueil;
     const iconAccueil = this._DO.icons.accueil;
+    const iconProfile = this._DO.icons.profile;
     const iconSettings = this._DO.icons.settings;
 
     // Afficher les icônes
     activeOrHiden(iconAccueil, 'Off'); // Cache l'icône accueil sur la page accueil
     activeOrHiden(iconSettings, 'On');
+    activeOrHiden(iconProfile, 'On');
 
     // Activer la page accueil
     activeAnotherPage(accueilPage);
