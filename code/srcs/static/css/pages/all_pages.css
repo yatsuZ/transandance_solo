@@ -13,4 +13,6 @@
 @import url('./error.css');
 
 @import url('./profile.css');
+
+@import url('./leaderboard.css');
 /* Auth styles déplacés dans /components/auth.css */

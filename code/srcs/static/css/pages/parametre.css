@@ -134,3 +134,33 @@
   background: rgba(0, 255, 76, 0.2);
   border-radius: 10px;
 }
+
+/* BOUTON DE DECONNEXION */
+
+.logout-btn {
+  width: 100%;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #fff;
+  background: #ff4444;
+  border: 2px solid #ff6666;
+  border-radius: 8px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 10px rgba(255, 68, 68, 0.5);
+}
+
+.logout-btn:hover {
+  background: #ff6666;
+  border-color: #ff8888;
+  box-shadow: 0 0 20px rgba(255, 68, 68, 0.8);
+  transform: translateY(-2px);
+}
+
+.logout-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 0 10px rgba(255, 68, 68, 0.5);
+}

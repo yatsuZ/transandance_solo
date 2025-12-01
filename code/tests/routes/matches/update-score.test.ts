@@ -38,8 +38,8 @@ export function testUpdateScore(getApp: () => FastifyInstance) {
       const response = await app.inject({
         method: 'PUT',
         url: `/api/matches/${matchId}/score`,
-        headers: {
-          authorization: `Bearer ${token}`
+        cookies: {
+          auth_token: token
         },
         payload: {
           score_left: 3,
@@ -74,8 +74,8 @@ export function testUpdateScore(getApp: () => FastifyInstance) {
       await app.inject({
         method: 'POST',
         url: `/api/matches/${matchId}/end`,
-        headers: {
-          authorization: `Bearer ${token}`
+        cookies: {
+          auth_token: token
         },
         payload: {
           winner_name: 'FinishedTest1',
@@ -87,8 +87,8 @@ export function testUpdateScore(getApp: () => FastifyInstance) {
       const response = await app.inject({
         method: 'PUT',
         url: `/api/matches/${matchId}/score`,
-        headers: {
-          authorization: `Bearer ${token}`
+        cookies: {
+          auth_token: token
         },
         payload: {
           score_left: 5,

@@ -165,7 +165,7 @@ export const AI_ERROR_RANGE_DIVISOR = 3;
 /**
  * Score nécessaire pour gagner une partie
  */
-export const WINNING_SCORE = 5;
+export const WINNING_SCORE = 3;
 
 /**
  * Délai avant de reset la balle après un point (en ms)

@@ -4,7 +4,6 @@ import { getAuthToken } from '../../helpers/auth.js';
 interface SignupResponse {
   success: boolean;
   data?: {
-    token: string;
     user: {
       id: number;
       username: string;
@@ -40,13 +39,13 @@ export function testDeleteUser(getApp: () => FastifyInstance) {
 
       const created: SignupResponse = JSON.parse(createResponse.body);
       const userId = created.data!.user.id;
-      const token = created.data!.token;
+      const authCookie = createResponse.cookies.find(c => c.name === 'auth_token');
 
       const response = await app.inject({
         method: 'DELETE',
         url: `/api/users/${userId}`,
-        headers: {
-          authorization: `Bearer ${token}`
+        cookies: {
+          auth_token: authCookie!.value
         }
       });
 
@@ -64,13 +63,13 @@ export function testDeleteUser(getApp: () => FastifyInstance) {
 
     it('devrait retourner 404 si l\'utilisateur n\'existe pas', async () => {
       const app = getApp();
-      const token = await getAuthToken(app);
+      const authCookie = await getAuthToken(app);
 
       const response = await app.inject({
         method: 'DELETE',
         url: '/api/users/99999',
-        headers: {
-          authorization: `Bearer ${token}`
+        cookies: {
+          auth_token: authCookie
         }
       });
 

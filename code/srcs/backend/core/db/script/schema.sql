@@ -31,6 +31,8 @@ CREATE TABLE IF NOT EXISTS users (
   total_goals_scored INTEGER DEFAULT 0,
   total_goals_conceded INTEGER DEFAULT 0,
   total_matches INTEGER DEFAULT 0,
+  tournaments_played INTEGER DEFAULT 0,
+  tournaments_won INTEGER DEFAULT 0,
 
   -- Meta
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -49,11 +51,13 @@ CREATE TABLE IF NOT EXISTS matches (
   -- Joueur Gauche (NULL si IA ou Guest)
   player_left_id INTEGER,
   player_left_name VARCHAR(16) NOT NULL,
+  is_bot_left BOOLEAN DEFAULT 0,             -- 1 si bot, 0 sinon
   score_left INTEGER DEFAULT 0,
 
   -- Joueur Droite (NULL si IA ou Guest)
   player_right_id INTEGER,
   player_right_name VARCHAR(16) NOT NULL,
+  is_bot_right BOOLEAN DEFAULT 0,            -- 1 si bot, 0 sinon
   score_right INTEGER DEFAULT 0,
 
   -- Résultat (NULL si pas fini ou si leave)

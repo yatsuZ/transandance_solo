@@ -23,6 +23,9 @@ export const userSchema = {
     total_goals_scored: { type: 'integer', description: 'Total de buts marqués' },
     total_goals_conceded: { type: 'integer', description: 'Total de buts encaissés' },
     total_matches: { type: 'integer', description: 'Nombre total de matchs joués' },
+    tournaments_played: { type: 'integer', description: 'Nombre de tournois joués' },
+    tournaments_won: { type: 'integer', description: 'Nombre de tournois gagnés' },
+    controls: { type: 'string', description: 'Contrôles clavier (JSON)' },
     created_at: { type: 'string', format: 'date-time', description: 'Date de création du compte' },
     updated_at: { type: 'string', format: 'date-time', description: 'Date de dernière modification' }
   }
@@ -37,9 +40,11 @@ export const matchSchema = {
     id: { type: 'integer', description: 'ID unique du match' },
     player_left_id: { type: ['integer', 'null'], description: 'ID du joueur gauche (null pour IA ou invité)' },
     player_left_name: { type: 'string', minLength: 1, maxLength: 50, description: 'Nom du joueur gauche' },
+    is_bot_left: { type: 'integer', enum: [0, 1], description: '1 si bot, 0 sinon' },
     score_left: { type: 'integer', minimum: 0, description: 'Score du joueur gauche' },
     player_right_id: { type: ['integer', 'null'], description: 'ID du joueur droit (null pour IA ou invité)' },
     player_right_name: { type: 'string', minLength: 1, maxLength: 50, description: 'Nom du joueur droit' },
+    is_bot_right: { type: 'integer', enum: [0, 1], description: '1 si bot, 0 sinon' },
     score_right: { type: 'integer', minimum: 0, description: 'Score du joueur droit' },
     winner_id: { type: ['integer', 'null'], description: 'ID du vainqueur (null si pas de vainqueur)' },
     winner_name: { type: ['string', 'null'], description: 'Nom du vainqueur (null si pas de vainqueur)' },

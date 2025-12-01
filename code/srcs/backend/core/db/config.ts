@@ -40,6 +40,9 @@ export class DatabaseManager {
 
     // Initialiser le schéma
     this.initSchema();
+
+    // Exécuter les migrations
+    this.runMigrations();
   }
 
   /**
@@ -56,6 +59,50 @@ export class DatabaseManager {
       }
     } catch (error) {
       console.error('[Database] Failed to initialize schema:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Exécute les migrations SQL dans l'ordre
+   */
+  private runMigrations(): void {
+    try {
+      const baseDir = getDirname();
+      const migrationsDir = path.join(baseDir, 'script/migrations');
+
+      // Vérifier si le dossier migrations existe
+      if (!fs.existsSync(migrationsDir)) {
+        return; // Pas de migrations à exécuter
+      }
+
+      // Lire tous les fichiers .sql dans migrations/
+      const migrationFiles = fs.readdirSync(migrationsDir)
+        .filter(file => file.endsWith('.sql'))
+        .sort(); // Tri alphabétique (001_xxx.sql, 002_xxx.sql, etc.)
+
+      migrationFiles.forEach(file => {
+        const migrationPath = path.join(migrationsDir, file);
+        const migration = fs.readFileSync(migrationPath, 'utf-8');
+
+        try {
+          this.db.exec(migration);
+          if (process.env.NODE_ENV !== 'test') {
+            console.log(`[Database] Migration applied: ${file}`);
+          }
+        } catch (error: any) {
+          // Ignorer l'erreur "duplicate column" (migration déjà appliquée)
+          if (error.message && error.message.includes('duplicate column')) {
+            if (process.env.NODE_ENV !== 'test') {
+              console.log(`[Database] Migration already applied: ${file}`);
+            }
+          } else {
+            throw error;
+          }
+        }
+      });
+    } catch (error) {
+      console.error('[Database] Failed to run migrations:', error);
       throw error;
     }
   }

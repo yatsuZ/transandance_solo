@@ -2,7 +2,7 @@ import { DOMElements } from "../core/dom-elements.js";
 import { Tournament } from "../tournament/tournament.js";
 import { activeAnotherPage, activeOrHiden } from "../navigation/page-manager.js";
 import { updateUrl } from "../utils/url-helpers.js";
-import { TournamentForm } from "../forms/tournament-form.js";
+import { TournamentForm } from "./forms/tournament-form.js";
 
 /**
  * Contrôleur pour gérer le cycle de vie des tournois
@@ -17,7 +17,7 @@ export class TournamentController {
 
   constructor(dO: DOMElements, getCurrentPage: () => HTMLElement | null) {
     this._DO = dO;
-    this.tournamentForm = new TournamentForm();
+    this.tournamentForm = new TournamentForm(dO);
 
     // Bind handlers
     this.event_GivUpTournamentHandler = this.event_GivUpTournament.bind(this);

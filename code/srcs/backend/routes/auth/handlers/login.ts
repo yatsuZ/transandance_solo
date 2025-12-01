@@ -95,11 +95,19 @@ export async function login(request: FastifyRequest<{ Body: LoginBody }>, reply:
     username: user.username
   });
 
-  // Retourner le token et les données utilisateur (sans password_hash)
+  // Envoyer le JWT dans un cookie HTTP-only sécurisé
+  reply.setCookie('auth_token', token, {
+    httpOnly: true,  // Pas accessible via JavaScript (sécurité XSS)
+    secure: process.env.NODE_ENV === 'production', // HTTPS uniquement en production
+    sameSite: 'strict', // Protection CSRF
+    path: '/',
+    maxAge: 24 * 60 * 60 // 24 heures en secondes
+  });
+
+  // Retourner les données utilisateur (sans le token dans le JSON)
   return reply.code(StatusCodes.OK).send({
     success: true,
     data: {
-      token,
       user: {
         id: user.id,
         username: user.username,

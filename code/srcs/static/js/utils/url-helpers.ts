@@ -63,7 +63,7 @@ export function updateUrl(page: HTMLElement, prefix: string = "") {
  */
 async function findErrorImage(errorCode: number): Promise<string> {
   // Si c'est une erreur non gérée, retourner l'image par défaut
-  if (errorCode !== 0 && errorCode !== 403 && errorCode !== 404)
+  if (errorCode !== 0 && errorCode !== 401 && errorCode !== 403 && errorCode !== 404)
     return '/static/util/img/error_x.png';
 
   const basePath = `/static/util/img/error_${errorCode}`;
@@ -159,6 +159,8 @@ export function getMessageOfErrorCode(errorCode: number, url?: string) : string
   switch (errorCode) {
     case 0:
       return "Y a pas de probléme."
+    case 401:
+      return "Session expirée ou invalide.\nVeuillez vous reconnecter pour continuer."
     case 403:
       return "VOUS NE PASSEREZ PAS, Passez par un chemin conventionnel, s'il vous plaît."
     case 404:

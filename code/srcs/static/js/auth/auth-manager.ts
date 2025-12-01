@@ -1,24 +1,20 @@
 /**
  * AuthManager - Gestion de l'authentification frontend
- * - Stockage JWT dans localStorage
+ * - JWT stocké dans cookie HTTP-only (géré par le serveur)
+ * - Données utilisateur dans UserSession (RAM, singleton)
  * - Login/Signup via API
  * - Vérification authentification
  * - Logout
  */
 
-const TOKEN_KEY = 'pong_jwt_token';
-const USER_KEY = 'pong_user_data';
+import { userSession, type UserData } from './user-session.js';
+import { uiPreferences, type PlayerControls } from '../core/ui-preferences.js';
 
-export interface UserData {
-  id: number;
-  username: string;
-  email: string | null;
-}
+export type { UserData };
 
 export interface LoginResponse {
   success: boolean;
   data?: {
-    token: string;
     user: UserData;
   };
   error?: string;
@@ -27,7 +23,6 @@ export interface LoginResponse {
 export interface SignupResponse {
   success: boolean;
   data?: {
-    token: string;
     user: UserData;
   };
   message?: string;
@@ -36,94 +31,112 @@ export interface SignupResponse {
 
 export class AuthManager {
   /**
-   * Vérifie si l'utilisateur est connecté
+   * Vérifie si l'utilisateur est connecté (vérification synchrone locale)
+   * Vérifie si la session utilisateur existe en mémoire
+   * ⚠️ Ne vérifie PAS si le cookie JWT est valide côté serveur
+   * Pour une vérification complète, utiliser verifyAuth()
    */
   static isLoggedIn(): boolean {
-    const token = this.getToken();
-    if (!token) return false;
+    return userSession.hasUser();
+  }
 
-    // Vérifier si le token est expiré (basique)
+  /**
+   * Vérifie l'authentification côté serveur (async)
+   * Appelle /api/auth/me pour vérifier le cookie JWT et récupérer les données utilisateur
+   * @returns true si authentifié, false sinon
+   */
+  static async verifyAuth(): Promise<boolean> {
     try {
-      const payload = this.decodeToken(token);
-      const now = Math.floor(Date.now() / 1000);
+      console.log('🔍 [verifyAuth] Vérification du cookie JWT...');
 
-      // Si le token a un exp et qu'il est expiré
-      if (payload.exp && payload.exp < now) {
-        console.log('🔒 Token expiré, déconnexion automatique');
-        this.logout();
+      // Appeler /api/auth/me pour vérifier le cookie et récupérer les données user
+      const response = await fetch('/api/auth/me', {
+        method: 'GET',
+        credentials: 'include' // Envoie le cookie automatiquement
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data?.user) {
+          const user = data.data.user;
+          console.log(`✅ [verifyAuth] Cookie JWT valide pour ${user.username}`);
+
+          // Mettre à jour la session en mémoire
+          userSession.setUser(user);
+
+          // Charger les contrôles depuis les données user
+          if (user.controls) {
+            try {
+              const controls: PlayerControls = JSON.parse(user.controls);
+              uiPreferences.setControls(controls);
+              console.log('🎮 [verifyAuth] Contrôles chargés depuis la BDD');
+            } catch (error) {
+              console.log('⚠️ [verifyAuth] Contrôles corrompus, utilisation des valeurs par défaut');
+            }
+          }
+
+          return true;
+        } else {
+          console.log('⚠️ [verifyAuth] Réponse serveur invalide');
+          userSession.clear();
+          return false;
+        }
+      } else if (response.status === 401) {
+        // Cookie invalide/expiré
+        console.log('🧹 [verifyAuth] Cookie JWT invalide/expiré ! Nettoyage de la session');
+        userSession.clear();
+        return false;
+      } else {
+        // Autre erreur (500, etc.) - on considère comme déconnecté par sécurité
+        console.log(`⚠️ [verifyAuth] Erreur serveur (${response.status}) → Non authentifié par sécurité`);
+        userSession.clear();
         return false;
       }
-
-      return true;
     } catch (error) {
-      console.log('⚠️ Token invalide, déconnexion');
-      this.logout();
+      console.log('⚠️ [verifyAuth] Erreur réseau lors de la vérification auth:', error);
+      userSession.clear();
       return false;
     }
   }
 
   /**
-   * Récupère le token JWT stocké
-   */
-  static getToken(): string | null {
-    return localStorage.getItem(TOKEN_KEY);
-  }
-
-  /**
-   * Récupère les données utilisateur stockées
+   * Récupère les données utilisateur depuis la session en mémoire
    */
   static getUserData(): UserData | null {
-    const userData = localStorage.getItem(USER_KEY);
-    if (!userData) return null;
+    return userSession.getUser();
+  }
 
+  /**
+   * Stocke les données utilisateur dans la session en mémoire
+   * Le JWT est géré automatiquement par les cookies HTTP-only
+   */
+  static saveUserData(user: UserData): void {
+    userSession.setUser(user);
+  }
+
+  /**
+   * Déconnecte l'utilisateur
+   * Nettoie la session en mémoire et appelle l'API logout pour supprimer le cookie
+   */
+  static async logout(): Promise<void> {
+    // Nettoyer la session en mémoire
+    userSession.clear();
+
+    // Appeler l'API pour supprimer le cookie côté serveur
     try {
-      return JSON.parse(userData);
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include' // Important pour envoyer le cookie
+      });
+      console.log('👋 Déconnexion effectuée');
     } catch (error) {
-      console.log('⚠️ Données utilisateur corrompues');
-      return null;
-    }
-  }
-
-  /**
-   * Stocke le token et les données utilisateur
-   */
-  static saveAuthData(token: string, user: UserData): void {
-    localStorage.setItem(TOKEN_KEY, token);
-    localStorage.setItem(USER_KEY, JSON.stringify(user));
-    console.log('✅ Auth data sauvegardée pour:', user.username);
-  }
-
-  /**
-   * Déconnecte l'utilisateur (supprime token + user data)
-   */
-  static logout(): void {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
-    console.log('👋 Déconnexion effectuée');
-  }
-
-  /**
-   * Décode un token JWT (sans vérification signature)
-   * Utile pour lire l'expiration côté client
-   */
-  private static decodeToken(token: string): any {
-    try {
-      const base64Url = token.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(
-        atob(base64)
-          .split('')
-          .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-          .join('')
-      );
-      return JSON.parse(jsonPayload);
-    } catch (error) {
-      throw new Error('Token invalide');
+      console.log('⚠️ Erreur lors de la déconnexion:', error);
     }
   }
 
   /**
    * Login - Envoie une requête POST /api/auth/login
+   * Le JWT est automatiquement stocké dans un cookie HTTP-only par le serveur
    */
   static async login(username: string, password: string): Promise<LoginResponse> {
     try {
@@ -132,15 +145,16 @@ export class AuthManager {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Important pour recevoir et envoyer les cookies
         body: JSON.stringify({ username, password }),
       });
 
       // Toujours parser la réponse, même si status != 200
       const data: LoginResponse = await response.json();
 
-      // Si succès, sauvegarder les données
+      // Si succès, sauvegarder les données utilisateur (pas le token, il est dans le cookie)
       if (response.ok && data.success && data.data) {
-        this.saveAuthData(data.data.token, data.data.user);
+        this.saveUserData(data.data.user);
       }
 
       // Retourner la réponse (succès ou échec) sans lever d'erreur
@@ -157,6 +171,7 @@ export class AuthManager {
 
   /**
    * Signup - Envoie une requête POST /api/auth/signup
+   * Le JWT est automatiquement stocké dans un cookie HTTP-only par le serveur
    */
   static async signup(
     username: string,
@@ -169,6 +184,7 @@ export class AuthManager {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Important pour recevoir et envoyer les cookies
         body: JSON.stringify({
           username,
           password,
@@ -179,9 +195,9 @@ export class AuthManager {
       // Toujours parser la réponse, même si status != 200
       const data: SignupResponse = await response.json();
 
-      // Si succès, sauvegarder les données
+      // Si succès, sauvegarder les données utilisateur (pas le token, il est dans le cookie)
       if (response.ok && data.success && data.data) {
-        this.saveAuthData(data.data.token, data.data.user);
+        this.saveUserData(data.data.user);
       }
 
       // Retourner la réponse (succès ou échec) sans lever d'erreur
@@ -194,17 +210,5 @@ export class AuthManager {
         error: 'Erreur de connexion au serveur',
       };
     }
-  }
-
-  /**
-   * Récupère le header Authorization pour les requêtes API
-   */
-  static getAuthHeader(): Record<string, string> {
-    const token = this.getToken();
-    if (!token) return {};
-
-    return {
-      'Authorization': `Bearer ${token}`,
-    };
   }
 }

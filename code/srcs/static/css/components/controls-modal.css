@@ -1,0 +1,117 @@
+/* Modal de modification des contrôles clavier */
+.controls-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+.controls-modal.hidden {
+  display: none;
+}
+
+.controls-modal-content {
+  background: #1a1a1a;
+  padding: 30px;
+  border-radius: 10px;
+  border: 3px solid #33ff57;
+  box-shadow: 0 0 20px #33ff57;
+  max-width: 500px;
+  width: 90%;
+}
+
+.controls-modal-title {
+  color: #33ff57;
+  text-align: center;
+  margin-bottom: 20px;
+  font-family: 'Press Start 2P', monospace;
+}
+
+.controls-modal-subtitle {
+  color: #d6ffd9;
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 12px;
+}
+
+.controls-modal-inputs {
+  display: grid;
+  gap: 15px;
+}
+
+.controls-modal-input-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.controls-modal-label {
+  color: #ffe066;
+  display: block;
+  margin-bottom: 5px;
+  font-size: 12px;
+}
+
+.controls-modal-input {
+  width: 100%;
+  padding: 10px;
+  background: #111;
+  border: 2px solid #33e3ff;
+  color: #fff;
+  text-align: center;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 5px;
+}
+
+.controls-modal-input:focus {
+  outline: none;
+  border-color: #ffcc00;
+}
+
+.controls-modal-input.active {
+  border-color: #ffcc00;
+}
+
+.controls-modal-input.success {
+  border-color: #33ff57;
+}
+
+.controls-modal-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.controls-modal-btn {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.controls-modal-btn-save {
+  background: #33ff57;
+  color: #000;
+}
+
+.controls-modal-btn-save:hover {
+  background: #2ee04d;
+}
+
+.controls-modal-btn-cancel {
+  background: #ff4444;
+  color: #fff;
+}
+
+.controls-modal-btn-cancel:hover {
+  background: #e63939;
+}

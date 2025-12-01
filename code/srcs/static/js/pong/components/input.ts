@@ -1,3 +1,5 @@
+import { uiPreferences } from "../../core/ui-preferences.js";
+
 type ControlKeys = {
   up: string;
   down: string;
@@ -15,10 +17,28 @@ export class InputHandler {
   private keyUpHandler = (e: KeyboardEvent) => this.handleKey(e, false);
 
   constructor(side: PlayerSide) {
-    this.keys = this.getDefaultKeys(side);
+    this.keys = this.getCustomKeysOrDefault(side);
 
     window.addEventListener("keydown", this.keyDownHandler);
     window.addEventListener("keyup", this.keyUpHandler);
+  }
+
+  /**
+   * Récupère les touches personnalisées depuis uiPreferences ou les valeurs par défaut
+   */
+  private getCustomKeysOrDefault(side: PlayerSide): ControlKeys {
+    const controls = uiPreferences.getControls();
+
+    switch (side) {
+      case "L":
+        return { up: controls.leftUp, down: controls.leftDown };
+      case "R":
+        return { up: controls.rightUp, down: controls.rightDown };
+      case "L2":
+        return this.getDefaultKeys("L2");
+      case "R2":
+        return this.getDefaultKeys("R2");
+    }
   }
 
   /**

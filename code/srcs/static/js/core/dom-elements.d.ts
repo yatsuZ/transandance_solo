@@ -3,7 +3,7 @@
  */
 export type DOMElements = {
   pages: Record<
-    "login" | "signup" | "accueil" | "profile" | "gameConfig" | "match" | "result" | "beginTournament" | "treeTournament" | "parametre" | "error",
+    "login" | "signup" | "accueil" | "profile" | "leaderboard" | "gameConfig" | "match" | "result" | "beginTournament" | "treeTournament" | "parametre" | "error",
     HTMLElement
   >;
 
@@ -21,6 +21,7 @@ export type DOMElements = {
   parametreElement: {
     volumeSlider: HTMLInputElement;
     volumeValue: HTMLElement;
+    logoutBtn: HTMLButtonElement;
   };
 
   matchElement: Record<
@@ -32,6 +33,12 @@ export type DOMElements = {
     formulaireGameConfig: HTMLFormElement;
     inputFormulaireGameConfig_PlayerLeft: HTMLInputElement;
     inputFormulaireGameConfig_PlayerRight: HTMLInputElement;
+    checkboxGameConfig_PlayerLeftIsMe: HTMLInputElement;
+    checkboxGameConfig_PlayerRightIsMe: HTMLInputElement;
+    radioGameConfig_PlayerLeftTypeHuman: HTMLInputElement;
+    radioGameConfig_PlayerLeftTypeIA: HTMLInputElement;
+    radioGameConfig_PlayerRightTypeHuman: HTMLInputElement;
+    radioGameConfig_PlayerRightTypeIA: HTMLInputElement;
   };
 
   tournamentElement: {
@@ -41,6 +48,7 @@ export type DOMElements = {
     form: HTMLFormElement;
     formPseudoTournament: [HTMLInputElement, HTMLInputElement, HTMLInputElement, HTMLInputElement];
     formIsHumanCheckbox: [HTMLInputElement, HTMLInputElement, HTMLInputElement, HTMLInputElement];
+    formIsMeCheckbox: [HTMLInputElement, HTMLInputElement, HTMLInputElement, HTMLInputElement];
   };
 
   buttons: {
@@ -54,6 +62,7 @@ export type DOMElements = {
   };
 
   icons: {
+    edit: HTMLElement;
     profile: HTMLElement;
     accueil: HTMLElement;
     settings: HTMLElement;
@@ -72,6 +81,68 @@ export type DOMElements = {
   popup: {
     startOrNotMusic: HTMLElement;
   };
+
+  controlsModal: {
+    modal: HTMLElement;
+    inputLeftUp: HTMLInputElement;
+    inputLeftDown: HTMLInputElement;
+    inputRightUp: HTMLInputElement;
+    inputRightDown: HTMLInputElement;
+    btnSave: HTMLButtonElement;
+    btnCancel: HTMLButtonElement;
+  };
+
+  profileEditModal: {
+    modal: HTMLElement;
+    form: HTMLFormElement;
+    photoPreview: HTMLImageElement;
+    photoInput: HTMLInputElement;
+    inputUsername: HTMLInputElement;
+    inputEmail: HTMLInputElement;
+    inputPassword: HTMLInputElement;
+    inputPasswordConfirm: HTMLInputElement;
+    message: HTMLElement;
+    btnSave: HTMLButtonElement;
+    btnCancel: HTMLButtonElement;
+  };
+
+  profile: {
+    username: HTMLElement;
+    pdp : HTMLImageElement;
+    statMatch: HTMLElement;
+    statWin: HTMLElement;
+    statLose: HTMLElement;
+    statTournamentsPlayed: HTMLElement;
+    statTournamentsWon: HTMLElement;
+    statGoal: HTMLElement;
+    statGoalAgainst: HTMLElement;
+
+    ControlLU: HTMLElement;
+    ControlLD: HTMLElement;
+    ControlRU: HTMLElement;
+    ControlRD: HTMLElement;
+
+    btnEditControl: HTMLElement;
+
+    historyList: HTMLElement;
+    historyEmpty: HTMLElement;
+  }
+
+  leaderboard: {
+    avatar1: HTMLImageElement;
+    avatar2: HTMLImageElement;
+    avatar3: HTMLImageElement;
+    username1: HTMLElement;
+    username2: HTMLElement;
+    username3: HTMLElement;
+    wins1: HTMLElement;
+    wins2: HTMLElement;
+    wins3: HTMLElement;
+    tableBody: HTMLElement;
+    tableContainer: HTMLElement;
+    empty: HTMLElement;
+    podium: HTMLElement;
+  }
 
   subtitles: HTMLElement[];
 

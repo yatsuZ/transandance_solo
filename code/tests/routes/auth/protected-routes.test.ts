@@ -3,10 +3,10 @@ import { FastifyInstance } from 'fastify';
 interface AuthResponse {
   success: boolean;
   data?: {
-    token: string;
     user: any;
   };
   error?: string;
+  message?: string;
 }
 
 export function testProtectedRoutes(getApp: () => FastifyInstance) {
@@ -43,7 +43,7 @@ export function testProtectedRoutes(getApp: () => FastifyInstance) {
       expect(data.error).toBeDefined();
     });
 
-    it('devrait rejeter une requête avec un token invalide', async () => {
+    it('devrait rejeter une requête avec un cookie invalide', async () => {
       const app = getApp();
 
       // Créer un user pour avoir un ID valide
@@ -60,12 +60,12 @@ export function testProtectedRoutes(getApp: () => FastifyInstance) {
       const signupData: AuthResponse = JSON.parse(signupResponse.body);
       const userId = signupData.data!.user.id;
 
-      // Essayer avec un token invalide
+      // Essayer avec un cookie invalide
       const response = await app.inject({
         method: 'PUT',
         url: `/api/users/${userId}`,
-        headers: {
-          authorization: 'Bearer invalid-token-here'
+        cookies: {
+          auth_token: 'invalid-token-here'
         },
         payload: {
           username: 'updated'
@@ -78,10 +78,10 @@ export function testProtectedRoutes(getApp: () => FastifyInstance) {
       expect(data.error).toContain('Invalid or expired');
     });
 
-    it('devrait accepter une requête avec un token valide', async () => {
+    it('devrait accepter une requête avec un cookie valide', async () => {
       const app = getApp();
 
-      // Créer un compte et récupérer le token
+      // Créer un compte et récupérer le cookie
       const signupResponse = await app.inject({
         method: 'POST',
         url: '/api/auth/signup',
@@ -93,19 +93,25 @@ export function testProtectedRoutes(getApp: () => FastifyInstance) {
       });
 
       const signupData: AuthResponse = JSON.parse(signupResponse.body);
-      const token = signupData.data!.token;
       const userId = signupData.data!.user.id;
 
-      // Modifier avec le token
+      // Récupérer le cookie auth_token
+      const authCookie = signupResponse.cookies.find(c => c.name === 'auth_token');
+      expect(authCookie).toBeDefined();
+
+      // Modifier avec le cookie (utiliser FormData car la route attend multipart)
+      const FormData = require('form-data');
+      const form = new FormData();
+      form.append('username', 'protectedupdated');
+
       const response = await app.inject({
         method: 'PUT',
         url: `/api/users/${userId}`,
-        headers: {
-          authorization: `Bearer ${token}`
+        cookies: {
+          auth_token: authCookie!.value
         },
-        payload: {
-          username: 'protectedupdated'
-        }
+        headers: form.getHeaders(),
+        payload: form
       });
 
       expect(response.statusCode).toBe(200);

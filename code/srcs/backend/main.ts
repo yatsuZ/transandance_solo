@@ -1,6 +1,8 @@
 import Fastify, { FastifyInstance } from 'fastify';
 import fastifyStatic from '@fastify/static';
 import fastifyView from '@fastify/view';
+import fastifyMultipart from '@fastify/multipart';
+import fastifyCookie from '@fastify/cookie';
 import ejs from 'ejs';
 import chalk from 'chalk';
 import os from 'os';
@@ -10,6 +12,10 @@ import matchRoutes from './routes/matches/index.js';
 import authRoutes from './routes/auth/index.js';
 import tournamentRoutes from './routes/tournaments/index.js';
 import path from 'path';
+import { mkdirSync, existsSync } from 'fs';
+
+// Constantes de configuration
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB en bytes
 
 /**
  * Fonction pour construire l'application Fastify
@@ -18,6 +24,26 @@ import path from 'path';
 export async function buildApp(): Promise<FastifyInstance> {
   const fastify = Fastify({
     logger: process.env.NODE_ENV !== 'test', // Désactiver les logs en mode test
+  });
+
+  // Créer le dossier uploads/avatars s'il n'existe pas
+  const uploadsDir = path.join(process.cwd(), 'uploads', 'avatars');
+  if (!existsSync(uploadsDir)) {
+    mkdirSync(uploadsDir, { recursive: true });
+    console.log('✅ Dossier uploads/avatars créé');
+  }
+
+  // Plugin Cookie (pour gérer les cookies HTTP-only)
+  await fastify.register(fastifyCookie, {
+    secret: process.env.COOKIE_SECRET || 'ATTENTion_YaSssine8JEdoisDefinirDansLesVariebleDenvirnementCArklacVisibleToutLemondeVoiiiitEtCpasBienPOurlasecu',
+    parseOptions: {}
+  });
+
+  // Plugin Multipart (pour upload de fichiers)
+  await fastify.register(fastifyMultipart, {
+    limits: {
+      fileSize: MAX_FILE_SIZE,
+    }
   });
 
   // Plugin EJS
@@ -30,6 +56,13 @@ export async function buildApp(): Promise<FastifyInstance> {
   await fastify.register(fastifyStatic, {
     root: path.join(__dirname, './../../static'),
     prefix: '/static/',
+  });
+
+  // Dossier uploads (avatars uploadés par les users)
+  await fastify.register(fastifyStatic, {
+    root: path.join(process.cwd(), 'uploads'),
+    prefix: '/uploads/',
+    decorateReply: false // Important pour éviter les conflits avec le premier plugin static
   });
 
   // Routes API

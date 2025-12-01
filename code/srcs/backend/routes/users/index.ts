@@ -3,7 +3,7 @@ import { createUser, createUserSchema } from './handlers/create-user.js';
 import { getAllUsers, getAllUsersSchema } from './handlers/get-all-users.js';
 import { getUserById, getUserByIdSchema } from './handlers/get-user-by-id.js';
 import { getUserByUsername, getUserByUsernameSchema } from './handlers/get-user-by-username.js';
-import { updateUser, updateUserSchema } from './handlers/update-user.js';
+import { updateUser } from './handlers/update-user.js';
 import { deleteUser, deleteUserSchema } from './handlers/delete-user.js';
 import { getUserMatches, getUserMatchesSchema } from './handlers/get-user-matches.js';
 import { getLeaderboard, getLeaderboardSchema } from './handlers/get-leaderboard.js';
@@ -26,8 +26,8 @@ export default async function userRoutes(fastify: FastifyInstance) {
   // GET /api/users/username/:username - Récupérer un utilisateur par username
   fastify.get('/username/:username', { schema: getUserByUsernameSchema }, getUserByUsername);
 
-  // PUT /api/users/:id - Mettre à jour un utilisateur (protégé)
-  fastify.put('/:id', { schema: updateUserSchema, preHandler: [authMiddleware] }, updateUser as any);
+  // PUT /api/users/:id - Mettre à jour un utilisateur (protégé, multipart/form-data, pas de schema)
+  fastify.put('/:id', { preHandler: [authMiddleware] }, updateUser as any);
 
   // DELETE /api/users/:id - Supprimer un utilisateur (protégé)
   fastify.delete('/:id', { schema: deleteUserSchema, preHandler: [authMiddleware] }, deleteUser as any);

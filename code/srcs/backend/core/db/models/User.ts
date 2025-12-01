@@ -12,6 +12,9 @@ export interface User {
   total_goals_scored: number;
   total_goals_conceded: number;
   total_matches: number;
+  tournaments_played: number;
+  tournaments_won: number;
+  controls: string; // JSON string: {"leftUp":"w","leftDown":"s","rightUp":"ArrowUp","rightDown":"ArrowDown"}
   created_at: string;
   updated_at: string;
 }
@@ -207,6 +210,46 @@ export class UserRepository {
       stats.goals_conceded,
       id
     );
+  }
+
+  /**
+   * Incrémente le nombre de tournois joués
+   */
+  incrementTournamentsPlayed(id: number): void {
+    const stmt = this.db.prepare(`
+      UPDATE users
+      SET tournaments_played = tournaments_played + 1,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `);
+    stmt.run(id);
+  }
+
+  /**
+   * Incrémente le nombre de tournois gagnés ET joués
+   */
+  incrementTournamentsWon(id: number): void {
+    const stmt = this.db.prepare(`
+      UPDATE users
+      SET tournaments_won = tournaments_won + 1,
+          tournaments_played = tournaments_played + 1,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `);
+    stmt.run(id);
+  }
+
+  /**
+   * Met à jour les contrôles clavier d'un utilisateur
+   */
+  updateControls(id: number, controls: string): void {
+    const stmt = this.db.prepare(`
+      UPDATE users
+      SET controls = ?,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `);
+    stmt.run(controls, id);
   }
 
   /**

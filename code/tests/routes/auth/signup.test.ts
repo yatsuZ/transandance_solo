@@ -3,7 +3,6 @@ import { FastifyInstance } from 'fastify';
 interface SignupResponse {
   success: boolean;
   data?: {
-    token: string;
     user: {
       id: number;
       username: string;
@@ -11,11 +10,12 @@ interface SignupResponse {
     };
   };
   error?: string;
+  message?: string;
 }
 
 export function testSignup(getApp: () => FastifyInstance) {
   describe('POST /api/auth/signup - Signup', () => {
-    it('devrait créer un nouveau compte avec succès et retourner un JWT', async () => {
+    it('devrait créer un nouveau compte avec succès et retourner un cookie', async () => {
       const app = getApp();
       const response = await app.inject({
         method: 'POST',
@@ -30,11 +30,16 @@ export function testSignup(getApp: () => FastifyInstance) {
       expect(response.statusCode).toBe(201);
       const data: SignupResponse = JSON.parse(response.body);
       expect(data.success).toBe(true);
-      expect(data.data!.token).toBeDefined();
-      expect(typeof data.data!.token).toBe('string');
       expect(data.data!.user.username).toBe('signupuser');
       expect(data.data!.user.email).toBe('signup@example.com');
       expect(data.data!.user).not.toHaveProperty('password_hash');
+
+      // Vérifier que le cookie auth_token est présent
+      const cookies = response.cookies;
+      const authCookie = cookies.find(c => c.name === 'auth_token');
+      expect(authCookie).toBeDefined();
+      expect(authCookie!.value).toBeDefined();
+      expect(authCookie!.httpOnly).toBe(true);
     });
 
     it('devrait rejeter si le username existe déjà', async () => {

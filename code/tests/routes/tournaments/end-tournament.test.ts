@@ -86,8 +86,8 @@ export function testEndTournament(getApp: () => FastifyInstance) {
       const response = await app.inject({
         method: 'POST',
         url: `/api/tournaments/${tournamentId}/end`,
-        headers: {
-          authorization: `Bearer ${token}`
+        cookies: {
+          auth_token: token
         },
         payload: {
           winner_participant_id: winnerId,
@@ -133,8 +133,8 @@ export function testEndTournament(getApp: () => FastifyInstance) {
       const response = await app.inject({
         method: 'POST',
         url: `/api/tournaments/${tournamentId}/end`,
-        headers: {
-          authorization: `Bearer ${token}`
+        cookies: {
+          auth_token: token
         },
         payload: {
           status: 'leave'

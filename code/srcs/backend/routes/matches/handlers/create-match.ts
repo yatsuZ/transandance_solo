@@ -8,8 +8,10 @@ import { matchSchema } from '../../schemas.js';
 interface CreateMatchBody {
   player_left_id: number | null;
   player_left_name: string;
+  is_bot_left?: number;
   player_right_id: number | null;
   player_right_name: string;
+  is_bot_right?: number;
   game_type?: string;
 }
 
@@ -27,8 +29,10 @@ export const createMatchSchema = {
     properties: {
       player_left_id: matchSchema.properties.player_left_id,
       player_left_name: matchSchema.properties.player_left_name,
+      is_bot_left: matchSchema.properties.is_bot_left,
       player_right_id: matchSchema.properties.player_right_id,
       player_right_name: matchSchema.properties.player_right_name,
+      is_bot_right: matchSchema.properties.is_bot_right,
       game_type: matchSchema.properties.game_type
     }
   },
@@ -49,13 +53,15 @@ export const createMatchSchema = {
  * @returns 201 - Match créé
  */
 export async function createMatch(request: FastifyRequest<{ Body: CreateMatchBody }>, reply: FastifyReply): Promise<CreateMatchResponse> {
-  const { player_left_id, player_left_name, player_right_id, player_right_name, game_type } = request.body;
+  const { player_left_id, player_left_name, is_bot_left, player_right_id, player_right_name, is_bot_right, game_type } = request.body;
 
   const match = matchRepo.createMatch({
     player_left_id,
     player_left_name,
+    is_bot_left,
     player_right_id,
     player_right_name,
+    is_bot_right,
     game_type
   });
 

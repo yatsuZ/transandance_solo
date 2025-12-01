@@ -3,7 +3,7 @@ import { update_description_de_page } from './ui/description-manager.js';
 import { activeOrHiden } from './navigation/page-manager.js';
 import { MatchController } from './game-management/match-controller.js';
 import { TournamentController } from './game-management/tournament-controller.js';
-import { NavigationEvents } from './events/navigation-events.js';
+import { NavigationEvents } from './navigation/navigation-events.js';
 import { AuthEvents } from './auth/auth-events.js';
 import { DOMElements } from './core/dom-elements.js';
 
@@ -68,6 +68,7 @@ export class SiteManagement {
     initMusicSystem(this._DO);
     initVolumeControl(this._DO);
     update_description_de_page(this._DO);
+    this.initLogoutButton();
 
     // Initialiser les controllers
     this.matchController = new MatchController(this._DO, () => SiteManagement.currentActivePage);
@@ -86,6 +87,18 @@ export class SiteManagement {
 
     // APRÈS l'initialisation de la navigation, vérifier si on doit démarrer un match au chargement
     this.matchController.initMatchOnStartup(() => SiteManagement.currentActivePage);
+  }
+
+  /**
+   * Initialise le bouton de déconnexion
+   */
+  private initLogoutButton() {
+    this._DO.parametreElement.logoutBtn.addEventListener('click', () => {
+      import('./auth/auth-manager.js').then(({ AuthManager }) => {
+        AuthManager.logout();
+        window.location.href = '/login';
+      });
+    });
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 
 /**
- * Helper pour obtenir un token JWT valide pour les tests
+ * Helper pour obtenir un cookie d'authentification valide pour les tests
  */
 export async function getAuthToken(app: FastifyInstance): Promise<string> {
   const signupResponse = await app.inject({
@@ -13,6 +13,12 @@ export async function getAuthToken(app: FastifyInstance): Promise<string> {
       password: 'password123'
     }
   });
-  const data = JSON.parse(signupResponse.body);
-  return data.data.token;
+
+  // Récupérer le cookie auth_token au lieu du token dans le JSON
+  const authCookie = signupResponse.cookies.find(c => c.name === 'auth_token');
+  if (!authCookie) {
+    throw new Error('Cookie auth_token non trouvé après signup');
+  }
+
+  return authCookie.value;
 }

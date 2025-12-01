@@ -7,7 +7,9 @@ interface MatchResponse {
     player_left_id: number | null;
     player_right_id: number | null;
     player_left_name: string;
+    is_bot_left: number;
     player_right_name: string;
+    is_bot_right: number;
     status: string;
     score_left: number;
     score_right: number;
@@ -47,7 +49,8 @@ export function testCreateMatch(getApp: () => FastifyInstance) {
         url: '/api/matches',
         payload: {
           player_left_name: 'Player1',
-          player_right_name: 'AI_Easy'
+          player_right_name: 'AI_Easy',
+          is_bot_right: 1
         }
       });
 
@@ -55,6 +58,8 @@ export function testCreateMatch(getApp: () => FastifyInstance) {
       const data: MatchResponse = JSON.parse(response.body);
       expect(data.success).toBe(true);
       expect(data.data!.player_right_name).toBe('AI_Easy');
+      expect(data.data!.is_bot_right).toBe(1);
+      expect(data.data!.is_bot_left).toBe(0);
     });
   });
 }

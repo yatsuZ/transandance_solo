@@ -4,7 +4,8 @@ import { updateUrl } from "../utils/url-helpers.js";
 import { DOMElements } from "../core/dom-elements.js";
 import { arePlayersValid } from "../utils/validators.js";
 import { AuthManager } from "../auth/auth-manager.js";
-import { GameConfigForm } from "../forms/game-config-form.js";
+import { GameConfigForm } from "./forms/game-config-form.js";
+import { MatchAPI } from "./match-api.js";
 
 /**
  * Contrôleur pour gérer le cycle de vie des matchs solo (hors tournoi)
@@ -15,10 +16,12 @@ export class MatchController {
   private _DO: DOMElements;
   private event_stop_MatchHandler: () => void;
   private gameConfigForm: GameConfigForm;
+  private matchAPI: MatchAPI;
 
   constructor(dO: DOMElements, getCurrentPage: () => HTMLElement | null) {
     this._DO = dO;
-    this.gameConfigForm = new GameConfigForm();
+    this.gameConfigForm = new GameConfigForm(dO);
+    this.matchAPI = new MatchAPI();
 
     // Bind the handler
     this.event_stop_MatchHandler = this.event_stop_Match.bind(this, getCurrentPage);
@@ -119,7 +122,16 @@ export class MatchController {
     this.pongGameSingleMatch = new PongGame(this._DO, config, false, () => this.onMatchEnd());
 
     // Envoyer POST /api/matches pour créer le match en BDD
-    this.createMatchInDatabase(playerLeftName, playerRightName);
+    const isBotLeft = playerLeftType === "ia" ? 1 : 0;
+    const isBotRight = playerRightType === "ia" ? 1 : 0;
+
+    // Déterminer quel joueur est le user via la checkbox "C'est moi"
+    const authenticatedSide = this.gameConfigForm.getAuthenticatedPlayerSide();
+    const userData = AuthManager.getUserData();
+    const playerLeftId = (authenticatedSide === 'left' && userData) ? userData.id : null;
+    const playerRightId = (authenticatedSide === 'right' && userData) ? userData.id : null;
+
+    this.createMatchInDatabase(playerLeftName, playerRightName, playerLeftId, playerRightId, isBotLeft, isBotRight);
   }
 
   /**
@@ -131,13 +143,13 @@ export class MatchController {
       const matchResult = this.pongGameSingleMatch.getWinnerAndLooser();
       if (matchResult) {
         const winnerName = matchResult.Winner.name;
-
-        // Les scores sont toujours Left = joueur gauche, Right = joueur droit
-        // On doit récupérer les scores depuis les joueurs originaux
         const scoreLeft = this.pongGameSingleMatch['playerLeft'].get_score();
         const scoreRight = this.pongGameSingleMatch['playerRight'].get_score();
 
-        this.endMatchInDatabase(this.currentMatchId, winnerName, scoreLeft, scoreRight, 'completed');
+        // Déterminer si le winner est le user connecté
+        const winnerId = this.getWinnerId(winnerName);
+
+        this.matchAPI.endMatch(this.currentMatchId, winnerId, winnerName, scoreLeft, scoreRight, 'completed');
       }
     }
 
@@ -166,7 +178,7 @@ export class MatchController {
         const scoreLeft = this.pongGameSingleMatch['playerLeft'].get_score();
         const scoreRight = this.pongGameSingleMatch['playerRight'].get_score();
 
-        this.endMatchInDatabase(this.currentMatchId, null, scoreLeft, scoreRight, 'leave');
+        this.matchAPI.endMatch(this.currentMatchId, null, null, scoreLeft, scoreRight, 'leave');
       }
 
       this.pongGameSingleMatch.stop(reason);
@@ -192,99 +204,44 @@ export class MatchController {
   }
 
   /**
-   * Envoie une requête POST pour créer un match en BDD
+   * Crée un match en BDD
    */
-  private async createMatchInDatabase(playerLeftName: string, playerRightName: string): Promise<void> {
-    try {
-      // Récupérer le user connecté
-      const userData = AuthManager.getUserData();
-
-      // Déterminer quel joueur est le user via la checkbox "C'est moi"
-      const authenticatedSide = this.gameConfigForm.getAuthenticatedPlayerSide();
-      const playerLeftId = (authenticatedSide === 'left' && userData) ? userData.id : null;
-      const playerRightId = (authenticatedSide === 'right' && userData) ? userData.id : null;
-
-      const response = await fetch('/api/matches', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...AuthManager.getAuthHeader()
-        },
-        body: JSON.stringify({
-          player_left_id: playerLeftId,
-          player_left_name: playerLeftName,
-          player_right_id: playerRightId,
-          player_right_name: playerRightName,
-          game_type: 'pong'
-        })
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        this.currentMatchId = data.data.id;
-        console.log('✅ Match créé en BDD avec ID:', this.currentMatchId);
-      } else {
-        console.log('⚠️ Échec création match en BDD');
-      }
-    } catch (error) {
-      console.log('⚠️ Erreur lors de la création du match en BDD');
-    }
+  private async createMatchInDatabase(
+    playerLeftName: string,
+    playerRightName: string,
+    playerLeftId: number | null,
+    playerRightId: number | null,
+    isBotLeft: number,
+    isBotRight: number
+  ): Promise<void> {
+    this.currentMatchId = await this.matchAPI.createMatch(
+      playerLeftName,
+      playerRightName,
+      playerLeftId,
+      playerRightId,
+      isBotLeft,
+      isBotRight
+    );
   }
 
   /**
-   * Envoie une requête POST pour terminer un match en BDD
+   * Détermine si le winner est le user connecté
    */
-  private async endMatchInDatabase(
-    matchId: number,
-    winnerName: string | null,
-    scoreLeft: number,
-    scoreRight: number,
-    status: 'completed' | 'leave'
-  ): Promise<void> {
-    try {
-      // Récupérer le user connecté et vérifier s'il est le winner
-      const userData = AuthManager.getUserData();
-      const authenticatedSide = this.gameConfigForm.getAuthenticatedPlayerSide();
+  private getWinnerId(winnerName: string): number | null {
+    const userData = AuthManager.getUserData();
+    const authenticatedSide = this.gameConfigForm.getAuthenticatedPlayerSide();
 
-      // Si le user a joué ET qu'il est le winner
-      let winnerId: number | null = null;
-      if (userData && winnerName && authenticatedSide) {
-        // Récupérer les noms des joueurs depuis les inputs
-        const playerLeftInput = document.getElementById('playerLeft') as HTMLInputElement;
-        const playerRightInput = document.getElementById('playerRight') as HTMLInputElement;
+    if (!userData || !authenticatedSide) return null;
 
-        const playerLeftName = playerLeftInput?.value.trim();
-        const playerRightName = playerRightInput?.value.trim();
+    const playerLeftName = this._DO.gameConfigElement.inputFormulaireGameConfig_PlayerLeft.value.trim();
+    const playerRightName = this._DO.gameConfigElement.inputFormulaireGameConfig_PlayerRight.value.trim();
 
-        // Si le user était left et left a gagné, ou user était right et right a gagné
-        if ((authenticatedSide === 'left' && winnerName === playerLeftName) ||
-            (authenticatedSide === 'right' && winnerName === playerRightName)) {
-          winnerId = userData.id;
-        }
-      }
-
-      const response = await fetch(`/api/matches/${matchId}/end`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...AuthManager.getAuthHeader()
-        },
-        body: JSON.stringify({
-          winner_id: winnerId,
-          winner_name: winnerName,
-          score_left: scoreLeft,
-          score_right: scoreRight,
-          status: status
-        })
-      });
-
-      if (response.ok) {
-        console.log(`✅ Match ${matchId} terminé en BDD (${status})`);
-      } else {
-        console.log('⚠️ Échec fin match en BDD');
-      }
-    } catch (error) {
-      console.log('⚠️ Erreur lors de la fin du match en BDD');
+    // Si le user était left et left a gagné, ou user était right et right a gagné
+    if ((authenticatedSide === 'left' && winnerName === playerLeftName) ||
+        (authenticatedSide === 'right' && winnerName === playerRightName)) {
+      return userData.id;
     }
+
+    return null;
   }
 }

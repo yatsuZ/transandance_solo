@@ -38,8 +38,8 @@ export function testDeleteMatch(getApp: () => FastifyInstance) {
       const response = await app.inject({
         method: 'DELETE',
         url: `/api/matches/${matchId}`,
-        headers: {
-          authorization: `Bearer ${token}`
+        cookies: {
+          auth_token: token
         }
       });
 
@@ -62,8 +62,8 @@ export function testDeleteMatch(getApp: () => FastifyInstance) {
       const response = await app.inject({
         method: 'DELETE',
         url: '/api/matches/99999',
-        headers: {
-          authorization: `Bearer ${token}`
+        cookies: {
+          auth_token: token
         }
       });
 

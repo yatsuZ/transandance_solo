@@ -1,4 +1,3 @@
-import { profile } from "console";
 import { DOMElements } from "./dom-elements";
 /**
  * Types et utilitaires pour la gestion centralisée du DOM
@@ -91,6 +90,7 @@ export function init_All_Dom(): DOMElements {
   const pageSignup = get<HTMLElement>("pagesSignup", "Pages");
   const pageAccueil = get<HTMLElement>("pagesAccueil", "Pages");
   const pageProfile = get<HTMLElement>("pagesProfile", "Pages");
+  const pageLeaderboard = get<HTMLElement>("pagesLeaderboard", "Pages");
   const pageGameConfig = get<HTMLElement>("pagesGame_Config", "Pages");
   const pageMatch = get<HTMLElement>("pagesMatch", "Pages");
   const pageResult = get<HTMLElement>("pagesResult", "Pages");
@@ -120,6 +120,7 @@ export function init_All_Dom(): DOMElements {
   // ========================================
   const volumeSlider = get<HTMLInputElement>("volume-slider", "Parametre");
   const volumeValue = get<HTMLElement>("volume-value", "Parametre");
+  const logoutBtn = get<HTMLButtonElement>("logout-btn", "Parametre");
 
   // ========================================
   // PAGE MATCH
@@ -133,6 +134,16 @@ export function init_All_Dom(): DOMElements {
   const formulaireGameConfig = get<HTMLFormElement>("match-form", "GameConfig");
   const inputFormulaireGameConfig_PlayerLeft = get<HTMLInputElement>("playerLeft", "GameConfig");
   const inputFormulaireGameConfig_PlayerRight = get<HTMLInputElement>("playerRight", "GameConfig");
+
+  // Checkboxes "C'est moi"
+  const checkboxGameConfig_PlayerLeftIsMe = get<HTMLInputElement>("playerLeftIsMe", "GameConfig");
+  const checkboxGameConfig_PlayerRightIsMe = get<HTMLInputElement>("playerRightIsMe", "GameConfig");
+
+  // Radios type Humain/IA
+  const radioGameConfig_PlayerLeftTypeHuman = query<HTMLInputElement>('input[name="playerLeftType"][value="human"]', "GameConfig");
+  const radioGameConfig_PlayerLeftTypeIA = query<HTMLInputElement>('input[name="playerLeftType"][value="ia"]', "GameConfig");
+  const radioGameConfig_PlayerRightTypeHuman = query<HTMLInputElement>('input[name="playerRightType"][value="human"]', "GameConfig");
+  const radioGameConfig_PlayerRightTypeIA = query<HTMLInputElement>('input[name="playerRightType"][value="ia"]', "GameConfig");
 
   // ========================================
   // TOURNOI
@@ -154,6 +165,12 @@ export function init_All_Dom(): DOMElements {
     "Tournament - Checkboxes"
   );
 
+  // Checkboxes "C'est moi" pour tournoi
+  const formIsMeCheckbox = getInputArray(
+    ["isMe1", "isMe2", "isMe3", "isMe4"],
+    "Tournament - C'est moi"
+  );
+
   // ========================================
   // BOUTONS
   // ========================================
@@ -168,6 +185,7 @@ export function init_All_Dom(): DOMElements {
   // ========================================
   // ICÔNES
   // ========================================
+  const iconEdit = get<HTMLElement>("icon-edit", "Icons");
   const iconProfile = get<HTMLElement>("icon-profile", "Icons");
   const iconAccueil = get<HTMLElement>("icon-accueil", "Icons");
   const iconSettings = get<HTMLElement>("icon-settings", "Icons");
@@ -184,6 +202,74 @@ export function init_All_Dom(): DOMElements {
   // ========================================
   const music = get<HTMLAudioElement>("arcade-music", "Media");
   const popup = get<HTMLElement>("music-popup", "Media");
+
+  // ========================================
+  // CONTROLS MODAL
+  // ========================================
+  const controlsModal = get<HTMLElement>("controls-modal", "ControlsModal");
+  const controlsModalInputLeftUp = get<HTMLInputElement>("key-left-up", "ControlsModal");
+  const controlsModalInputLeftDown = get<HTMLInputElement>("key-left-down", "ControlsModal");
+  const controlsModalInputRightUp = get<HTMLInputElement>("key-right-up", "ControlsModal");
+  const controlsModalInputRightDown = get<HTMLInputElement>("key-right-down", "ControlsModal");
+  const controlsModalBtnSave = get<HTMLButtonElement>("save-controls-btn", "ControlsModal");
+  const controlsModalBtnCancel = get<HTMLButtonElement>("cancel-controls-btn", "ControlsModal");
+
+  // ========================================
+  // PROFILE EDIT MODAL
+  // ========================================
+  const profileEditModal = get<HTMLElement>("profile-edit-modal", "ProfileEditModal");
+  const profileEditForm = get<HTMLFormElement>("profile-edit-form", "ProfileEditModal");
+  const profileEditPhotoPreview = get<HTMLImageElement>("profile-edit-preview", "ProfileEditModal");
+  const profileEditPhotoInput = get<HTMLInputElement>("profile-edit-photo-input", "ProfileEditModal");
+  const profileEditInputUsername = get<HTMLInputElement>("profile-edit-username", "ProfileEditModal");
+  const profileEditInputEmail = get<HTMLInputElement>("profile-edit-email", "ProfileEditModal");
+  const profileEditInputPassword = get<HTMLInputElement>("profile-edit-password", "ProfileEditModal");
+  const profileEditInputPasswordConfirm = get<HTMLInputElement>("profile-edit-password-confirm", "ProfileEditModal");
+  const profileEditMessage = get<HTMLElement>("profile-edit-message", "ProfileEditModal");
+  const profileEditBtnSave = get<HTMLButtonElement>("profile-edit-save-btn", "ProfileEditModal");
+  const profileEditBtnCancel = get<HTMLButtonElement>("profile-edit-cancel-btn", "ProfileEditModal");
+
+  // ========================================
+  // PROFILE PAGE ELEMENT
+  // ========================================
+
+  const ProfilePageUsername = get<HTMLElement>("profile-username", "ProfilePage");
+  const ProfilePagepdp = get<HTMLImageElement>("profile-picture", "ProfilePage");
+  const ProfilePageStatMatch = get<HTMLElement>("stat-matches", "ProfilePage");
+  const ProfilePageStatWin = get<HTMLElement>("stat-wins", "ProfilePage");
+  const ProfilePageStatLose = get<HTMLElement>("stat-losses", "ProfilePage");
+  const ProfilePageStatTournamentsPlayed = get<HTMLElement>("stat-tournaments-played", "ProfilePage");
+  const ProfilePageStatTournamentsWon = get<HTMLElement>("stat-tournaments-won", "ProfilePage");
+  const ProfilePageStatGoal = get<HTMLElement>("stat-goals-for", "ProfilePage");
+  const ProfilePageStatGoalAgainst = get<HTMLElement>("stat-goals-against", "ProfilePage");
+
+  const ProfilePageControlLU = get<HTMLElement>("control-left-up", "ProfilePage");
+  const ProfilePageControlLD = get<HTMLElement>("control-left-down", "ProfilePage");
+  const ProfilePageControlRU = get<HTMLElement>("control-right-up", "ProfilePage");
+  const ProfilePageControlRD = get<HTMLElement>("control-right-down", "ProfilePage");
+
+  const ProfilePagebtnEditControl = get<HTMLElement>("edit-controls-btn", "ProfilePage");
+
+  const ProfilePageHistoryList = get<HTMLElement>("history-list", "ProfilePage");
+  const ProfilePageHistoryEmpty = get<HTMLElement>("history-empty", "ProfilePage");
+
+  // ========================================
+  // LEADERBOARD PAGE ELEMENT
+  // ========================================
+
+  const LeaderboardAvatar1 = get<HTMLImageElement>("leaderboard-avatar-1", "LeaderboardPage");
+  const LeaderboardAvatar2 = get<HTMLImageElement>("leaderboard-avatar-2", "LeaderboardPage");
+  const LeaderboardAvatar3 = get<HTMLImageElement>("leaderboard-avatar-3", "LeaderboardPage");
+  const LeaderboardUsername1 = get<HTMLElement>("leaderboard-username-1", "LeaderboardPage");
+  const LeaderboardUsername2 = get<HTMLElement>("leaderboard-username-2", "LeaderboardPage");
+  const LeaderboardUsername3 = get<HTMLElement>("leaderboard-username-3", "LeaderboardPage");
+  const LeaderboardWins1 = get<HTMLElement>("leaderboard-wins-1", "LeaderboardPage");
+  const LeaderboardWins2 = get<HTMLElement>("leaderboard-wins-2", "LeaderboardPage");
+  const LeaderboardWins3 = get<HTMLElement>("leaderboard-wins-3", "LeaderboardPage");
+  const LeaderboardTableBody = get<HTMLElement>("leaderboard-table-body", "LeaderboardPage");
+  const LeaderboardTableContainer = query<HTMLElement>(".leaderboard-table-container", "LeaderboardPage");
+  const LeaderboardEmpty = get<HTMLElement>("leaderboard-empty", "LeaderboardPage");
+  const LeaderboardPodium = query<HTMLElement>(".podium", "LeaderboardPage");
 
   // ========================================
   // STYLE CSS
@@ -204,6 +290,7 @@ export function init_All_Dom(): DOMElements {
       signup: pageSignup,
       accueil: pageAccueil,
       profile: pageProfile,
+      leaderboard: pageLeaderboard,
       gameConfig : pageGameConfig,
       match: pageMatch,
       result: pageResult,
@@ -230,6 +317,7 @@ export function init_All_Dom(): DOMElements {
     parametreElement: {
       volumeSlider,
       volumeValue,
+      logoutBtn,
     },
 
     matchElement: {
@@ -241,6 +329,12 @@ export function init_All_Dom(): DOMElements {
       formulaireGameConfig,
       inputFormulaireGameConfig_PlayerLeft,
       inputFormulaireGameConfig_PlayerRight,
+      checkboxGameConfig_PlayerLeftIsMe,
+      checkboxGameConfig_PlayerRightIsMe,
+      radioGameConfig_PlayerLeftTypeHuman,
+      radioGameConfig_PlayerLeftTypeIA,
+      radioGameConfig_PlayerRightTypeHuman,
+      radioGameConfig_PlayerRightTypeIA,
     },
 
     tournamentElement: {
@@ -250,6 +344,7 @@ export function init_All_Dom(): DOMElements {
       form,
       formPseudoTournament,
       formIsHumanCheckbox,
+      formIsMeCheckbox,
     },
 
     buttons: {
@@ -263,6 +358,7 @@ export function init_All_Dom(): DOMElements {
     },
 
     icons: {
+      edit: iconEdit,
       profile: iconProfile,
       accueil: iconAccueil,
       settings: iconSettings,
@@ -276,6 +372,68 @@ export function init_All_Dom(): DOMElements {
 
     popup: {
       startOrNotMusic: popup,
+    },
+
+    controlsModal: {
+      modal: controlsModal,
+      inputLeftUp: controlsModalInputLeftUp,
+      inputLeftDown: controlsModalInputLeftDown,
+      inputRightUp: controlsModalInputRightUp,
+      inputRightDown: controlsModalInputRightDown,
+      btnSave: controlsModalBtnSave,
+      btnCancel: controlsModalBtnCancel,
+    },
+
+    profileEditModal: {
+      modal: profileEditModal,
+      form: profileEditForm,
+      photoPreview: profileEditPhotoPreview,
+      photoInput: profileEditPhotoInput,
+      inputUsername: profileEditInputUsername,
+      inputEmail: profileEditInputEmail,
+      inputPassword: profileEditInputPassword,
+      inputPasswordConfirm: profileEditInputPasswordConfirm,
+      message: profileEditMessage,
+      btnSave: profileEditBtnSave,
+      btnCancel: profileEditBtnCancel,
+    },
+
+    profile: {
+      username: ProfilePageUsername,
+      pdp : ProfilePagepdp,
+      statMatch: ProfilePageStatMatch,
+      statWin: ProfilePageStatWin,
+      statLose: ProfilePageStatLose,
+      statTournamentsPlayed: ProfilePageStatTournamentsPlayed,
+      statTournamentsWon: ProfilePageStatTournamentsWon,
+      statGoal: ProfilePageStatGoal,
+      statGoalAgainst: ProfilePageStatGoalAgainst,
+
+      ControlLU: ProfilePageControlLU,
+      ControlLD: ProfilePageControlLD,
+      ControlRU: ProfilePageControlRU,
+      ControlRD: ProfilePageControlRD,
+
+      btnEditControl: ProfilePagebtnEditControl,
+
+      historyList: ProfilePageHistoryList,
+      historyEmpty: ProfilePageHistoryEmpty,
+    },
+
+    leaderboard: {
+      avatar1: LeaderboardAvatar1,
+      avatar2: LeaderboardAvatar2,
+      avatar3: LeaderboardAvatar3,
+      username1: LeaderboardUsername1,
+      username2: LeaderboardUsername2,
+      username3: LeaderboardUsername3,
+      wins1: LeaderboardWins1,
+      wins2: LeaderboardWins2,
+      wins3: LeaderboardWins3,
+      tableBody: LeaderboardTableBody,
+      tableContainer: LeaderboardTableContainer,
+      empty: LeaderboardEmpty,
+      podium: LeaderboardPodium,
     },
 
     subtitles,

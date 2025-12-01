@@ -4,7 +4,8 @@
  * - Auto-remplissage du pseudo avec le username du user quand "C'est moi" est coché
  */
 
-import { AuthManager } from '../auth/auth-manager.js';
+import { AuthManager } from '../../auth/auth-manager.js';
+import { DOMElements } from '../../core/dom-elements.js';
 
 export class GameConfigForm {
   private playerLeftInput: HTMLInputElement;
@@ -16,20 +17,19 @@ export class GameConfigForm {
   private playerRightTypeHuman: HTMLInputElement;
   private playerRightTypeIA: HTMLInputElement;
 
-  constructor() {
-    this.playerLeftInput = document.getElementById('playerLeft') as HTMLInputElement;
-    this.playerRightInput = document.getElementById('playerRight') as HTMLInputElement;
-    this.playerLeftIsMeCheckbox = document.getElementById('playerLeftIsMe') as HTMLInputElement;
-    this.playerRightIsMeCheckbox = document.getElementById('playerRightIsMe') as HTMLInputElement;
-
-    // Récupérer les radios type
-    this.playerLeftTypeHuman = document.querySelector('input[name="playerLeftType"][value="human"]') as HTMLInputElement;
-    this.playerLeftTypeIA = document.querySelector('input[name="playerLeftType"][value="ia"]') as HTMLInputElement;
-    this.playerRightTypeHuman = document.querySelector('input[name="playerRightType"][value="human"]') as HTMLInputElement;
-    this.playerRightTypeIA = document.querySelector('input[name="playerRightType"][value="ia"]') as HTMLInputElement;
+  constructor(dO: DOMElements) {
+    // ✅ TOUT depuis DOMElements maintenant !
+    this.playerLeftInput = dO.gameConfigElement.inputFormulaireGameConfig_PlayerLeft;
+    this.playerRightInput = dO.gameConfigElement.inputFormulaireGameConfig_PlayerRight;
+    this.playerLeftIsMeCheckbox = dO.gameConfigElement.checkboxGameConfig_PlayerLeftIsMe;
+    this.playerRightIsMeCheckbox = dO.gameConfigElement.checkboxGameConfig_PlayerRightIsMe;
+    this.playerLeftTypeHuman = dO.gameConfigElement.radioGameConfig_PlayerLeftTypeHuman;
+    this.playerLeftTypeIA = dO.gameConfigElement.radioGameConfig_PlayerLeftTypeIA;
+    this.playerRightTypeHuman = dO.gameConfigElement.radioGameConfig_PlayerRightTypeHuman;
+    this.playerRightTypeIA = dO.gameConfigElement.radioGameConfig_PlayerRightTypeIA;
 
     if (!this.playerLeftInput || !this.playerRightInput || !this.playerLeftIsMeCheckbox || !this.playerRightIsMeCheckbox) {
-      console.log('⚠️ Éléments du formulaire game-config introuvables');
+      console.error('⚠️ Éléments du formulaire game-config introuvables');
       return;
     }
 

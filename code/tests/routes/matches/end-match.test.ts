@@ -39,8 +39,8 @@ export function testEndMatch(getApp: () => FastifyInstance) {
       const response = await app.inject({
         method: 'POST',
         url: `/api/matches/${matchId}/end`,
-        headers: {
-          authorization: `Bearer ${token}`
+        cookies: {
+          auth_token: token
         },
         payload: {
           winner_name: 'Winner',
@@ -74,8 +74,8 @@ export function testEndMatch(getApp: () => FastifyInstance) {
       const response = await app.inject({
         method: 'POST',
         url: `/api/matches/${matchId}/end`,
-        headers: {
-          authorization: `Bearer ${token}`
+        cookies: {
+          auth_token: token
         },
         payload: {
           status: 'leave'

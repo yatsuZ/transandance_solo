@@ -1,5 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { tournamentRepo, Tournament } from '../../../core/db/models/Tournament.js';
+import { userRepo } from '../../../core/db/models/User.js';
 import { tournamentSchema, idParamSchema } from '../../schemas.js';
 import { createSuccessResponseSchema, errorResponseSchema, SuccessResponse, ErrorResponse } from '../../types.js';
 
@@ -51,6 +52,26 @@ export async function endTournament(
   const winnerId = winner_participant_id || null;
 
   const updatedTournament = tournamentRepo.endTournament(id, winnerId, finalStatus);
+
+  // ✅ Mettre à jour les statistiques des participants (uniquement pour les humains)
+  if (finalStatus === 'completed') {
+    const participants = tournamentRepo.getParticipants(id);
+
+    participants.forEach(participant => {
+      // Ignorer les bots (is_bot = true)
+      if (participant.is_bot || participant.user_id === null) return;
+
+      // Si c'est le gagnant : incrémenter tournaments_won ET tournaments_played
+      if (participant.id === winnerId) {
+        userRepo.incrementTournamentsWon(participant.user_id);
+        console.log(`✅ User ${participant.user_id} (${participant.display_name}) a gagné le tournoi ${id}`);
+      } else {
+        // Sinon : incrémenter seulement tournaments_played
+        userRepo.incrementTournamentsPlayed(participant.user_id);
+        console.log(`📊 User ${participant.user_id} (${participant.display_name}) a participé au tournoi ${id}`);
+      }
+    });
+  }
 
   return reply.code(200).send({
     success: true,

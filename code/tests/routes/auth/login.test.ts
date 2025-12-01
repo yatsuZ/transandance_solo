@@ -3,7 +3,6 @@ import { FastifyInstance } from 'fastify';
 interface LoginResponse {
   success: boolean;
   data?: {
-    token: string;
     user: {
       id: number;
       username: string;
@@ -11,11 +10,12 @@ interface LoginResponse {
     };
   };
   error?: string;
+  message?: string;
 }
 
 export function testLogin(getApp: () => FastifyInstance) {
   describe('POST /api/auth/login - Login', () => {
-    it('devrait se connecter avec succès et retourner un JWT', async () => {
+    it('devrait se connecter avec succès et retourner un cookie', async () => {
       const app = getApp();
 
       // Créer un compte d'abord
@@ -42,10 +42,15 @@ export function testLogin(getApp: () => FastifyInstance) {
       expect(response.statusCode).toBe(200);
       const data: LoginResponse = JSON.parse(response.body);
       expect(data.success).toBe(true);
-      expect(data.data!.token).toBeDefined();
-      expect(typeof data.data!.token).toBe('string');
       expect(data.data!.user.username).toBe('loginuser');
       expect(data.data!.user.email).toBe('login@example.com');
+
+      // Vérifier que le cookie auth_token est présent
+      const cookies = response.cookies;
+      const authCookie = cookies.find(c => c.name === 'auth_token');
+      expect(authCookie).toBeDefined();
+      expect(authCookie!.value).toBeDefined();
+      expect(authCookie!.httpOnly).toBe(true);
     });
 
     it('devrait rejeter avec un mauvais mot de passe', async () => {

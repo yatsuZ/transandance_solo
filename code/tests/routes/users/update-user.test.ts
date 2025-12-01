@@ -4,7 +4,6 @@ import { getAuthToken } from '../../helpers/auth.js';
 interface SignupResponse {
   success: boolean;
   data?: {
-    token: string;
     user: {
       id: number;
       username: string;
@@ -40,17 +39,23 @@ export function testUpdateUser(getApp: () => FastifyInstance) {
 
       const created: SignupResponse = JSON.parse(createResponse.body);
       const userId = created.data!.user.id;
-      const token = created.data!.token;
+
+      // Récupérer le cookie
+      const authCookie = createResponse.cookies.find(c => c.name === 'auth_token');
+
+      // Utiliser FormData car la route attend multipart/form-data
+      const FormData = require('form-data');
+      const form = new FormData();
+      form.append('username', 'updated');
 
       const response = await app.inject({
         method: 'PUT',
         url: `/api/users/${userId}`,
-        headers: {
-          authorization: `Bearer ${token}`
+        cookies: {
+          auth_token: authCookie!.value
         },
-        payload: {
-          username: 'updated'
-        }
+        headers: form.getHeaders(),
+        payload: form
       });
 
       expect(response.statusCode).toBe(200);
@@ -61,17 +66,21 @@ export function testUpdateUser(getApp: () => FastifyInstance) {
 
     it('devrait retourner 404 si l\'utilisateur n\'existe pas', async () => {
       const app = getApp();
-      const token = await getAuthToken(app);
+      const authCookie = await getAuthToken(app);
+
+      // Utiliser FormData car la route attend multipart/form-data
+      const FormData = require('form-data');
+      const form = new FormData();
+      form.append('username', 'test');
 
       const response = await app.inject({
         method: 'PUT',
         url: '/api/users/99999',
-        headers: {
-          authorization: `Bearer ${token}`
+        cookies: {
+          auth_token: authCookie
         },
-        payload: {
-          username: 'test'
-        }
+        headers: form.getHeaders(),
+        payload: form
       });
 
       expect(response.statusCode).toBe(404);

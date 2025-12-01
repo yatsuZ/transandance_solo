@@ -19,21 +19,22 @@ export function update_description_de_page(dom: DOMElements): void {
     pagesAccueil: 'Que veux-tu faire ?',
     pagesProfile: 'Voici la page profile DE :',
     pagesGame_Config: 'Choisis ton jeu et prépare ton duel !',
-    pagesMatch: 'Le premier à 5 points gagne la partie',// faire gaffe c'est en fonctione de game config modifier sa
+    pagesMatch: 'Le premier à 3 points gagne la partie',// faire gaffe c'est en fonctione de game config modifier sa
     pagesBegin_Tournament: 'Prépare ton tournoi et affronte les meilleurs !',
     pagesResult: 'Voici les résultats de ton dernier match !',
     pagesParametre: 'Parametre du site',
     pagesTree_Tournament: 'Voici le tournoi, préparez-vous et que le meilleur joueur gagne !'
   };
 
-  // Textes selon les boutons
+  // Textes selon les boutons et icônes
   const buttonTexts: Record<string, string> = {
     go_to_Game_Config: '🎮 Configure ton match et choisis tes adversaires !',
     go_to_match: '🎮 Jouer à Pong contre une IA — le premier à 3 gagne !',
     go_to_Begin_Tournament: '🏆 Configure ton tournoi, que le meilleur gagne !',
     go_to_accueil: `🏠 Retour à l'accueil`,
     interupteur_du_son: `Mettre le son ou l'arrêter.`,
-    parametre: `Accéder aux paramètres.`
+    parametre: `Accéder aux paramètres.`,
+    edit_profile: `✏️ Modifier ton profil (photo, pseudo, email, mot de passe).`
   };
 
   subtitles.forEach((subtitleEl) => {
@@ -46,6 +47,7 @@ export function update_description_de_page(dom: DOMElements): void {
     /**
      * Récupère le texte par défaut de la page
      * Pour la page erreur, on récupère le code depuis le titre et on calcule le message
+     * Pour la page profile, on récupère le username dynamiquement
      */
     function getDefaultText(): string {
       // Pour la page erreur, récupérer le code depuis .error-code
@@ -71,6 +73,13 @@ export function update_description_de_page(dom: DOMElements): void {
 
         // Retourner le message correspondant
         return getMessageOfErrorCode(errorCode, url);
+      }
+
+      // Pour la page profile, récupérer le username dynamiquement
+      if (pageId === 'pagesProfile') {
+        const usernameEl = dom.profile.username;
+        const username = usernameEl.textContent || '';
+        return username ? `Voici la page profile de : ${username}` : 'Voici la page profile';
       }
 
       // Pour les autres pages, utiliser le texte statique
@@ -105,8 +114,8 @@ export function update_description_de_page(dom: DOMElements): void {
       });
 
       button.addEventListener('mouseleave', () => {
-        // Pour la page erreur, recalculer le texte par défaut
-        if (pageId === 'pagesError') {
+        // Pour la page erreur et profile, recalculer le texte par défaut (dynamique)
+        if (pageId === 'pagesError' || pageId === 'pagesProfile') {
           defaultText = getDefaultText();
         }
         changeSubtitle(defaultText);

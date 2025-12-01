@@ -71,13 +71,13 @@ Il servira de base pour créer les tickets.
 | Module | Type | Points | Statut |
 |--------|------|--------|--------|
 | Framework Backend (Fastify) | Majeur | 1 | ✅ Fait |
-| Database (SQLite) | Mineur | 0.5 | ❌ |
-| Standard User Management | Majeur | 1 | ❌ |
-| Remote Authentication (Google OAuth) | Majeur | 1 | ❌ |
-| 2FA & JWT | Majeur | 1 | ❌ |
-| AI Opponent | Majeur | 1 | ❌ |
-| Additional Game (Tron) | Majeur | 1 | ❌ |
-| Game Customization | Mineur | 0.5 | ❌ |
+| Database (SQLite) | Mineur | 0.5 | ✅ Fait |
+| Standard User Management | Majeur | 1 | 🚧 75% (amis + profils restants) |
+| Remote Authentication (Google OAuth) | Majeur | 1 | ❌ Pas commencé |
+| 2FA & JWT | Majeur | 1 | 🟡 50% (JWT fait, 2FA à faire) |
+| AI Opponent | Majeur | 1 | 🟡 50% (à améliorer) |
+| Additional Game (Tron) | Majeur | 1 | ❌ Pas commencé |
+| Game Customization | Mineur | 0.5 | ❌ Pas commencé |
 
 **Total : 6 majeurs + 2 mineurs = 7 points**
 
@@ -95,7 +95,7 @@ Il servira de base pour créer les tickets.
 
 ---
 
-### 🟡 MODULE 2 : Database (Mineur - 0.5 pt)
+### 🟢 MODULE 2 : Database (Mineur - 0.5 pt) ✅ FAIT
 
 **Technologie choisie :** SQLite3 (better-sqlite3)
 
@@ -113,25 +113,29 @@ Il servira de base pour créer les tickets.
 
 ---
 
-### 🟡 MODULE 3 : Standard User Management (Majeur - 1 pt)
+### 🟡 MODULE 3 : Standard User Management (Majeur - 1 pt) 🚧 EN COURS (~75%)
 
 **Critères de validation :**
 - [X] Inscription utilisateur (username, email, password hashé)
-- [ ] Connexion / Déconnexion
-- [ ] Profil utilisateur avec avatar (upload ou URL)
-- [ ] Historique des matchs joués
-- [ ] Statistiques (victoires/défaites, ratio)
-- [ ] Liste d'amis (ajouter/supprimer)
-- [ ] Voir les profils des autres utilisateurs
+- [X] Connexion / Déconnexion (JWT avec HTTP-only cookies)
+- [X] Profil utilisateur avec avatar (upload ou URL)
+- [X] Historique des matchs joués
+- [X] Statistiques (victoires/défaites, ratio, tournois)
+- [X] **Page Leaderboard / Classement des joueurs** ✅ NOUVEAU
+- [ ] Liste d'amis (ajouter/supprimer) ❌ À FAIRE PROCHAINEMENT
+- [ ] Voir les profils des autres utilisateurs ❌ À FAIRE PROCHAINEMENT
 
 **Tâches :**
 - [X] API routes : POST /register, POST /login, GET /logout
-- [ ] API routes : GET /profile/:id, PUT /profile, DELETE /profile
-- [ ] API routes : GET /friends, POST /friends/:id, DELETE /friends/:id
-- [ ] API routes : GET /matches/history
+- [X] API routes : GET /profile, PUT /profile (avec upload avatar)
+- [X] API routes : GET /matches/history/:userId
+- [X] API routes : GET /users/leaderboard/top
+- [ ] API routes : GET /friends, POST /friends/:id, DELETE /friends/:id ❌ À FAIRE
+- [ ] API routes : GET /profile/:id (voir profil d'un autre user) ❌ À FAIRE
 - [X] Hash des mots de passe (bcrypt)
-- [ ] Upload d'avatar (ou URL externe)
-- [ ] Pages frontend : inscription, connexion, profil, amis
+- [X] Upload d'avatar (multer + stockage local)
+- [X] Pages frontend : inscription, connexion, profil, leaderboard
+- [ ] Pages frontend : liste d'amis, profil des autres users ❌ À FAIRE
 
 ---
 

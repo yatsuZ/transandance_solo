@@ -1,315 +1,233 @@
-# 📋 TODO - Authentification & Navigation
+# 📋 TODO - Prochaine Session
 
-**Date de création : 28 Novembre 2025**
-
----
-
-## ✅ TERMINÉ (Ce qui a été fait jusqu'à maintenant)
-
-### 1. Authentification Backend
-- ✅ Routes API `/api/auth/login` et `/api/auth/signup` fonctionnelles
-- ✅ JWT avec bcrypt pour hashing des mots de passe
-- ✅ Middleware d'authentification pour routes protégées
-- ✅ Tests (30 tests passent)
-
-### 2. Pages Frontend Auth
-- ✅ Pages login et signup créées avec style arcade
-- ✅ `AuthManager` pour gérer JWT (localStorage)
-- ✅ `AuthEvents` pour gérer les formulaires
-- ✅ Navigation protégée par JWT
-
-### 3. Navigation - `initSPA()` refactorisée
-- ✅ Ordre de vérification clair : Racine → 404 → Auth → Contexte
-- ✅ Fonctions helpers créées (`resolveTargetPage`, `handleRootPath`, etc.)
-- ✅ Gestion des icônes simplifiée (`updateIconsForPage`)
-- ✅ Routes centralisées dans `route-config.ts`
+**Date de mise à jour : 1er Décembre 2025**
 
 ---
 
-## 🚧 EN COURS / À FAIRE
+## ✅ CE QUI A ÉTÉ FAIT AUJOURD'HUI
 
-### **PRIORITÉ 1 : Formulaires Auth - Validation & Problème uppercase/lowercase**
-**Urgence : HAUTE - À faire demain matin**
+### 1. Page Leaderboard / Classement ✅
+- ✅ Création de la page leaderboard complète (HTML/CSS)
+- ✅ Design avec podium pour le top 3 (or/argent/bronze + couronne)
+- ✅ Tableau pour les rangs 4-20
+- ✅ `LeaderboardManager` créé pour gérer l'affichage
+- ✅ Intégration dans le système DOMElements
+- ✅ Route protégée `/leaderboard` ajoutée
+- ✅ Navigation intégrée (initSPA, boutons, popstate)
+- ✅ API backend déjà existante : GET `/api/users/leaderboard/top`
+- ✅ Fix du problème de double wrapper (leaderboard.ejs)
 
-#### Problèmes à résoudre :
-- [X] **Résoudre le problème de différenciation majuscules/minuscules dans les inputs**
-  - Actuellement : `InputColorizer` créé (`/srcs/static/js/utils/input-colorizer.ts`)
-  - Problème : Police "Press Start 2P" ne différencie pas visuellement maj/min
-  - Solution testée : Colorisation des caractères (maj en jaune, min en orange)
-  - **À VALIDER : Est-ce que cette solution fonctionne correctement ?**
-
-- [X] **Vérifier que les formulaires envoient correctement à la BDD**
-  - Fichier concerné : `/srcs/static/js/auth/auth-events.ts`
-  - Méthodes : `handleLogin()` et `handleSignup()`
-  - Test à faire : Login → Vérifier JWT stocké → Vérifier redirection accueil
-
-- [X] **Tester le flow complet login/signup end-to-end**
-  - Signup → Créer utilisateur en BDD
-  - Login → Récupérer JWT
-  - Navigation protégée → Vérifier accès pages
-
-
-netoyer les fichier css et factoriser netoyer navigatio
----
-
-### **PRIORITÉ 2 : Refactoriser & Simplifier `navigation-events.ts`**
-**Urgence : HAUTE - Fichier fait 444 lignes (trop long)**
-
-#### Tâches :
-- [X] **Factoriser `handleButtonClick()`**
-  - Créer des helpers pour vérifications d'auth
-  - Simplifier la logique (s'inspirer de `initSPA()`)
-  - Réutiliser les fonctions de `route-config.ts`
-
-- [X] **Factoriser `handlePopStateNavigation()`**
-  - Appliquer la même logique que `initSPA()`
-  - Ordre : Racine → 404 → Auth → Contexte
-  - Réutiliser les helpers (`resolveTargetPage`, `updateIconsForPage`, etc.)
+**Status : Leaderboard COMPLET, prêt à tester après rebuild**
 
 ---
 
-### **PRIORITÉ 3 : Routes API - Enregistrer Matches & Tournois en BDD**
-**Urgence : MOYENNE - Après avoir fini navigation**
+## 🎯 PROCHAINE SESSION - MODULE 3 : Standard User Management
 
-#### Tâches :
-- [X] **Créer modèles BDD pour Match et Tournament**
-  - Définir schéma Prisma ou TypeORM
-  - Relations avec User (many-to-many pour Tournament, many-to-one pour Match)
+### Objectif : Compléter le Module 3 à 100%
 
-- [X] **Routes API pour :**
-  - `POST /api/matches` - Enregistrer un match
-  - `POST /api/tournaments` - Enregistrer un tournoi
-  - `GET /api/users/:id/matches` - Récupérer historique matches
-  - `GET /api/users/:id/tournaments` - Récupérer historique tournois
+**Ce qui reste à faire :**
 
-- [X] **Lier les matches/tournois à l'utilisateur connecté (via JWT)**
-  - Utiliser le middleware d'auth
-  - Récupérer `userId` depuis le token JWT
+### **PRIORITÉ 1 : Système d'amis (Friends System)**
 
-- [X] **Tests pour ces routes**
-  - Créer tests dans `/tests/`
-  - Tester CRUD complet
+#### Backend :
+- [ ] **Créer table `friends` en BDD**
+  ```sql
+  CREATE TABLE friends (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    friend_id INTEGER NOT NULL,
+    status TEXT CHECK(status IN ('pending', 'accepted', 'rejected')) DEFAULT 'pending',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (friend_id) REFERENCES users(id),
+    UNIQUE(user_id, friend_id)
+  );
+  ```
 
-**Fichiers à créer/modifier :**
+- [ ] **Routes API à créer :**
+  - `GET /api/friends` - Liste des amis (status = 'accepted')
+  - `GET /api/friends/requests` - Demandes d'amis en attente
+  - `POST /api/friends/:userId` - Envoyer demande d'ami
+  - `PUT /api/friends/:friendId/accept` - Accepter demande
+  - `PUT /api/friends/:friendId/reject` - Refuser demande
+  - `DELETE /api/friends/:friendId` - Supprimer ami
+
+- [ ] **Repository à créer :**
+  - `/srcs/backend/database/repositories/friend.repository.ts`
+  - Méthodes : `getFriends()`, `sendRequest()`, `acceptRequest()`, `rejectRequest()`, `removeFriend()`
+
+#### Frontend :
+- [ ] **Créer la page Friends**
+  - Fichier : `/srcs/static/views/pages/friends.ejs`
+  - Style : `/srcs/static/css/pages/friends.css`
+
+- [ ] **Sections de la page :**
+  - Liste des amis (avec avatars, usernames)
+  - Demandes d'amis en attente (avec boutons Accepter/Refuser)
+  - Bouton "Supprimer" pour chaque ami
+  - Barre de recherche pour trouver des utilisateurs
+
+- [ ] **Manager à créer :**
+  - `/srcs/static/js/friends/friends-manager.ts`
+  - Méthodes : `loadFriends()`, `sendRequest()`, `acceptRequest()`, `rejectRequest()`, `removeFriend()`
+
+- [ ] **Intégration :**
+  - Ajouter "friends" dans DOMElements
+  - Ajouter route `/friends` dans navigation helpers
+  - Ajouter bouton dans accueil.ejs
+
+---
+
+### **PRIORITÉ 2 : Voir les profils des autres utilisateurs**
+
+#### Backend :
+- [ ] **Route API à créer :**
+  - `GET /api/users/:userId/profile` - Récupérer profil public d'un user
+  - Retourne : username, avatar, stats (wins, losses, ratio, tournois), historique matchs
+
+#### Frontend :
+- [ ] **Modifier ProfilePageManager**
+  - Ajouter méthode `loadUserProfile(userId: number)` (en plus de `loadProfile()` qui charge le profil courant)
+  - Différencier profil courant vs profil d'un autre user
+  - Cacher le bouton "Éditer" si ce n'est pas notre profil
+
+- [ ] **Navigation :**
+  - Permettre de cliquer sur un username (dans leaderboard, friends, match history) pour ouvrir son profil
+  - Route dynamique : `/profile/:userId`
+  - Si `:userId` = user connecté → afficher profil éditable
+  - Sinon → afficher profil en lecture seule
+
+- [ ] **Ajouter bouton "Ajouter en ami"**
+  - Dans le profil d'un autre user
+  - Envoyer demande d'ami via l'API
+
+---
+
+## 📊 ÉTAT DES MODULES
+
+### Module 3 : Standard User Management
+**Progression actuelle : 75% → Objectif : 100%**
+
+✅ **Déjà fait :**
+- Inscription / Connexion / Déconnexion
+- Profil utilisateur avec avatar (upload)
+- Historique des matchs
+- Statistiques (wins, losses, ratio, tournois)
+- Page Leaderboard (classement des joueurs)
+
+❌ **Reste à faire :**
+- Système d'amis (add/remove/requests)
+- Voir profils des autres utilisateurs
+
+---
+
+## 🗂️ FICHIERS À CRÉER / MODIFIER
+
+### Backend
 ```
-/srcs/backend/routes/matches.ts (à créer)
-/srcs/backend/routes/tournaments.ts (à créer)
-/srcs/backend/models/match.model.ts (à créer)
-/srcs/backend/models/tournament.model.ts (à créer)
-/tests/api/matches.test.ts (à créer)
-/tests/api/tournaments.test.ts (à créer)
-```
+📁 /srcs/backend/database/
+  └── migrations/
+      └── 006_create_friends_table.sql (à créer)
+  └── repositories/
+      └── friend.repository.ts (à créer)
 
----
-
-### **PRIORITÉ 4 : Page Profile**
-● Parfait ! Donc il te reste :
-
-  Page Paramètre
-
-  - ✅ Bouton "Déconnexion" pour logout (supprimer JWT + redirect login)
-  - ❓ Choix input clavier (gauche/droite) → À décider si ici ou dans Profile
-
-  Page Profile
-
-  - ✅ Afficher les infos du user (username, email)
-  - ✅ Historique des matchs (liste des matchs joués)
-  - ✅ Statistiques (victoires, défaites, ratio, etc.)
-  - ❓ Choix input clavier → À décider si ici ou dans Paramètre
-
-  Mon avis :
-  - Paramètre = Réglages techniques (déconnexion, contrôles clavier, son, etc.)
-  - Profile = Stats et historique (infos perso, matchs, perf)
-
-  Donc je mettrais les contrôles clavier dans Paramètre avec la déconnexion.
-
-  Tu veux que je commence par quoi ?
-  1. Bouton déconnexion dans Paramètre ?
-  2. Page Profile avec stats + historique ?
-  3. Les deux en même temps ?
-
-#### Tâches :
-- [ ] **Créer la page profile**
-  - Fichier : `/srcs/static/views/pages/profile.ejs`
-  - Style arcade cohérent avec le reste
-
-- [ ] **Afficher les données utilisateur**
-  - Username
-  - Email (si existant)
-  - Date de création du compte
-  - Stats globales (nombre de matches, victoires, défaites)
-
-- [ ] **Afficher historique des matches**
-  - Liste des derniers matches
-  - Affichage : Adversaire, Score, Date
-
-- [ ] **Afficher historique des tournois**
-  - Liste des tournois participés
-  - Affichage : Nom du tournoi, Position finale, Date
-
-**Fichiers à créer/modifier :**
-```
-/srcs/static/views/pages/profile.ejs (à créer)
-/srcs/static/css/pages/profile.css (à créer)
-/srcs/static/js/core/dom-elements.d.ts (ajouter page profile)
-/srcs/static/js/core/dom-manager.ts (ajouter page profile)
-/srcs/static/views/main.ejs (ajouter include profile)
+📁 /srcs/backend/routes/
+  └── friends/
+      └── index.ts (à créer)
+      └── handlers/
+          └── get-friends.ts (à créer)
+          └── send-request.ts (à créer)
+          └── accept-request.ts (à créer)
+          └── reject-request.ts (à créer)
+          └── remove-friend.ts (à créer)
+  └── users/
+      └── handlers/
+          └── get-user-profile.ts (à créer)
 ```
 
----
-
-### **PRIORITÉ 5 : Bouton Déconnexion**
-**Urgence : BASSE - En dernier**
-
-#### Tâches :
-- [ ] **Ajouter bouton "Déconnexion" dans la page Paramètres**
-  - Fichier : `/srcs/static/views/pages/parametre.ejs`
-  - Style : Bouton rouge arcade "LOGOUT"
-
-- [ ] **Implémenter `AuthManager.logout()`**
-  - Clear localStorage (JWT + user data)
-  - Rediriger vers login
-
-- [ ] **Tester le flow complet**
-  - Login → Utilisation → Logout → Vérifier redirection login
-  - Vérifier que le JWT est bien supprimé
-  - Vérifier qu'on ne peut plus accéder aux pages protégées
-
-**Fichiers à modifier :**
+### Frontend
 ```
-/srcs/static/js/auth/auth-manager.ts (ajouter méthode logout)
-/srcs/static/views/pages/parametre.ejs (ajouter bouton)
-/srcs/static/css/pages/parametre.css (style bouton logout)
+📁 /srcs/static/views/pages/
+  └── friends.ejs (à créer)
+
+📁 /srcs/static/css/pages/
+  └── friends.css (à créer)
+
+📁 /srcs/static/js/
+  └── friends/
+      └── friends-manager.ts (à créer)
+  └── profile/
+      └── profile-page-manager.ts (à modifier - ajouter loadUserProfile)
+  └── core/
+      └── dom-elements.d.ts (à modifier - ajouter friends)
+      └── dom-manager.ts (à modifier - ajouter friends)
+  └── navigation/
+      └── helpers.ts (à modifier - ajouter route /friends et /profile/:userId)
 ```
 
 ---
 
-## 🎯 ESTIMATION DE PROGRESSION
+## 🎮 APRÈS MODULE 3 - SUITE DU PROJET
 
-### Où tu en es :
-- **Backend Auth** : ✅ 100% terminé
-- **Frontend Auth (base)** : ✅ 90% terminé (reste validation formulaires)
-- **Navigation SPA** : ✅ 70% terminé (`initSPA` fait, reste `handleButtonClick` & `handlePopStateNavigation`)
-- **Match/Tournament en BDD** : ❌ 0% (pas commencé)
-- **Page Profile** : ❌ 0% (pas commencé)
-- **Bouton Déconnexion** : ❌ 0% (pas commencé)
+Une fois le Module 3 terminé (100%), tu auras complété :
+- ✅ Module 1 : Framework Backend (Fastify) - 1 pt
+- ✅ Module 2 : Database (SQLite) - 0.5 pt
+- ✅ Module 3 : Standard User Management - 1 pt
+- 🟡 Module 5 : JWT (partie faite) - 0.5 pt sur 1 pt
 
-### **Progression globale du projet : ~60-65%**
+**Points acquis : 3 / 7 points (~43%)**
 
-### Ce qui reste à faire (estimation temps) :
-1. **Formulaires + Navigation (1-2 jours)** ← En cours
-2. **Routes API Match/Tournament (1-2 jours)**
-3. **Page Profile (1 jour)**
-4. **Bouton Déconnexion (0.5 jour)**
-
-### **Temps restant estimé : 3-5 jours de dev**
+**Modules restants à faire :**
+1. Module 4 : Google OAuth - 1 pt
+2. Module 5 : 2FA (partie restante) - 0.5 pt
+3. Module 6 : AI Opponent (amélioration) - 1 pt
+4. Module 7 : Tron - 1 pt
+5. Module 8 : Game Customization - 0.5 pt
 
 ---
 
-## 🎮 Tu es proche de la fin ?
+## 💡 CONSEILS POUR LA PROCHAINE SESSION
 
-**OUI, tu es proche !** Voici pourquoi :
+### Ordre recommandé :
+1. **Commencer par le backend Friends** (BDD + Routes API + Tests)
+2. **Puis le frontend Friends** (Page + Manager + Navigation)
+3. **Ensuite View User Profile** (Backend + Frontend)
+4. **Tester le flow complet** (Amis + Profils)
 
-✅ **Les gros morceaux sont faits :**
-- Architecture backend (Fastify + JWT + BDD)
-- Game logic (Pong, Match, Tournament)
-- SPA avec routing
-- Auth (backend + frontend base)
+### Estimation temps :
+- **Système d'amis (backend + frontend)** : 4-6h
+- **Voir profils utilisateurs** : 2-3h
+- **Tests & debug** : 1-2h
 
-🚧 **Ce qui reste est "facile" comparé à ce qui est fait :**
-- Formulaires → Juste de la validation
-- Routes API → Pattern déjà établi (tu l'as fait 30 fois)
-- Page Profile → Juste de l'affichage
-- Déconnexion → 10 lignes de code
-
-💪 **Tu es à ~65% du projet complet**
-
-Une fois ces 5 tâches terminées, tu auras un projet **full-stack complet** avec :
-- ✅ Authentification JWT
-- ✅ Jeu Pong multijoueur local
-- ✅ Système de tournoi
-- ✅ Historique en BDD
-- ✅ Profil utilisateur
-- ✅ SPA moderne
-
-**Courage, tu y es presque ! 🚀**
+**Total estimé : 1 journée de dev**
 
 ---
 
-## 📝 PLAN D'ACTION POUR DEMAIN MATIN
+## 📚 RAPPEL : LEADERBOARD À TESTER
 
-**Ordre recommandé :**
+N'oublie pas de tester le leaderboard avant de commencer le reste :
+```bash
+npm run build
+npm run start
+```
 
-1. **☕ Premier café - Tester les formulaires (30 min)**
-   - Lancer le projet : `npm run dev`
-   - Tester signup → Vérifier BDD
-   - Tester login → Vérifier JWT
-   - Tester navigation protégée
-
-2. **🔧 Résoudre problème uppercase/lowercase (1h)**
-   - Option 1 : Garder `InputColorizer` et valider que ça fonctionne
-   - Option 2 : Changer de police pour une qui différencie maj/min
-   - Décision à prendre ensemble
-
-3. **🚀 Refactoriser `handleButtonClick()` (2h)**
-   - S'inspirer de `initSPA()`
-   - Créer helpers
-   - Tester navigation par boutons
-
-4. **🚀 Refactoriser `handlePopStateNavigation()` (2h)**
-   - Même logique que `initSPA()`
-   - Tester back/forward du navigateur
-
-5. **✅ Validation complète navigation (30 min)**
-   - Tester tous les cas : login, logout, pages protégées, 404, 403
-   - Vérifier que tout fonctionne
-
-**Objectif de la journée : Finir PRIORITÉ 1 et PRIORITÉ 2**
+Puis vérifier :
+- ✅ Page accessible via bouton "🏅 Classement"
+- ✅ Top 3 affiché dans le podium
+- ✅ Rangs 4-20 affichés dans le tableau
+- ✅ Données correctes (wins, losses, ratio, tournois)
 
 ---
 
-## 📚 FICHIERS IMPORTANTS À CONNAÎTRE
+## 🚀 Bonne prochaine session !
 
-### Navigation
-```
-/srcs/static/js/events/navigation-events.ts     ← Gère toute la navigation
-/srcs/static/js/navigation/route-config.ts      ← Configuration des routes
-/srcs/static/js/navigation/page-manager.ts      ← Gestion affichage pages
-/srcs/static/js/utils/url-helpers.ts            ← Helpers URL
-```
+**Objectif : Compléter Module 3 à 100%**
 
-### Auth
-```
-/srcs/static/js/auth/auth-manager.ts            ← Gestion JWT localStorage
-/srcs/static/js/auth/auth-events.ts             ← Events formulaires login/signup
-/srcs/backend/core/auth/auth.service.ts         ← Service auth backend
-/srcs/backend/core/auth/auth.middleware.ts      ← Middleware JWT
-```
+Une fois terminé, tu auras un système de gestion utilisateur complet avec :
+- ✅ Auth (signup/login/logout)
+- ✅ Profils (stats + historique)
+- ✅ Classement (leaderboard)
+- ✅ Amis (add/remove/requests)
+- ✅ Profils publics (voir autres users)
 
-### Pages
-```
-/srcs/static/views/pages/login.ejs              ← Page login
-/srcs/static/views/pages/signup.ejs             ← Page signup
-/srcs/static/views/pages/accueil.ejs            ← Page accueil
-/srcs/static/views/pages/parametre.ejs          ← Page paramètres
-/srcs/static/views/main.ejs                     ← Template principal
-```
-
-### Styles
-```
-/srcs/static/css/pages/auth.css                 ← Styles login/signup
-/srcs/static/css/style.css                      ← Styles globaux
-```
-
----
-
-## 💤 Bonne nuit !
-
-On se voit demain pour finir la navigation et les formulaires ! 🚀
-
-**N'oublie pas :**
-- Tester les formulaires en premier
-- Décider pour le problème uppercase/lowercase
-- Refactoriser `handleButtonClick` et `handlePopStateNavigation`
-
-Repose-toi bien ! 😴
+Courage ! 💪

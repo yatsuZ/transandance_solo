@@ -1,6 +1,7 @@
 // === GESTION DE LA MUSIQUE ===
 
 import { DOMElements } from "../core/dom-elements";
+import { uiPreferences } from "../core/ui-preferences.js";
 
 export function initMusicSystem(all_DO: DOMElements) {
   const music = all_DO.media.music.main_theme;
@@ -14,7 +15,7 @@ export function initMusicSystem(all_DO: DOMElements) {
   startBtn.addEventListener('click', () => handleStartMusic(music, iconSoundImg, popup));
   dontStartBtn.addEventListener('click', () => handleDontStartMusic(iconSoundImg, popup));
 
-  const isPlaying = localStorage.getItem('isPlaying') === 'true';
+  const isPlaying = uiPreferences.isMusicPlaying();
   updateMusicUI(iconSoundImg, isPlaying ? 'on' : 'off');
 
   if (isPlaying) {music.play().catch(err => console.error("Erreur au démarrage musique :", err));}
@@ -54,7 +55,7 @@ function toggleMusic(music: HTMLAudioElement, iconSoundImg : HTMLImageElement) {
 // === UTILITAIRE COMMUN ===
 function updateMusicUI(icon: HTMLImageElement, state: 'on' | 'off') {
   icon.src = `./static/util/icon/son_${state}.png`;
-  localStorage.setItem('isPlaying', state === 'on' ? 'true' : 'false');
+  uiPreferences.setMusicPlaying(state === 'on');
 }
 
 // === GESTION DU VOLUME ===
@@ -64,12 +65,11 @@ export function initVolumeControl(all_DO: DOMElements) {
   const volumeValue = all_DO.parametreElement.volumeValue;
 
   // Récupérer le volume sauvegardé (par défaut 50%)
-  const savedVolume = localStorage.getItem('musicVolume') || '50';
-  const volumePercent = parseInt(savedVolume, 10);
+  const volumePercent = uiPreferences.getMusicVolume();
 
   // Appliquer le volume initial
   music.volume = volumePercent / 100;
-  volumeSlider.value = savedVolume;
+  volumeSlider.value = volumePercent.toString();
   volumeValue.textContent = `${volumePercent}%`;
 
   // Événement sur le slider
@@ -77,7 +77,7 @@ export function initVolumeControl(all_DO: DOMElements) {
     const value = parseInt(volumeSlider.value, 10);
     music.volume = value / 100;
     volumeValue.textContent = `${value}%`;
-    localStorage.setItem('musicVolume', value.toString());
+    uiPreferences.setMusicVolume(value);
   });
 }
 

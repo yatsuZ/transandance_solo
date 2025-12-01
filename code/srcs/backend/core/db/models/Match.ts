@@ -5,9 +5,11 @@ export interface Match {
   id: number;
   player_left_id: number | null;
   player_left_name: string;
+  is_bot_left: number;  // 0 ou 1 (SQLite boolean)
   score_left: number;
   player_right_id: number | null;
   player_right_name: string;
+  is_bot_right: number; // 0 ou 1 (SQLite boolean)
   score_right: number;
   winner_id: number | null;
   winner_name: string | null;
@@ -20,8 +22,10 @@ export interface Match {
 export interface CreateMatchData {
   player_left_id: number | null;
   player_left_name: string;
+  is_bot_left?: number;  // 0 ou 1 (défaut 0)
   player_right_id: number | null;
   player_right_name: string;
+  is_bot_right?: number; // 0 ou 1 (défaut 0)
   game_type?: string;
 }
 
@@ -46,18 +50,20 @@ export class MatchRepository {
   createMatch(data: CreateMatchData): Match {
     const stmt = this.db.prepare(`
       INSERT INTO matches (
-        player_left_id, player_left_name,
-        player_right_id, player_right_name,
+        player_left_id, player_left_name, is_bot_left,
+        player_right_id, player_right_name, is_bot_right,
         game_type
       )
-      VALUES (?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `);
 
     const result: Database.RunResult  = stmt.run(
       data.player_left_id,
       data.player_left_name,
+      data.is_bot_left ?? 0,
       data.player_right_id,
       data.player_right_name,
+      data.is_bot_right ?? 0,
       data.game_type || 'pong'
     );
 

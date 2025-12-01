@@ -16,6 +16,10 @@
   <%- include('pages/profile', { title: "profile" }) %>
 </div>
 
+<div id="pagesLeaderboard" class="page hidden">
+  <%- include('pages/leaderboard', { title: "Leaderboard" }) %>
+</div>
+
 <div id="pagesGame_Config" class="page hidden">
   <%- include('pages/gameConfig', { title: "Config your game" }) %>
 </div>
@@ -45,5 +49,9 @@
 </div>
 
 <%- include('./partials/icon_bar') %>
+
+<!-- Components -->
+<%- include('components/controls-modal') %>
+<%- include('components/profile-edit-modal') %>
 
 <%- include('partials/footer') %>

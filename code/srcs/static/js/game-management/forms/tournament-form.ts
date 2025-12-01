@@ -4,27 +4,19 @@
  * - Le joueur peut quand même changer son pseudo (display_name)
  */
 
+import { DOMElements } from '../../core/dom-elements.js';
+
 export class TournamentForm {
   private isMeCheckboxes: HTMLInputElement[];
   private humanCheckboxes: HTMLInputElement[];
 
-  constructor() {
-    this.isMeCheckboxes = [
-      document.getElementById('isMe1') as HTMLInputElement,
-      document.getElementById('isMe2') as HTMLInputElement,
-      document.getElementById('isMe3') as HTMLInputElement,
-      document.getElementById('isMe4') as HTMLInputElement,
-    ];
-
-    this.humanCheckboxes = [
-      document.getElementById('human1') as HTMLInputElement,
-      document.getElementById('human2') as HTMLInputElement,
-      document.getElementById('human3') as HTMLInputElement,
-      document.getElementById('human4') as HTMLInputElement,
-    ];
+  constructor(dO: DOMElements) {
+    // ✅ TOUT depuis DOMElements maintenant !
+    this.humanCheckboxes = Array.from(dO.tournamentElement.formIsHumanCheckbox);
+    this.isMeCheckboxes = Array.from(dO.tournamentElement.formIsMeCheckbox);
 
     if (this.isMeCheckboxes.some(cb => !cb) || this.humanCheckboxes.some(cb => !cb)) {
-      console.log('⚠️ Éléments du formulaire tournament introuvables');
+      console.error('⚠️ Éléments du formulaire tournament introuvables');
       return;
     }
 

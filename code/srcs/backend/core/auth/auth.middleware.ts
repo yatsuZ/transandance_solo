@@ -13,30 +13,21 @@ declare module 'fastify' {
 /**
  * Middleware d'authentification JWT
  * Vérifie que le token JWT est présent et valide
+ * Lit le token depuis le cookie 'auth_token' (HTTP-only)
  *
  * @returns 401 - Si le token est manquant, invalide ou expiré
  */
 export async function authMiddleware(request: FastifyRequest, reply: FastifyReply): Promise<ErrorResponse | void> {
   try {
-    // Récupérer le token depuis le header Authorization
-    const authHeader = request.headers.authorization;
-    if (!authHeader) {
+    // Récupérer le token depuis le cookie
+    const token = request.cookies.auth_token;
+
+    if (!token) {
       return reply.code(StatusCodes.UNAUTHORIZED).send({
         success: false,
-        error: 'No authorization header provided'
+        error: 'No authentication token found'
       });
     }
-
-    // Format attendu: "Bearer <token>"
-    const parts = authHeader.split(' ');
-    if (parts.length !== 2 || parts[0] !== 'Bearer') {
-      return reply.code(StatusCodes.UNAUTHORIZED).send({
-        success: false,
-        error: 'Invalid authorization header format. Expected: Bearer <token>'
-      });
-    }
-
-    const token = parts[1];
 
     // Vérifier et décoder le token
     const payload = AuthService.verifyToken(token);

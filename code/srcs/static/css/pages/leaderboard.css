@@ -1,0 +1,244 @@
+/* ==================== LEADERBOARD PAGE ==================== */
+
+.leaderboard-container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.leaderboard-title {
+  text-align: center;
+  font-size: 3rem;
+  color: var(--color-primary, #00ff00);
+  margin-bottom: 3rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2rem;
+  text-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+}
+
+/* ==================== PODIUM (TOP 3) ==================== */
+
+.podium {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 2rem;
+  margin-bottom: 4rem;
+  min-height: 300px;
+}
+
+.podium-place {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.5);
+  border: 2px solid var(--color-primary, #00ff00);
+  border-radius: 15px;
+  padding: 1.5rem;
+  position: relative;
+  transition: transform 0.3s ease;
+  min-width: 180px;
+}
+
+.podium-place:hover {
+  transform: translateY(-10px);
+}
+
+.podium-place.first {
+  height: 280px;
+  border-color: gold;
+  box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+}
+
+.podium-place.second {
+  height: 240px;
+  border-color: silver;
+  box-shadow: 0 0 20px rgba(192, 192, 192, 0.6);
+}
+
+.podium-place.third {
+  height: 200px;
+  border-color: #cd7f32;
+  box-shadow: 0 0 20px rgba(205, 127, 50, 0.6);
+}
+
+.podium-avatar {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin-bottom: 1rem;
+}
+
+.podium-place.first .podium-avatar {
+  width: 100px;
+  height: 100px;
+}
+
+.podium-avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 3px solid var(--color-primary, #00ff00);
+  object-fit: cover;
+}
+
+.crown {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2rem;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-10px); }
+}
+
+.podium-rank {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--color-primary, #00ff00);
+  margin-bottom: 0.5rem;
+}
+
+.podium-place.first .podium-rank {
+  color: gold;
+}
+
+.podium-place.second .podium-rank {
+  color: silver;
+}
+
+.podium-place.third .podium-rank {
+  color: #cd7f32;
+}
+
+.podium-username {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 0.5rem;
+  text-align: center;
+  word-break: break-word;
+}
+
+.podium-stats {
+  font-size: 0.9rem;
+  color: #aaa;
+  text-align: center;
+}
+
+.podium-stats span {
+  color: var(--color-primary, #00ff00);
+  font-weight: bold;
+}
+
+/* ==================== TABLE (4-10) ==================== */
+
+.leaderboard-table-container {
+  background: rgba(0, 0, 0, 0.5);
+  border: 2px solid var(--color-primary, #00ff00);
+  border-radius: 15px;
+  padding: 1.5rem;
+  overflow-x: auto;
+}
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.leaderboard-table thead {
+  background: rgba(0, 255, 0, 0.1);
+}
+
+.leaderboard-table th {
+  padding: 1rem;
+  text-align: left;
+  color: var(--color-primary, #00ff00);
+  font-weight: bold;
+  text-transform: uppercase;
+  border-bottom: 2px solid var(--color-primary, #00ff00);
+}
+
+.leaderboard-table td {
+  padding: 1rem;
+  color: #fff;
+  border-bottom: 1px solid rgba(0, 255, 0, 0.2);
+}
+
+.leaderboard-table tbody tr {
+  transition: background 0.3s ease;
+}
+
+.leaderboard-table tbody tr:hover {
+  background: rgba(0, 255, 0, 0.1);
+}
+
+.leaderboard-table .rank-cell {
+  font-weight: bold;
+  color: var(--color-primary, #00ff00);
+  font-size: 1.2rem;
+}
+
+.leaderboard-table .player-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.leaderboard-table .player-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid var(--color-primary, #00ff00);
+  object-fit: cover;
+}
+
+.leaderboard-table .player-username {
+  font-weight: bold;
+}
+
+.leaderboard-table .stat-positive {
+  color: #00ff00;
+}
+
+.leaderboard-table .stat-negative {
+  color: #ff4444;
+}
+
+/* ==================== EMPTY STATE ==================== */
+
+.leaderboard-empty {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #aaa;
+  font-size: 1.2rem;
+}
+
+/* ==================== RESPONSIVE ==================== */
+
+@media (max-width: 768px) {
+  .podium {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .podium-place {
+    width: 80%;
+    height: auto !important;
+  }
+
+  .leaderboard-table {
+    font-size: 0.85rem;
+  }
+
+  .leaderboard-table th,
+  .leaderboard-table td {
+    padding: 0.6rem;
+  }
+}

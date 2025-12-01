@@ -106,12 +106,20 @@ export async function signup(request: FastifyRequest<{ Body: SignupBody }>, repl
     username: user.username
   });
 
-  // Retourner le token et l'utilisateur (sans password_hash)
+  // Envoyer le JWT dans un cookie HTTP-only sécurisé
+  reply.setCookie('auth_token', token, {
+    httpOnly: true,  // Pas accessible via JavaScript (sécurité XSS)
+    secure: process.env.NODE_ENV === 'production', // HTTPS uniquement en production
+    sameSite: 'strict', // Protection CSRF
+    path: '/',
+    maxAge: 24 * 60 * 60 // 24 heures en secondes
+  });
+
+  // Retourner l'utilisateur (sans password_hash ni token dans le JSON)
   const { password_hash: _, ...safeUser } = user;
   return reply.code(StatusCodes.CREATED).send({
     success: true,
     data: {
-      token,
       user: safeUser
     },
     message: 'Account created successfully'

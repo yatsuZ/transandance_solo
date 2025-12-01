@@ -60,8 +60,8 @@ export function testDeleteTournament(getApp: () => FastifyInstance) {
       const response = await app.inject({
         method: 'DELETE',
         url: `/api/tournaments/${tournamentId}`,
-        headers: {
-          authorization: `Bearer ${token}`
+        cookies: {
+          auth_token: token
         }
       });
 
@@ -84,8 +84,8 @@ export function testDeleteTournament(getApp: () => FastifyInstance) {
       const response = await app.inject({
         method: 'DELETE',
         url: '/api/tournaments/99999',
-        headers: {
-          authorization: `Bearer ${token}`
+        cookies: {
+          auth_token: token
         }
       });
 
