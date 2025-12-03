@@ -1,162 +1,47 @@
 /**
  * Type représentant tous les éléments DOM de l'application
+ * Les types sont organisés par module dans ./dom/types.d.ts
+ */
+
+import type {
+  AuthElements,
+  ProfileElements,
+  LeaderboardElements,
+  GameElements,
+  UIElements
+} from './dom/types.js';
+
+/**
+ * Interface principale regroupant tous les éléments DOM
  */
 export type DOMElements = {
-  pages: Record<
-    "login" | "signup" | "accueil" | "profile" | "leaderboard" | "gameConfig" | "match" | "result" | "beginTournament" | "treeTournament" | "parametre" | "error",
-    HTMLElement
-  >;
+  // Auth section
+  auth: AuthElements;
 
-  errorElement: {
-    codeEl: HTMLElement;
-    descriptionEl: HTMLElement;
-    imageEl: HTMLImageElement;
-  };
+  // Profile section
+  profile: ProfileElements;
 
-  resultElement: Record<
-    "winnerNameEl" | "player1NameEl" | "player1ScoreEl" | "player2NameEl" | "player2ScoreEl",
-    HTMLElement
-  >;
+  // Leaderboard section
+  leaderboard: LeaderboardElements;
 
-  parametreElement: {
-    volumeSlider: HTMLInputElement;
-    volumeValue: HTMLElement;
-    logoutBtn: HTMLButtonElement;
-  };
+  // Game section (canvas, match, config, results, tournament)
+  canva: GameElements['canva'];
+  ctx: GameElements['ctx'];
+  matchElement: GameElements['matchElement'];
+  gameConfigElement: GameElements['gameConfigElement'];
+  resultElement: GameElements['resultElement'];
+  tournamentElement: GameElements['tournamentElement'];
 
-  matchElement: Record<
-    "playerCardL" | "playerCardR",
-    HTMLElement
-  >;
-
-  gameConfigElement: {
-    formulaireGameConfig: HTMLFormElement;
-    inputFormulaireGameConfig_PlayerLeft: HTMLInputElement;
-    inputFormulaireGameConfig_PlayerRight: HTMLInputElement;
-    checkboxGameConfig_PlayerLeftIsMe: HTMLInputElement;
-    checkboxGameConfig_PlayerRightIsMe: HTMLInputElement;
-    radioGameConfig_PlayerLeftTypeHuman: HTMLInputElement;
-    radioGameConfig_PlayerLeftTypeIA: HTMLInputElement;
-    radioGameConfig_PlayerRightTypeHuman: HTMLInputElement;
-    radioGameConfig_PlayerRightTypeIA: HTMLInputElement;
-  };
-
-  tournamentElement: {
-    texteWhovsWho: HTMLElement;
-    spanWhoVsWho: HTMLElement;
-    divOfButton: HTMLElement;
-    form: HTMLFormElement;
-    formPseudoTournament: [HTMLInputElement, HTMLInputElement, HTMLInputElement, HTMLInputElement];
-    formIsHumanCheckbox: [HTMLInputElement, HTMLInputElement, HTMLInputElement, HTMLInputElement];
-    formIsMeCheckbox: [HTMLInputElement, HTMLInputElement, HTMLInputElement, HTMLInputElement];
-  };
-
-  buttons: {
-    nextResult: HTMLButtonElement;
-    giveUpTournament: HTMLButtonElement;
-    startMatchTournament: HTMLButtonElement;
-    startMusic: HTMLButtonElement;
-    dontStartMusic: HTMLButtonElement;
-    linkButtons: HTMLButtonElement[];
-    allButtons: HTMLButtonElement[]; // Tous les boutons du document
-  };
-
-  icons: {
-    edit: HTMLElement;
-    profile: HTMLElement;
-    accueil: HTMLElement;
-    settings: HTMLElement;
-    sound: HTMLElement;
-  };
-
-  media: {
-    music: {
-      main_theme: HTMLAudioElement;
-    };
-    image: {
-      sound: HTMLImageElement;
-    };
-  };
-
-  popup: {
-    startOrNotMusic: HTMLElement;
-  };
-
-  controlsModal: {
-    modal: HTMLElement;
-    inputLeftUp: HTMLInputElement;
-    inputLeftDown: HTMLInputElement;
-    inputRightUp: HTMLInputElement;
-    inputRightDown: HTMLInputElement;
-    btnSave: HTMLButtonElement;
-    btnCancel: HTMLButtonElement;
-  };
-
-  profileEditModal: {
-    modal: HTMLElement;
-    form: HTMLFormElement;
-    photoPreview: HTMLImageElement;
-    photoInput: HTMLInputElement;
-    inputUsername: HTMLInputElement;
-    inputEmail: HTMLInputElement;
-    inputPassword: HTMLInputElement;
-    inputPasswordConfirm: HTMLInputElement;
-    message: HTMLElement;
-    btnSave: HTMLButtonElement;
-    btnCancel: HTMLButtonElement;
-  };
-
-  profile: {
-    username: HTMLElement;
-    pdp : HTMLImageElement;
-    statMatch: HTMLElement;
-    statWin: HTMLElement;
-    statLose: HTMLElement;
-    statTournamentsPlayed: HTMLElement;
-    statTournamentsWon: HTMLElement;
-    statGoal: HTMLElement;
-    statGoalAgainst: HTMLElement;
-
-    ControlLU: HTMLElement;
-    ControlLD: HTMLElement;
-    ControlRU: HTMLElement;
-    ControlRD: HTMLElement;
-
-    btnEditControl: HTMLElement;
-
-    historyList: HTMLElement;
-    historyEmpty: HTMLElement;
-  }
-
-  leaderboard: {
-    avatar1: HTMLImageElement;
-    avatar2: HTMLImageElement;
-    avatar3: HTMLImageElement;
-    username1: HTMLElement;
-    username2: HTMLElement;
-    username3: HTMLElement;
-    matches1: HTMLElement;
-    matches2: HTMLElement;
-    matches3: HTMLElement;
-    goals1: HTMLElement;
-    goals2: HTMLElement;
-    goals3: HTMLElement;
-    goalsConceded1: HTMLElement;
-    goalsConceded2: HTMLElement;
-    goalsConceded3: HTMLElement;
-    friends1: HTMLElement;
-    friends2: HTMLElement;
-    friends3: HTMLElement;
-    tableBody: HTMLElement;
-    empty: HTMLElement;
-    noMatchSection: HTMLElement;
-    podiumSection: HTMLElement;
-    rankingSection: HTMLElement;
-  }
-
-  subtitles: HTMLElement[];
-
-  canva: HTMLCanvasElement;
-  ctx: CanvasRenderingContext2D;
-  style: HTMLLinkElement;
+  // UI section (pages, buttons, icons, media, modals, style)
+  pages: UIElements['pages'];
+  errorElement: UIElements['errorElement'];
+  parametreElement: UIElements['parametreElement'];
+  buttons: UIElements['buttons'];
+  icons: UIElements['icons'];
+  media: UIElements['media'];
+  popup: UIElements['popup'];
+  controlsModal: UIElements['controlsModal'];
+  profileEditModal: UIElements['profileEditModal'];
+  subtitles: UIElements['subtitles'];
+  style: UIElements['style'];
 };

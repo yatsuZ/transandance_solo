@@ -104,6 +104,9 @@ export async function login(request: FastifyRequest<{ Body: LoginBody }>, reply:
     maxAge: 24 * 60 * 60 // 24 heures en secondes
   });
 
+  // Marquer l'utilisateur comme en ligne
+  userRepo.setOnline(user.id, true);
+
   // Retourner les données utilisateur (sans le token dans le JSON)
   return reply.code(StatusCodes.OK).send({
     success: true,

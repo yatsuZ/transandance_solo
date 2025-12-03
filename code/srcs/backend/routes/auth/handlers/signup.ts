@@ -115,6 +115,9 @@ export async function signup(request: FastifyRequest<{ Body: SignupBody }>, repl
     maxAge: 24 * 60 * 60 // 24 heures en secondes
   });
 
+  // Marquer l'utilisateur comme en ligne
+  userRepo.setOnline(user.id, true);
+
   // Retourner l'utilisateur (sans password_hash ni token dans le JSON)
   const { password_hash: _, ...safeUser } = user;
   return reply.code(StatusCodes.CREATED).send({

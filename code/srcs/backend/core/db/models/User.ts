@@ -16,6 +16,8 @@ export interface User {
   tournaments_won: number;
   friend_count: number;
   controls: string; // JSON string: {"leftUp":"w","leftDown":"s","rightUp":"ArrowUp","rightDown":"ArrowDown"}
+  is_online: number; // 1 = online, 0 = offline
+  last_seen: string; // ISO timestamp of last activity
   created_at: string;
   updated_at: string;
 }
@@ -339,6 +341,32 @@ export class UserRepository {
   isInTopN(userId: number, n: number = 3): boolean {
     const rank = this.getUserRank(userId);
     return rank > 0 && rank <= n;
+  }
+
+  /**
+   * Met à jour le statut en ligne d'un utilisateur
+   */
+  setOnline(userId: number, isOnline: boolean): void {
+    const stmt = this.db.prepare(`
+      UPDATE users
+      SET is_online = ?,
+          last_seen = datetime('now', 'localtime'),
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `);
+    stmt.run(isOnline ? 1 : 0, userId);
+  }
+
+  /**
+   * Met à jour le timestamp de dernière activité
+   */
+  updateLastSeen(userId: number): void {
+    const stmt = this.db.prepare(`
+      UPDATE users
+      SET last_seen = datetime('now', 'localtime')
+      WHERE id = ?
+    `);
+    stmt.run(userId);
   }
 }
 

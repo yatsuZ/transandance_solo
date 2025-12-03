@@ -20,15 +20,13 @@ export class AuthEvents {
    */
   private attachEventListeners(): void {
     // Formulaire login
-    const loginForm = document.getElementById('login-form') as HTMLFormElement | null;
-    if (loginForm) {
-      loginForm.addEventListener('submit', (e) => this.handleLogin(e));
+    if (this._DO.auth.loginForm) {
+      this._DO.auth.loginForm.addEventListener('submit', (e) => this.handleLogin(e));
     }
 
     // Formulaire signup
-    const signupForm = document.getElementById('signup-form') as HTMLFormElement | null;
-    if (signupForm) {
-      signupForm.addEventListener('submit', (e) => this.handleSignup(e));
+    if (this._DO.auth.signupForm) {
+      this._DO.auth.signupForm.addEventListener('submit', (e) => this.handleSignup(e));
     }
   }
 
@@ -41,8 +39,8 @@ export class AuthEvents {
     const form = e.target as HTMLFormElement;
     const usernameInput = form.querySelector('#login-username') as HTMLInputElement;
     const passwordInput = form.querySelector('#login-password') as HTMLInputElement;
-    const errorDiv = document.getElementById('login-error') as HTMLElement;
-    const submitBtn = document.getElementById('login-btn') as HTMLButtonElement;
+    const errorDiv = this._DO.auth.loginError;
+    const submitBtn = this._DO.auth.loginBtn;
 
     // Récupérer les valeurs AVANT de reset
     const username = usernameInput.value.trim();
@@ -98,8 +96,8 @@ export class AuthEvents {
     const emailInput = form.querySelector('#signup-email') as HTMLInputElement;
     const passwordInput = form.querySelector('#signup-password') as HTMLInputElement;
     const confirmInput = form.querySelector('#signup-password-confirm') as HTMLInputElement;
-    const errorDiv = document.getElementById('signup-error') as HTMLElement;
-    const submitBtn = document.getElementById('signup-btn') as HTMLButtonElement;
+    const errorDiv = this._DO.auth.signupError;
+    const submitBtn = this._DO.auth.signupBtn;
 
     // Récupérer les valeurs AVANT de reset
     const username = usernameInput.value.trim();

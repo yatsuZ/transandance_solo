@@ -451,9 +451,9 @@ export class ProfilePageManager {
       const result = await response.json();
       const friends = result.data || [];
 
-      const friendsCount = document.getElementById('friends-count');
-      const friendsList = document.getElementById('friends-list');
-      const friendsEmpty = document.getElementById('friends-empty');
+      const friendsCount = this._DO.profile.friendsCount;
+      const friendsList = this._DO.profile.friendsList;
+      const friendsEmpty = this._DO.profile.friendsEmpty;
 
       if (!friendsList || !friendsEmpty || !friendsCount) return;
 
@@ -493,9 +493,24 @@ export class ProfilePageManager {
       ? ((friend.wins / friend.total_matches) * 100).toFixed(0)
       : '0';
 
+    // Si is_online === 1 → EN LIGNE (peu importe last_seen)
+    // Si is_online === 0 → HORS LIGNE (afficher "Vu il y a X")
+    const isOnline = friend.is_online === 1;
+    const lastSeenTime = friend.last_seen_timestamp || Date.now();
+
+    // Générer le HTML du status
+    const statusDot = isOnline
+      ? '<span class="status-online">🟢</span>'
+      : '<span class="status-offline">⚪</span>';
+
+    const statusText = isOnline
+      ? 'En ligne'
+      : `Vu ${this.formatTimeSince(lastSeenTime)}`;
+
     card.innerHTML = `
       <img class="friend-avatar" src="${friend.avatar_url || '/static/util/icon/profile.png'}" alt="${friend.username}">
-      <div class="friend-username">${friend.username}</div>
+      <div class="friend-username">${friend.username} ${statusDot}</div>
+      <div class="friend-status-text">${statusText}</div>
       <div class="friend-stats">
         <div class="friend-stat">
           <span class="friend-stat-label">Matchs</span>
@@ -532,6 +547,19 @@ export class ProfilePageManager {
   }
 
   /**
+   * Formate le temps écoulé depuis un timestamp
+   */
+  private formatTimeSince(timestamp: number): string {
+    const minutes = Math.floor((Date.now() - timestamp) / 60000);
+    if (minutes < 1) return 'à l\'instant';
+    if (minutes < 60) return `il y a ${minutes} min`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `il y a ${hours}h`;
+    const days = Math.floor(hours / 24);
+    return `il y a ${days}j`;
+  }
+
+  /**
    * Retire un ami
    */
   private async removeFriend(friendId: number, friendUsername: string, card: HTMLElement): Promise<void> {
@@ -551,16 +579,16 @@ export class ProfilePageManager {
         card.remove();
 
         // Mettre à jour le compteur
-        const friendsCount = document.getElementById('friends-count');
+        const friendsCount = this._DO.profile.friendsCount;
         if (friendsCount) {
           const currentCount = parseInt(friendsCount.textContent || '0');
           friendsCount.textContent = (currentCount - 1).toString();
         }
 
         // Vérifier s'il reste des amis
-        const friendsList = document.getElementById('friends-list');
+        const friendsList = this._DO.profile.friendsList;
         if (friendsList && friendsList.children.length === 0) {
-          const friendsEmpty = document.getElementById('friends-empty');
+          const friendsEmpty = this._DO.profile.friendsEmpty;
           if (friendsEmpty) friendsEmpty.style.display = 'block';
         }
 

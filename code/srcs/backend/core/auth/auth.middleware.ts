@@ -2,6 +2,7 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 import { StatusCodes } from 'http-status-codes';
 import { AuthService, JWTPayload } from './auth.service.js';
 import { ErrorResponse } from '../../routes/types.js';
+import { userRepo } from '../db/models/User.js';
 
 // Étendre le type FastifyRequest pour inclure user
 declare module 'fastify' {
@@ -14,6 +15,7 @@ declare module 'fastify' {
  * Middleware d'authentification JWT
  * Vérifie que le token JWT est présent et valide
  * Lit le token depuis le cookie 'auth_token' (HTTP-only)
+ * Met à jour automatiquement le last_seen de l'utilisateur
  *
  * @returns 401 - Si le token est manquant, invalide ou expiré
  */
@@ -34,6 +36,9 @@ export async function authMiddleware(request: FastifyRequest, reply: FastifyRepl
 
     // Ajouter les données de l'utilisateur à la requête
     request.user = payload;
+
+    // Mettre à jour le last_seen automatiquement à chaque requête authentifiée
+    userRepo.updateLastSeen(payload.userId);
 
   } catch (error) {
     return reply.code(StatusCodes.UNAUTHORIZED).send({

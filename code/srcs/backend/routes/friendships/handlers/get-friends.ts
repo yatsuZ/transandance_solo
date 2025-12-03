@@ -29,6 +29,8 @@ export const getFriendsSchema = {
               total_goals_scored: { type: 'number' },
               total_goals_conceded: { type: 'number' },
               friend_count: { type: 'number' },
+              is_online: { type: 'number' },
+              last_seen: { type: 'string' },
               friendship_date: { type: 'string' }
             }
           }
@@ -53,7 +55,17 @@ export async function getFriends(
   const userId = request.user!.userId;
 
   const friends = friendshipRepo.getFriendsWithDetails(userId);
-  const safeFriends = friends.map(({ password_hash, email, controls, ...friend }) => friend);
+  const safeFriends = friends.map(({ password_hash, email, controls, ...friend }) => {
+    // Convertir last_seen en timestamp Unix (millisecondes) pour éviter les problèmes de timezone
+    const lastSeenTimestamp = friend.last_seen
+      ? new Date(friend.last_seen.replace(' ', 'T')).getTime()
+      : Date.now();
+
+    return {
+      ...friend,
+      last_seen_timestamp: lastSeenTimestamp
+    };
+  });
 
   return reply.code(StatusCodes.OK).send({
     success: true,

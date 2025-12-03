@@ -34,6 +34,16 @@ CREATE TABLE IF NOT EXISTS users (
   tournaments_played INTEGER DEFAULT 0,
   tournaments_won INTEGER DEFAULT 0,
 
+  -- Social (ajouté par migration 002)
+  friend_count INTEGER DEFAULT 0,
+
+  -- Customization (ajouté par migration 001)
+  controls TEXT DEFAULT '{"leftUp":"w","leftDown":"s","rightUp":"ArrowUp","rightDown":"ArrowDown"}',
+
+  -- Online Status (ajouté par migration 003)
+  is_online INTEGER DEFAULT 0,
+  last_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
+
   -- Meta
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -157,3 +167,37 @@ CREATE TABLE IF NOT EXISTS tournament_matches (
   FOREIGN KEY (match_id) REFERENCES matches(id) ON DELETE CASCADE
   -- Si match supprimé → lien supprimé
 );
+
+-- ========================================
+-- TABLE: friendships (ajouté par migration 002)
+-- ========================================
+-- Stocke les relations d'amitié entre utilisateurs
+-- Note: La relation est bidirectionnelle (si A est ami avec B, B est ami avec A)
+-- Mais on stocke une seule ligne avec user_id < friend_id pour éviter les doublons
+
+CREATE TABLE IF NOT EXISTS friendships (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+  -- Les deux utilisateurs (toujours user_id < friend_id)
+  user_id INTEGER NOT NULL,
+  friend_id INTEGER NOT NULL,
+
+  -- Meta
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+  -- Contraintes
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (friend_id) REFERENCES users(id) ON DELETE CASCADE,
+
+  -- Empêcher les doublons
+  UNIQUE(user_id, friend_id),
+
+  -- S'assurer que user_id < friend_id
+  CHECK(user_id < friend_id)
+);
+
+-- ========================================
+-- INDEX: Optimiser les recherches d'amis
+-- ========================================
+CREATE INDEX IF NOT EXISTS idx_friendships_user_id ON friendships(user_id);
+CREATE INDEX IF NOT EXISTS idx_friendships_friend_id ON friendships(friend_id);
