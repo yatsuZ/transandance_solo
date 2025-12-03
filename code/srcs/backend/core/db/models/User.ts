@@ -14,6 +14,7 @@ export interface User {
   total_matches: number;
   tournaments_played: number;
   tournaments_won: number;
+  friend_count: number;
   controls: string; // JSON string: {"leftUp":"w","leftDown":"s","rightUp":"ArrowUp","rightDown":"ArrowDown"}
   created_at: string;
   updated_at: string;
@@ -254,14 +255,90 @@ export class UserRepository {
 
   /**
    * Récupère le classement des joueurs (leaderboard)
+   * Algorithme de scoring arcade :
+   * - Expérience (matchs joués) : poids important
+   * - Ratio buts (goals_scored / goals_conceded) : qualité du joueur
+   * - Taux de victoire (wins / total_matches) : performance
+   * - Nombre d'amis : validation sociale
    */
   getLeaderboard(limit: number = 10): User[] {
     const stmt = this.db.prepare(`
-      SELECT * FROM users
-      ORDER BY wins DESC, total_goals_scored DESC
+      SELECT *,
+        (
+          -- Expérience (matchs joués) * 100 points
+          (total_matches * 100) +
+
+          -- Ratio buts * 50 points (éviter division par 0)
+          (CASE
+            WHEN total_goals_conceded > 0 THEN (total_goals_scored * 1.0 / total_goals_conceded) * 50
+            ELSE total_goals_scored * 50
+          END) +
+
+          -- Taux de victoire * 200 points
+          (CASE
+            WHEN total_matches > 0 THEN (wins * 1.0 / total_matches) * 200
+            ELSE 0
+          END) +
+
+          -- Nombre d'amis * 20 points (bonus social)
+          (friend_count * 20)
+
+        ) as arcade_score
+      FROM users
+      WHERE total_matches > 0
+      ORDER BY arcade_score DESC, total_matches DESC, total_goals_scored DESC
       LIMIT ?
     `);
     return stmt.all(limit) as User[];
+  }
+
+  /**
+   * Récupère le rang d'un utilisateur dans le classement
+   * Retourne 0 si l'utilisateur n'a pas de matchs joués
+   */
+  getUserRank(userId: number): number {
+    const stmt = this.db.prepare(`
+      SELECT COUNT(*) + 1 as rank
+      FROM users
+      WHERE total_matches > 0 AND (
+        -- Calcul du même score arcade
+        (total_matches * 100) +
+        (CASE
+          WHEN total_goals_conceded > 0 THEN (total_goals_scored * 1.0 / total_goals_conceded) * 50
+          ELSE total_goals_scored * 50
+        END) +
+        (CASE
+          WHEN total_matches > 0 THEN (wins * 1.0 / total_matches) * 200
+          ELSE 0
+        END) +
+        (friend_count * 20)
+      ) > (
+        SELECT
+          (total_matches * 100) +
+          (CASE
+            WHEN total_goals_conceded > 0 THEN (total_goals_scored * 1.0 / total_goals_conceded) * 50
+            ELSE total_goals_scored * 50
+          END) +
+          (CASE
+            WHEN total_matches > 0 THEN (wins * 1.0 / total_matches) * 200
+            ELSE 0
+          END) +
+          (friend_count * 20)
+        FROM users
+        WHERE id = ?
+      )
+    `);
+
+    const result = stmt.get(userId) as { rank: number } | undefined;
+    return result?.rank || 0;
+  }
+
+  /**
+   * Vérifie si un utilisateur est dans le Top N
+   */
+  isInTopN(userId: number, n: number = 3): boolean {
+    const rank = this.getUserRank(userId);
+    return rank > 0 && rank <= n;
   }
 }
 

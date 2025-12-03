@@ -1,64 +1,135 @@
-<div class="leaderboard-container">
-  <h1 class="leaderboard-title">🏆 CLASSEMENT</h1>
+<div class="container" style="border-bottom: var(--border-medium) solid var(--color-primary);">
+  <header class="arcade-header">
+    <h1 class="arcade-title"><%= title %></h1>
+    <p class="arcade-subtitle">Les meilleurs joueurs de la galaxie arcade</p>
+  </header>
 
-  <!-- Podium (Top 3) -->
-  <div class="podium">
-    <div class="podium-place second">
-      <div class="podium-avatar">
-        <img id="leaderboard-avatar-2" src="/static/util/icon/profile.png" alt="2ème">
+  <div class="leaderboard-wrapper">
+    <!-- Message quand aucun match n'a été joué -->
+    <section class="no-match-section" id="no-match-section" style="display: none;">
+      <div class="no-match-alert">
+        <p class="no-match-title">⚠️ AUCUN MATCH ENREGISTRÉ ⚠️</p>
+        <p class="no-match-subtitle">Jouez des matchs pour créer le classement arcade !</p>
+        <p class="no-match-hint">🎮 Rendez-vous dans "Jouer" pour lancer votre premier match</p>
       </div>
-      <div class="podium-rank">2</div>
-      <div class="podium-username" id="leaderboard-username-2">---</div>
-      <div class="podium-stats">
-        <span id="leaderboard-wins-2">0</span> victoires
-      </div>
-    </div>
+    </section>
 
-    <div class="podium-place first">
-      <div class="podium-avatar">
-        <img id="leaderboard-avatar-1" src="/static/util/icon/profile.png" alt="1er">
-        <div class="crown">👑</div>
-      </div>
-      <div class="podium-rank">1</div>
-      <div class="podium-username" id="leaderboard-username-1">---</div>
-      <div class="podium-stats">
-        <span id="leaderboard-wins-1">0</span> victoires
-      </div>
-    </div>
+    <!-- Podium TOP 3 (style arcade années 80) -->
+    <section class="podium-section">
+      <h2 class="section-title">🏆 PANTHÉON DES CHAMPIONS 🏆</h2>
+      <p class="podium-info">Seuls les joueurs du TOP 3 peuvent être ajoutés en ami</p>
 
-    <div class="podium-place third">
-      <div class="podium-avatar">
-        <img id="leaderboard-avatar-3" src="/static/util/icon/profile.png" alt="3ème">
-      </div>
-      <div class="podium-rank">3</div>
-      <div class="podium-username" id="leaderboard-username-3">---</div>
-      <div class="podium-stats">
-        <span id="leaderboard-wins-3">0</span> victoires
-      </div>
-    </div>
-  </div>
+      <div class="podium">
+        <!-- 2ème place -->
+        <div class="podium-place second" id="podium-2">
+          <div class="podium-rank-badge">2</div>
+          <div class="podium-avatar">
+            <img id="leaderboard-avatar-2" src="/static/util/icon/profile.png" alt="2ème place">
+          </div>
+          <div class="podium-username" id="leaderboard-username-2">---</div>
+          <div class="podium-stats">
+            <div class="stat-line">
+              <span class="stat-icon">🎮</span>
+              <span id="leaderboard-matches-2">0</span> matchs
+            </div>
+            <div class="stat-line">
+              <span class="stat-icon">⚽</span>
+              +<span id="leaderboard-goals-2">0</span> / -<span id="leaderboard-goals-conceded-2">0</span>
+            </div>
+            <div class="stat-line">
+              <span class="stat-icon">👥</span>
+              <span id="leaderboard-friends-2">0</span> amis
+            </div>
+          </div>
+          <button class="btn-add-friend" data-user-id="" data-rank="2">
+            + AJOUTER AMI
+          </button>
+        </div>
 
-  <!-- Tableau classement (4-20) -->
-  <div class="leaderboard-table-container">
-    <table class="leaderboard-table">
-      <thead>
-        <tr>
-          <th>Rang</th>
-          <th>Joueur</th>
-          <th>Victoires</th>
-          <th>Défaites</th>
-          <th>Ratio</th>
-          <th>Tournois</th>
-        </tr>
-      </thead>
-      <tbody id="leaderboard-table-body">
-        <!-- Rempli dynamiquement par JS -->
-      </tbody>
-    </table>
-  </div>
+        <!-- 1ère place -->
+        <div class="podium-place first" id="podium-1">
+          <div class="crown">👑</div>
+          <div class="podium-rank-badge champion">1</div>
+          <div class="podium-avatar champion-avatar">
+            <img id="leaderboard-avatar-1" src="/static/util/icon/profile.png" alt="Champion">
+          </div>
+          <div class="podium-username champion-name" id="leaderboard-username-1">---</div>
+          <div class="podium-stats">
+            <div class="stat-line">
+              <span class="stat-icon">🎮</span>
+              <span id="leaderboard-matches-1">0</span> matchs
+            </div>
+            <div class="stat-line">
+              <span class="stat-icon">⚽</span>
+              +<span id="leaderboard-goals-1">0</span> / -<span id="leaderboard-goals-conceded-1">0</span>
+            </div>
+            <div class="stat-line">
+              <span class="stat-icon">👥</span>
+              <span id="leaderboard-friends-1">0</span> amis
+            </div>
+          </div>
+          <button class="btn-add-friend champion-btn" data-user-id="" data-rank="1">
+            + AJOUTER AMI
+          </button>
+        </div>
 
-  <!-- Message si vide -->
-  <div id="leaderboard-empty" class="leaderboard-empty" style="display: none;">
-    <p>Aucun joueur enregistré pour le moment.</p>
+        <!-- 3ème place -->
+        <div class="podium-place third" id="podium-3">
+          <div class="podium-rank-badge">3</div>
+          <div class="podium-avatar">
+            <img id="leaderboard-avatar-3" src="/static/util/icon/profile.png" alt="3ème place">
+          </div>
+          <div class="podium-username" id="leaderboard-username-3">---</div>
+          <div class="podium-stats">
+            <div class="stat-line">
+              <span class="stat-icon">🎮</span>
+              <span id="leaderboard-matches-3">0</span> matchs
+            </div>
+            <div class="stat-line">
+              <span class="stat-icon">⚽</span>
+              +<span id="leaderboard-goals-3">0</span> / -<span id="leaderboard-goals-conceded-3">0</span>
+            </div>
+            <div class="stat-line">
+              <span class="stat-icon">👥</span>
+              <span id="leaderboard-friends-3">0</span> amis
+            </div>
+          </div>
+          <button class="btn-add-friend" data-user-id="" data-rank="3">
+            + AJOUTER AMI
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Classement complet (4-20) -->
+    <section class="ranking-section">
+      <h2 class="section-title">📊 CLASSEMENT ARCADE 📊</h2>
+      <p class="ranking-info">Basé sur : Expérience • Ratio buts • Taux victoire • Validation sociale</p>
+
+      <div class="ranking-table-wrapper">
+        <table class="ranking-table">
+          <thead>
+            <tr>
+              <th class="col-rank">#</th>
+              <th class="col-player">Joueur</th>
+              <th class="col-stat">Matchs</th>
+              <th class="col-stat">Victoires</th>
+              <th class="col-stat">Buts +/-</th>
+              <th class="col-stat">Taux victoire</th>
+              <th class="col-stat">Amis</th>
+            </tr>
+          </thead>
+          <tbody id="ranking-table-body">
+            <!-- Rempli dynamiquement par JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Message si vide -->
+      <div id="ranking-empty" class="ranking-empty" style="display: none;">
+        <p>Aucun joueur classé pour le moment.</p>
+        <p class="subtitle">Jouez des matchs pour apparaître dans le classement !</p>
+      </div>
+    </section>
   </div>
 </div>

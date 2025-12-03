@@ -25,14 +25,15 @@ export const PAGE_IDS = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * Routes interdites en accès direct (nécessitent un contexte actif : match/tournoi)
+ * Routes interdites en accès direct (nécessitent un contexte actif : match/tournoi/profil ami)
  */
 export const CONTEXT_RESTRICTED_ROUTES = [
   '/match',
   '/match/result',
   '/tournament/match',
   '/tournament/result',
-  '/tournament/tree_tournament'
+  '/tournament/tree_tournament',
+  '/profile/ami'
 ] as const;
 
 /**

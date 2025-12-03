@@ -1,15 +1,13 @@
 /**
- * Schémas JSON réutilisables pour Fastify
- * Source de vérité basée sur les interfaces dans core/db/models/
- * Les propriétés sont RÉUTILISÉES partout pour éviter la duplication
+ * Schémas JSON réutilisables pour la validation Fastify
+ * Source de vérité unique basée sur les interfaces dans core/db/models/
+ * Les propriétés sont réutilisées partout pour éviter la duplication
  */
 
-import { CpuInfo } from "os";
-
-// ==================== Schémas d'entités complètes (définir en premier pour réutiliser) ====================
+// ==================== Schémas d'entités complètes (définis en premier pour réutilisation) ====================
 
 /**
- * Schéma User complet (basé sur interface User dans models/User.ts)
+ * Schéma User complet basé sur l'interface User dans models/User.ts
  */
 export const userSchema = {
   type: 'object' as const,
@@ -25,6 +23,7 @@ export const userSchema = {
     total_matches: { type: 'integer', description: 'Nombre total de matchs joués' },
     tournaments_played: { type: 'integer', description: 'Nombre de tournois joués' },
     tournaments_won: { type: 'integer', description: 'Nombre de tournois gagnés' },
+    friend_count: { type: 'integer', description: 'Nombre d\'amis' },
     controls: { type: 'string', description: 'Contrôles clavier (JSON)' },
     created_at: { type: 'string', format: 'date-time', description: 'Date de création du compte' },
     updated_at: { type: 'string', format: 'date-time', description: 'Date de dernière modification' }
@@ -32,7 +31,7 @@ export const userSchema = {
 } as const;
 
 /**
- * Schéma Match complet (basé sur interface Match dans models/Match.ts)
+ * Schéma Match complet basé sur l'interface Match dans models/Match.ts
  */
 export const matchSchema = {
   type: 'object' as const,
@@ -55,7 +54,7 @@ export const matchSchema = {
   }
 } as const;
 
-// ==================== Schémas de paramètres communs (RÉUTILISENT les propriétés ci-dessus) ====================
+// ==================== Schémas de paramètres communs (réutilisent les propriétés ci-dessus) ====================
 
 export const idParamSchema = {
   type: 'object' as const,

@@ -28,6 +28,26 @@
   --color-accent-red: #ff4d4d;
   --color-accent-red-bg: rgba(255, 0, 70, 0.2);
 
+  /* === COULEURS PODIUM === */
+  --color-gold: #FFD700;
+  --color-gold-rgb: 255, 215, 0;
+  --color-silver: #C0C0C0;
+  --color-silver-rgb: 192, 192, 192;
+  --color-bronze: #CD7F32;
+  --color-bronze-rgb: 205, 127, 50;
+
+  /* === COULEURS UTILITAIRES === */
+  --color-success: #00ff76;
+  --color-danger: #ff4444;
+  --color-warning: #ffcc00;
+  --color-info: #00ffff;
+
+  --color-bg: #000;
+  --color-text-primary: #fff;
+  --color-text-secondary: #aaa;
+  --color-primary-rgb: 0, 255, 76;
+  --color-secondary-rgb: 255, 204, 0;
+
   /* === COULEURS DE FOND === */
   --bg-black: #000;
   --bg-dark: #111;

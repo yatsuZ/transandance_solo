@@ -1,11 +1,8 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { StatusCodes } from 'http-status-codes';
-import { userRepo, User } from '../../../core/db/models/User.js';
-import { SuccessResponse, ErrorResponse, errorResponseSchema, createSuccessResponseSchema } from '../../types.js';
+import { userRepo } from '../../../core/db/models/User.js';
+import { SuccessResponse, ErrorResponse, SafeUser, sanitizeUser, errorResponseSchema, createSuccessResponseSchema } from '../../types.js';
 import { userSchema } from '../../schemas.js';
-
-// Types pour ce handler
-type SafeUser = Omit<User, 'password_hash'>;
 
 interface GetUserByUsernameParams {
   username: string;
@@ -15,7 +12,6 @@ type GetUserByUsernameResponse =
   | SuccessResponse<SafeUser>
   | ErrorResponse;
 
-// Schéma de validation
 export const getUserByUsernameSchema = {
   description: 'Récupère un utilisateur par son username',
   tags: ['users'],
@@ -49,10 +45,9 @@ export async function getUserByUsername(request: FastifyRequest<{ Params: GetUse
     });
   }
 
-  const { password_hash, ...safeUser } = user;
   return reply.code(StatusCodes.OK).send({
     success: true,
-    data: safeUser
+    data: sanitizeUser(user)
   });
 }
 

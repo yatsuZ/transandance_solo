@@ -135,13 +135,23 @@ export type DOMElements = {
     username1: HTMLElement;
     username2: HTMLElement;
     username3: HTMLElement;
-    wins1: HTMLElement;
-    wins2: HTMLElement;
-    wins3: HTMLElement;
+    matches1: HTMLElement;
+    matches2: HTMLElement;
+    matches3: HTMLElement;
+    goals1: HTMLElement;
+    goals2: HTMLElement;
+    goals3: HTMLElement;
+    goalsConceded1: HTMLElement;
+    goalsConceded2: HTMLElement;
+    goalsConceded3: HTMLElement;
+    friends1: HTMLElement;
+    friends2: HTMLElement;
+    friends3: HTMLElement;
     tableBody: HTMLElement;
-    tableContainer: HTMLElement;
     empty: HTMLElement;
-    podium: HTMLElement;
+    noMatchSection: HTMLElement;
+    podiumSection: HTMLElement;
+    rankingSection: HTMLElement;
   }
 
   subtitles: HTMLElement[];

@@ -1,12 +1,14 @@
 import Database from 'better-sqlite3';
 import path from 'path';
 import fs from 'fs';
+import { Logger } from '../utils/logger.js';
 
-// Obtenir le répertoire actuel de manière compatible CommonJS/ES modules
-// En mode test (Jest/CommonJS), on utilise process.cwd() + chemin relatif
-// En production (ES modules), le chemin sera correct via les imports compilés
+/**
+ * Obtient le répertoire actuel de manière compatible CommonJS/ES modules
+ * En mode test (Jest/CommonJS), utilise process.cwd() + chemin relatif
+ * En production (ES modules), le chemin sera correct via les imports compilés
+ */
 const getDirname = (): string => {
-  // Pour les tests Jest et l'exécution normale
   return path.join(process.cwd(), 'srcs', 'backend', 'core', 'db');
 };
 
@@ -19,29 +21,19 @@ export class DatabaseManager {
   private dbPath: string;
 
   constructor(dbPath?: string) {
-    // Par défaut : backend/data/pong.db
     const baseDir = getDirname();
     this.dbPath = dbPath || path.join(baseDir, '../../data/pong.db');
 
-    // Créer le dossier data/ si nécessaire
     const dataDir = path.dirname(this.dbPath);
     if (!fs.existsSync(dataDir)) {
       fs.mkdirSync(dataDir, { recursive: true });
-      if (process.env.NODE_ENV !== 'test') {
-        console.log('[Database] Created data directory:', dataDir);
-      }
+      Logger.info('Created data directory:', dataDir);
     }
 
-    // Connexion à la BDD
     this.db = new Database(this.dbPath);
-    if (process.env.NODE_ENV !== 'test') {
-      console.log('[Database] Connected to:', this.dbPath);
-    }
+    Logger.info('Connected to database:', this.dbPath);
 
-    // Initialiser le schéma
     this.initSchema();
-
-    // Exécuter les migrations
     this.runMigrations();
   }
 
@@ -54,11 +46,9 @@ export class DatabaseManager {
       const schemaPath = path.join(baseDir, 'script/schema.sql');
       const schema = fs.readFileSync(schemaPath, 'utf-8');
       this.db.exec(schema);
-      if (process.env.NODE_ENV !== 'test') {
-        console.log('[Database] Schema initialized successfully');
-      }
+      Logger.success('Schema initialized successfully');
     } catch (error) {
-      console.error('[Database] Failed to initialize schema:', error);
+      Logger.error('Failed to initialize schema:', error);
       throw error;
     }
   }
@@ -71,15 +61,13 @@ export class DatabaseManager {
       const baseDir = getDirname();
       const migrationsDir = path.join(baseDir, 'script/migrations');
 
-      // Vérifier si le dossier migrations existe
       if (!fs.existsSync(migrationsDir)) {
-        return; // Pas de migrations à exécuter
+        return;
       }
 
-      // Lire tous les fichiers .sql dans migrations/
       const migrationFiles = fs.readdirSync(migrationsDir)
         .filter(file => file.endsWith('.sql'))
-        .sort(); // Tri alphabétique (001_xxx.sql, 002_xxx.sql, etc.)
+        .sort();
 
       migrationFiles.forEach(file => {
         const migrationPath = path.join(migrationsDir, file);
@@ -87,41 +75,34 @@ export class DatabaseManager {
 
         try {
           this.db.exec(migration);
-          if (process.env.NODE_ENV !== 'test') {
-            console.log(`[Database] Migration applied: ${file}`);
-          }
+          Logger.info(`Migration applied: ${file}`);
         } catch (error: any) {
-          // Ignorer l'erreur "duplicate column" (migration déjà appliquée)
           if (error.message && error.message.includes('duplicate column')) {
-            if (process.env.NODE_ENV !== 'test') {
-              console.log(`[Database] Migration already applied: ${file}`);
-            }
+            Logger.info(`Migration already applied: ${file}`);
           } else {
             throw error;
           }
         }
       });
     } catch (error) {
-      console.error('[Database] Failed to run migrations:', error);
+      Logger.error('Failed to run migrations:', error);
       throw error;
     }
   }
 
   /**
-   * Retourne la connexion à la BDD
+   * Retourne la connexion à la base de données
    */
   getConnection(): Database.Database {
     return this.db;
   }
 
   /**
-   * Ferme la connexion à la BDD
+   * Ferme la connexion à la base de données
    */
   close(): void {
     this.db.close();
-    if (process.env.NODE_ENV !== 'test') {
-      console.log('[Database] Connection closed');
-    }
+    Logger.info('Database connection closed');
   }
 }
 

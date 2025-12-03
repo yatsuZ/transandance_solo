@@ -1,11 +1,8 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { StatusCodes } from 'http-status-codes';
-import { userRepo, User } from '../../../core/db/models/User.js';
-import { SuccessResponse, ErrorResponse, errorResponseSchema, createSuccessResponseSchema } from '../../types.js';
+import { userRepo } from '../../../core/db/models/User.js';
+import { SuccessResponse, ErrorResponse, SafeUser, sanitizeUser, errorResponseSchema, createSuccessResponseSchema } from '../../types.js';
 import { idParamSchema, userSchema } from '../../schemas.js';
-
-// Types pour ce handler
-type SafeUser = Omit<User, 'password_hash'>;
 
 interface GetUserByIdParams {
   id: number;
@@ -15,7 +12,6 @@ type GetUserByIdResponse =
   | SuccessResponse<SafeUser>
   | ErrorResponse;
 
-// Schéma de validation
 export const getUserByIdSchema = {
   description: 'Récupère un utilisateur par son ID',
   tags: ['users'],
@@ -35,7 +31,7 @@ export const getUserByIdSchema = {
  * @returns 404 - Utilisateur non trouvé
  */
 export async function getUserById(request: FastifyRequest<{ Params: GetUserByIdParams }>, reply: FastifyReply): Promise<GetUserByIdResponse> {
-  const userId = request.params.id; // Déjà un number grâce au schéma !
+  const userId = request.params.id;
 
   const user = userRepo.getUserById(userId);
   if (!user) {
@@ -45,9 +41,8 @@ export async function getUserById(request: FastifyRequest<{ Params: GetUserByIdP
     });
   }
 
-  const { password_hash, ...safeUser } = user;
   return reply.code(StatusCodes.OK).send({
     success: true,
-    data: safeUser
+    data: sanitizeUser(user)
   });
 }

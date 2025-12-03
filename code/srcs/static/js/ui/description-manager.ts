@@ -2,6 +2,41 @@ import { DOMElements } from '../core/dom-elements.js';
 import { getMessageOfErrorCode } from '../utils/url-helpers.js';
 
 /**
+ * Met à jour immédiatement le texte de description de la page actuelle
+ * Utilisé lors de la navigation pour rafraîchir le texte
+ */
+export function refreshPageDescription(): void {
+  const subtitles = document.querySelectorAll('.arcade-subtitle');
+  subtitles.forEach((subtitleEl) => {
+    const parentPage = subtitleEl.closest('.page');
+    if (!parentPage) return;
+
+    const pageId = parentPage.id;
+
+    // Même logique que getDefaultText() mais accessible publiquement
+    let newText = '...';
+
+    if (pageId === 'pagesProfile') {
+      const currentPath = window.location.pathname;
+      const friendProfileMatch = currentPath.match(/^\/profile\/ami\/([^\/]+)$/);
+
+      if (friendProfileMatch) {
+        const friendUsername = friendProfileMatch[1];
+        newText = `Profil de votre ami : ${friendUsername}`;
+      } else {
+        const usernameEl = document.getElementById('profile-username');
+        const username = usernameEl?.textContent || '';
+        newText = username ? `Voici la page profile de : ${username}` : 'Voici la page profile';
+      }
+    }
+
+    if (newText !== '...') {
+      subtitleEl.textContent = newText;
+    }
+  });
+}
+
+/**
  * Configure les animations et changements de description au survol des boutons
  * @param dom - Éléments DOM de l'application (récupérés par init_All_Dom)
  */
@@ -18,6 +53,7 @@ export function update_description_de_page(dom: DOMElements): void {
     pagesSignup: 'Aller Inscrit toi sur YARE GATRA !!',
     pagesAccueil: 'Que veux-tu faire ?',
     pagesProfile: 'Voici la page profile DE :',
+    pagesLeaderboard: 'Les meilleurs joueurs de la galaxie arcade',
     pagesGame_Config: 'Choisis ton jeu et prépare ton duel !',
     pagesMatch: 'Le premier à 3 points gagne la partie',// faire gaffe c'est en fonctione de game config modifier sa
     pagesBegin_Tournament: 'Prépare ton tournoi et affronte les meilleurs !',
@@ -77,9 +113,20 @@ export function update_description_de_page(dom: DOMElements): void {
 
       // Pour la page profile, récupérer le username dynamiquement
       if (pageId === 'pagesProfile') {
-        const usernameEl = dom.profile.username;
-        const username = usernameEl.textContent || '';
-        return username ? `Voici la page profile de : ${username}` : 'Voici la page profile';
+        // Vérifier si on est sur le profil d'un ami via l'URL
+        const currentPath = window.location.pathname;
+        const friendProfileMatch = currentPath.match(/^\/profile\/ami\/([^\/]+)$/);
+
+        if (friendProfileMatch) {
+          // Mode ami : afficher le nom de l'ami depuis l'URL
+          const friendUsername = friendProfileMatch[1];
+          return `Profil de votre ami : ${friendUsername}`;
+        } else {
+          // Mode normal : afficher son propre username
+          const usernameEl = dom.profile.username;
+          const username = usernameEl.textContent || '';
+          return username ? `Voici la page profile de : ${username}` : 'Voici la page profile';
+        }
       }
 
       // Pour les autres pages, utiliser le texte statique

@@ -263,13 +263,23 @@ export function init_All_Dom(): DOMElements {
   const LeaderboardUsername1 = get<HTMLElement>("leaderboard-username-1", "LeaderboardPage");
   const LeaderboardUsername2 = get<HTMLElement>("leaderboard-username-2", "LeaderboardPage");
   const LeaderboardUsername3 = get<HTMLElement>("leaderboard-username-3", "LeaderboardPage");
-  const LeaderboardWins1 = get<HTMLElement>("leaderboard-wins-1", "LeaderboardPage");
-  const LeaderboardWins2 = get<HTMLElement>("leaderboard-wins-2", "LeaderboardPage");
-  const LeaderboardWins3 = get<HTMLElement>("leaderboard-wins-3", "LeaderboardPage");
-  const LeaderboardTableBody = get<HTMLElement>("leaderboard-table-body", "LeaderboardPage");
-  const LeaderboardTableContainer = query<HTMLElement>(".leaderboard-table-container", "LeaderboardPage");
-  const LeaderboardEmpty = get<HTMLElement>("leaderboard-empty", "LeaderboardPage");
-  const LeaderboardPodium = query<HTMLElement>(".podium", "LeaderboardPage");
+  const LeaderboardMatches1 = get<HTMLElement>("leaderboard-matches-1", "LeaderboardPage");
+  const LeaderboardMatches2 = get<HTMLElement>("leaderboard-matches-2", "LeaderboardPage");
+  const LeaderboardMatches3 = get<HTMLElement>("leaderboard-matches-3", "LeaderboardPage");
+  const LeaderboardGoals1 = get<HTMLElement>("leaderboard-goals-1", "LeaderboardPage");
+  const LeaderboardGoals2 = get<HTMLElement>("leaderboard-goals-2", "LeaderboardPage");
+  const LeaderboardGoals3 = get<HTMLElement>("leaderboard-goals-3", "LeaderboardPage");
+  const LeaderboardGoalsConceded1 = get<HTMLElement>("leaderboard-goals-conceded-1", "LeaderboardPage");
+  const LeaderboardGoalsConceded2 = get<HTMLElement>("leaderboard-goals-conceded-2", "LeaderboardPage");
+  const LeaderboardGoalsConceded3 = get<HTMLElement>("leaderboard-goals-conceded-3", "LeaderboardPage");
+  const LeaderboardFriends1 = get<HTMLElement>("leaderboard-friends-1", "LeaderboardPage");
+  const LeaderboardFriends2 = get<HTMLElement>("leaderboard-friends-2", "LeaderboardPage");
+  const LeaderboardFriends3 = get<HTMLElement>("leaderboard-friends-3", "LeaderboardPage");
+  const LeaderboardTableBody = get<HTMLElement>("ranking-table-body", "LeaderboardPage");
+  const LeaderboardEmpty = get<HTMLElement>("ranking-empty", "LeaderboardPage");
+  const LeaderboardNoMatchSection = get<HTMLElement>("no-match-section", "LeaderboardPage");
+  const LeaderboardPodiumSection = query<HTMLElement>(".podium-section", "LeaderboardPage");
+  const LeaderboardRankingSection = query<HTMLElement>(".ranking-section", "LeaderboardPage");
 
   // ========================================
   // STYLE CSS
@@ -427,13 +437,23 @@ export function init_All_Dom(): DOMElements {
       username1: LeaderboardUsername1,
       username2: LeaderboardUsername2,
       username3: LeaderboardUsername3,
-      wins1: LeaderboardWins1,
-      wins2: LeaderboardWins2,
-      wins3: LeaderboardWins3,
+      matches1: LeaderboardMatches1,
+      matches2: LeaderboardMatches2,
+      matches3: LeaderboardMatches3,
+      goals1: LeaderboardGoals1,
+      goals2: LeaderboardGoals2,
+      goals3: LeaderboardGoals3,
+      goalsConceded1: LeaderboardGoalsConceded1,
+      goalsConceded2: LeaderboardGoalsConceded2,
+      goalsConceded3: LeaderboardGoalsConceded3,
+      friends1: LeaderboardFriends1,
+      friends2: LeaderboardFriends2,
+      friends3: LeaderboardFriends3,
       tableBody: LeaderboardTableBody,
-      tableContainer: LeaderboardTableContainer,
       empty: LeaderboardEmpty,
-      podium: LeaderboardPodium,
+      noMatchSection: LeaderboardNoMatchSection,
+      podiumSection: LeaderboardPodiumSection,
+      rankingSection: LeaderboardRankingSection,
     },
 
     subtitles,

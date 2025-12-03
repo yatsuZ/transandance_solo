@@ -81,17 +81,23 @@ export class NavigationEvents {
       return;
     }
 
-    // 2️⃣ VÉRIF 404 : Route invalide
-    const targetPage = this.navHelpers.resolveTargetPage(currentPath);
-    if (!targetPage) {
-      console.warn("⚠️ [404] Route invalide:", currentPath);
-      const isAuthenticated = await AuthManager.verifyAuth();
-      this.navHelpers.redirectToErrorWithIcons(404, isAuthenticated, currentPath);
+    // 2️⃣ VÉRIF AUTH - Vérifier le cookie (source de vérité unique)
+    const isAuthenticated = await AuthManager.verifyAuth();
+
+    // 3️⃣ VÉRIF ROUTES AVEC CONTEXTE (match/tournoi/profil ami - accès direct interdit)
+    if (isContextRestrictedRoute(currentPath)) {
+      console.warn("🚫 [403] Route nécessite un contexte actif (accès direct interdit):", currentPath);
+      this.navHelpers.redirectToErrorWithIcons(403, isAuthenticated);
       return;
     }
 
-    // 3️⃣ VÉRIF AUTH - Vérifier le cookie (source de vérité unique)
-    const isAuthenticated = await AuthManager.verifyAuth();
+    // 4️⃣ VÉRIF 404 : Route invalide
+    const targetPage = this.navHelpers.resolveTargetPage(currentPath);
+    if (!targetPage) {
+      console.warn("⚠️ [404] Route invalide:", currentPath);
+      this.navHelpers.redirectToErrorWithIcons(404, isAuthenticated, currentPath);
+      return;
+    }
 
     // Routes publiques (login/signup) : autoriser si déconnecté, bloquer si connecté
     if (isPublicRoute(currentPath)) {
@@ -107,19 +113,12 @@ export class NavigationEvents {
     }
 
     // Routes protégées : vérifier authentification
-    if (isAuthProtectedRoute(currentPath) || isContextRestrictedRoute(currentPath)) {
+    if (isAuthProtectedRoute(currentPath)) {
       if (!isAuthenticated) {
         console.warn("🔒 [401] Cookie JWT invalide ou expiré:", currentPath);
         this.navHelpers.redirectToErrorWithIcons(401, false);
         return;
       }
-    }
-
-    // 4️⃣ VÉRIF ROUTES AVEC CONTEXTE (match/tournoi actif requis)
-    if (isContextRestrictedRoute(currentPath)) {
-      console.warn("🚫 [403] Route nécessite un contexte actif:", currentPath);
-      this.navHelpers.redirectToErrorWithIcons(403, isAuthenticated);
-      return;
     }
 
     // 5️⃣ NAVIGATION NORMALE : Afficher la page demandée
@@ -220,6 +219,28 @@ export class NavigationEvents {
           this.profilePageManager.loadProfile();
         }
       }
+      return;
+    }
+
+    // 👥 ROUTE PROFIL AMI - /profile/ami/:username
+    const friendProfileMatch = path.match(/^\/profile\/ami\/([^\/]+)$/);
+    if (friendProfileMatch) {
+      const friendUsername = friendProfileMatch[1];
+      const isAuthenticated = await AuthManager.verifyAuth();
+
+      if (!isAuthenticated) {
+        console.warn("🔒 [401] Cookie JWT invalide ou expiré:", path);
+        this.navHelpers.redirectToErrorWithIcons(401, false);
+        return;
+      }
+
+      // Afficher la page profile
+      const profilePage = this._DO.pages.profile;
+      this.navHelpers.setIconsVisibility(profilePage.id, true);
+      activeAnotherPage(profilePage);
+
+      // Charger le profil de l'ami
+      this.profilePageManager.loadProfile(friendUsername);
       return;
     }
 

@@ -1,15 +1,11 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { StatusCodes } from 'http-status-codes';
-import { userRepo, User } from '../../../core/db/models/User.js';
+import { userRepo } from '../../../core/db/models/User.js';
 import { AuthService } from '../../../core/auth/auth.service.js';
-import { SuccessResponse, ErrorResponse } from '../../types.js';
-import { MultipartFile } from '@fastify/multipart';
+import { SuccessResponse, ErrorResponse, SafeUser, sanitizeUser } from '../../types.js';
 import { createWriteStream } from 'fs';
 import path from 'path';
 import { pipeline } from 'stream/promises';
-
-// Types pour ce handler
-type SafeUser = Omit<User, 'password_hash'>;
 
 interface UpdateUserParams {
   id: number;
@@ -21,22 +17,21 @@ type UpdateUserResponse =
 
 /**
  * Handler: PUT /api/users/:id
- * Met à jour un utilisateur (avec support multipart/form-data pour l'avatar)
+ * Met à jour un utilisateur avec support multipart/form-data pour upload avatar
  *
  * @param id - ID de l'utilisateur (params)
  * @param username - Nouveau username (field, optionnel)
  * @param email - Nouvel email (field, optionnel)
  * @param password - Nouveau mot de passe (field, optionnel)
  * @param avatar - Fichier avatar (file, optionnel)
- * @returns 200 - Utilisateur mis à jour
- * @returns 400 - Validation error
+ * @returns 200 - Utilisateur mis à jour avec succès
+ * @returns 400 - Erreur de validation
  * @returns 404 - Utilisateur non trouvé
  * @returns 409 - Username ou email déjà pris
  */
 export async function updateUser(request: FastifyRequest<{ Params: UpdateUserParams }>, reply: FastifyReply): Promise<UpdateUserResponse> {
   const userId = request.params.id;
 
-  // Vérifier que l'utilisateur existe
   const existingUser = userRepo.getUserById(userId);
   if (!existingUser) {
     return reply.code(StatusCodes.NOT_FOUND).send({
@@ -46,7 +41,6 @@ export async function updateUser(request: FastifyRequest<{ Params: UpdateUserPar
   }
 
   try {
-    // Parser le multipart/form-data
     const parts = request.parts();
 
     let username: string | undefined;
@@ -54,7 +48,6 @@ export async function updateUser(request: FastifyRequest<{ Params: UpdateUserPar
     let password: string | undefined;
     let avatarPath: string | undefined;
 
-    // Parcourir les champs et fichiers
     for await (const part of parts) {
       if (part.type === 'field') {
         const fieldName = part.fieldname;
@@ -65,7 +58,6 @@ export async function updateUser(request: FastifyRequest<{ Params: UpdateUserPar
         else if (fieldName === 'password') password = value;
       } else if (part.type === 'file') {
         if (part.fieldname === 'avatar') {
-          // Valider le type de fichier
           const mimeType = part.mimetype;
           if (!mimeType.startsWith('image/')) {
             return reply.code(StatusCodes.BAD_REQUEST).send({
@@ -74,25 +66,20 @@ export async function updateUser(request: FastifyRequest<{ Params: UpdateUserPar
             });
           }
 
-          // Générer un nom de fichier unique
           const ext = path.extname(part.filename);
           const filename = `avatar_${userId}_${Date.now()}${ext}`;
           const uploadPath = path.join(process.cwd(), 'uploads', 'avatars', filename);
 
-          // Sauvegarder le fichier
           await pipeline(part.file, createWriteStream(uploadPath));
           avatarPath = `/uploads/avatars/${filename}`;
-
-          console.log(`✅ Avatar uploadé: ${avatarPath}`);
         }
       }
     }
 
-    // Validation des champs modifiés
-    if (username !== undefined && username.length < 1) {
+    if (username !== undefined && (username.length < 1 || username.length > 16)) {
       return reply.code(StatusCodes.BAD_REQUEST).send({
         success: false,
-        error: 'Username cannot be empty'
+        error: 'Username must be between 1 and 16 characters'
       });
     }
 
@@ -113,7 +100,6 @@ export async function updateUser(request: FastifyRequest<{ Params: UpdateUserPar
       });
     }
 
-    // Vérifier username unique
     if (username && username !== existingUser.username) {
       const userWithSameUsername = userRepo.getUserByUsername(username);
       if (userWithSameUsername) {
@@ -124,7 +110,6 @@ export async function updateUser(request: FastifyRequest<{ Params: UpdateUserPar
       }
     }
 
-    // Vérifier email unique
     if (email && email !== existingUser.email) {
       const userWithSameEmail = userRepo.getUserByEmail(email);
       if (userWithSameEmail) {
@@ -135,13 +120,11 @@ export async function updateUser(request: FastifyRequest<{ Params: UpdateUserPar
       }
     }
 
-    // Hasher le mot de passe si fourni
     let password_hash: string | undefined;
     if (password) {
       password_hash = await AuthService.hashPassword(password);
     }
 
-    // Mettre à jour l'utilisateur avec les champs modifiés
     const updatedUser = userRepo.updateUser(userId, {
       username,
       email,
@@ -156,14 +139,12 @@ export async function updateUser(request: FastifyRequest<{ Params: UpdateUserPar
       });
     }
 
-    const { password_hash: _, ...safeUser } = updatedUser;
     return reply.code(StatusCodes.OK).send({
       success: true,
-      data: safeUser,
+      data: sanitizeUser(updatedUser),
       message: 'User updated successfully'
     });
   } catch (error: any) {
-    console.error('❌ Error updating user:', error);
     return reply.code(StatusCodes.INTERNAL_SERVER_ERROR).send({
       success: false,
       error: error.message || 'Failed to update user'
