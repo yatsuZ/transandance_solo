@@ -123,7 +123,7 @@ Il servira de base pour créer les tickets.
 - [X] Statistiques (victoires/défaites, ratio, tournois)
 - [X] **Page Leaderboard / Classement des joueurs** ✅ NOUVEAU
 - [ ] Liste d'amis (ajouter/supprimer) ❌ À FAIRE PROCHAINEMENT
-- [ ] Voir les profils des autres utilisateurs ❌ À FAIRE PROCHAINEMENT
+- [X] Voir les profils des autres utilisateurs
 
 **Tâches :**
 - [X] API routes : POST /register, POST /login, GET /logout
@@ -131,11 +131,11 @@ Il servira de base pour créer les tickets.
 - [X] API routes : GET /matches/history/:userId
 - [X] API routes : GET /users/leaderboard/top
 - [ ] API routes : GET /friends, POST /friends/:id, DELETE /friends/:id ❌ À FAIRE
-- [ ] API routes : GET /profile/:id (voir profil d'un autre user) ❌ À FAIRE
+- [X] API routes : GET /profile/:id (voir profil d'un autre user) ❌ À FAIRE
 - [X] Hash des mots de passe (bcrypt)
 - [X] Upload d'avatar (multer + stockage local)
 - [X] Pages frontend : inscription, connexion, profil, leaderboard
-- [ ] Pages frontend : liste d'amis, profil des autres users ❌ À FAIRE
+- [X] Pages frontend : liste d'amis, profil des autres users 
 
 ---
 
