@@ -159,19 +159,19 @@ Il servira de base pour créer les tickets.
 ### 🟡 MODULE 5 : 2FA & JWT (Majeur - 1 pt)
 
 **Critères de validation :**
-- [ ] JWT pour l'authentification (access token + refresh token)
-- [ ] 2FA avec application authenticator (TOTP)
-- [ ] QR code pour configurer le 2FA
-- [ ] Activation/désactivation du 2FA dans les paramètres
-- [ ] Tokens stockés de manière sécurisée
+- [X] JWT pour l'authentification (access token + refresh token)
+- [X] 2FA avec application authenticator (TOTP)
+- [X] QR code pour configurer le 2FA
+- [X] Activation/désactivation du 2FA dans les paramètres
+- [X] Tokens stockés de manière sécurisée
 
 **Tâches :**
-- [ ] Installer `jsonwebtoken` et `otplib` (ou `speakeasy`)
-- [ ] Génération JWT à la connexion
-- [ ] Middleware de vérification JWT
-- [ ] API routes : POST /2fa/enable, POST /2fa/verify, POST /2fa/disable
-- [ ] Génération QR code pour Google Authenticator / Authy
-- [ ] Page frontend pour activer/vérifier le 2FA
+- [X] Installer `jsonwebtoken` et `otplib` (ou `speakeasy`)
+- [X] Génération JWT à la connexion
+- [X] Middleware de vérification JWT
+- [X] API routes : POST /2fa/enable, POST /2fa/verify, POST /2fa/disable
+- [X] Génération QR code pour Google Authenticator / Authy
+- [X] Page frontend pour activer/vérifier le 2FA
 
 ---
 

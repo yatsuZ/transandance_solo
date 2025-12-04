@@ -28,7 +28,24 @@ export class AuthEvents {
     if (this._DO.auth.signupForm) {
       this._DO.auth.signupForm.addEventListener('submit', (e) => this.handleSignup(e));
     }
+
+    // Bouton vérifier 2FA
+    this._DO.auth.btnVerify2FA.addEventListener('click', () => this.handle2FAVerify());
+
+    // Bouton annuler 2FA
+    this._DO.auth.btnCancel2FA.addEventListener('click', () => this.handle2FACancel());
+
+    // Enter key sur input 2FA
+    this._DO.auth.twofaCodeInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        this.handle2FAVerify();
+      }
+    });
   }
+
+  // Stockage temporaire des credentials pour le 2FA
+  private tempUsername: string = '';
+  private tempPassword: string = '';
 
   /**
    * Gère la soumission du formulaire login
@@ -61,10 +78,86 @@ export class AuthEvents {
 
     try {
       // Appel API
-      const result = await AuthManager.login(username, password);
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ username, password })
+      });
+
+      const result = await response.json();
+
+      // Cas 1: 2FA requis
+      if (result.requires2FA) {
+        // Stocker les credentials
+        this.tempUsername = username;
+        this.tempPassword = password;
+
+        // Cacher le formulaire login, afficher input 2FA
+        this._DO.auth.loginFormSection.style.display = 'none';
+        this._DO.auth.twofaInputSection.style.display = 'block';
+        this._DO.auth.twofaCodeInput.focus();
+
+        // Réactiver le bouton
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Se connecter';
+
+        return;
+      }
+
+      // Cas 2: Connexion réussie (sans 2FA ou après validation 2FA)
+      if (result.success && result.data) {
+        // Masquer l'erreur
+        this.hideError(errorDiv);
+
+        // Rediriger vers la page d'accueil
+        this.redirectToHome();
+      } else {
+        // Cas 3: Erreur
+        this.showError(errorDiv, result.error || 'Identifiants incorrects');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Se connecter';
+      }
+    } catch (error) {
+      console.error('[AuthEvents] Erreur lors de la connexion:', error);
+      this.showError(errorDiv, 'Erreur de connexion');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Se connecter';
+    }
+  }
+
+  /**
+   * Gère la vérification du code 2FA
+   */
+  private async handle2FAVerify(): Promise<void> {
+    const code = this._DO.auth.twofaCodeInput.value.trim();
+    const errorDiv = this._DO.auth.twofaInputError;
+
+    if (!code || code.length !== 6) {
+      this.showError(errorDiv, 'Le code doit contenir 6 chiffres');
+      return;
+    }
+
+    try {
+      // Re-submit avec le code 2FA
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          username: this.tempUsername,
+          password: this.tempPassword,
+          twofa_token: code
+        })
+      });
+
+      const result = await response.json();
 
       if (result.success && result.data) {
-        console.log('✅ Connexion réussie:', result.data.user.username);
+        // Nettoyer
+        this._DO.auth.twofaCodeInput.value = '';
+        this.tempUsername = '';
+        this.tempPassword = '';
 
         // Masquer l'erreur
         this.hideError(errorDiv);
@@ -72,17 +165,29 @@ export class AuthEvents {
         // Rediriger vers la page d'accueil
         this.redirectToHome();
       } else {
-        // Afficher l'erreur
-        this.showError(errorDiv, result.error || 'Identifiants incorrects');
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Se connecter';
+        this.showError(errorDiv, result.error || 'Code invalide');
+        this._DO.auth.twofaCodeInput.value = '';
+        this._DO.auth.twofaCodeInput.focus();
       }
     } catch (error) {
-      console.log('⚠️ Erreur lors de la connexion');
-      this.showError(errorDiv, 'Erreur de connexion');
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Se connecter';
+      console.error('[AuthEvents] Erreur vérification 2FA:', error);
+      this.showError(errorDiv, 'Erreur lors de la vérification');
     }
+  }
+
+  /**
+   * Gère l'annulation du 2FA (retour au login)
+   */
+  private handle2FACancel(): void {
+    // Nettoyer
+    this._DO.auth.twofaCodeInput.value = '';
+    this.tempUsername = '';
+    this.tempPassword = '';
+    this.hideError(this._DO.auth.twofaInputError);
+
+    // Réafficher le formulaire login
+    this._DO.auth.twofaInputSection.style.display = 'none';
+    this._DO.auth.loginFormSection.style.display = 'block';
   }
 
   /**
@@ -133,8 +238,6 @@ export class AuthEvents {
       const result = await AuthManager.signup(username, password, email);
 
       if (result.success && result.data) {
-        console.log('✅ Inscription réussie:', result.data.user.username);
-
         // Masquer l'erreur
         this.hideError(errorDiv);
 
@@ -147,7 +250,7 @@ export class AuthEvents {
         submitBtn.textContent = 'Créer mon compte';
       }
     } catch (error) {
-      console.log('⚠️ Erreur lors de l\'inscription');
+      console.error('[AuthEvents] Erreur lors de l\'inscription:', error);
       this.showError(errorDiv, 'Erreur d\'inscription');
       submitBtn.disabled = false;
       submitBtn.textContent = 'Créer mon compte';
@@ -187,7 +290,5 @@ export class AuthEvents {
     // Activer la page accueil
     activeAnotherPage(accueilPage);
     updateUrl(accueilPage);
-
-    console.log('🏠 Redirection vers accueil');
   }
 }

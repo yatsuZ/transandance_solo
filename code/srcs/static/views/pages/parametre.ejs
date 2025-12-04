@@ -27,6 +27,78 @@
         </div>
       </div>
 
+      <!-- 2FA (Two-Factor Authentication) -->
+      <div class="parametre-section">
+        <h2 class="parametre-title">🔐 Authentification à deux facteurs (2FA)</h2>
+
+        <!-- État: 2FA désactivé -->
+        <div id="twofa-disabled" class="twofa-state" style="display: none;">
+          <p class="twofa-description">
+            Le 2FA n'est pas activé. Ajoutez une couche de sécurité supplémentaire à votre compte.
+          </p>
+          <button id="btn-setup-2fa" class="btn btn-primary">Configurer le 2FA</button>
+        </div>
+
+        <!-- État: Configuration en cours -->
+        <div id="twofa-setup" class="twofa-state" style="display: none;">
+          <p class="twofa-description">
+            Scannez ce QR code avec Google Authenticator, Authy ou toute autre application d'authentification :
+          </p>
+          <div class="twofa-qrcode-container">
+            <img id="twofa-qrcode" src="" alt="QR Code 2FA" class="twofa-qrcode">
+          </div>
+          <p class="twofa-help">
+            Entrez le code à 6 chiffres de votre application pour activer le 2FA :
+          </p>
+          <input
+            type="text"
+            id="twofa-verify-code"
+            class="twofa-code-input"
+            maxlength="6"
+            placeholder="000 000"
+            autocomplete="off"
+            inputmode="numeric"
+            pattern="[0-9]*"
+          >
+          <div class="twofa-buttons">
+            <button id="btn-activate-2fa" class="btn btn-success">Activer</button>
+            <button id="btn-cancel-setup" class="btn btn-secondary">Annuler</button>
+          </div>
+          <div id="twofa-setup-error" class="error-message" style="display: none;"></div>
+        </div>
+
+        <!-- État: 2FA activé -->
+        <div id="twofa-enabled" class="twofa-state" style="display: none;">
+          <p class="twofa-description">
+            ✅ Le 2FA est activé sur votre compte. Vous devrez entrer un code à chaque connexion.
+          </p>
+          <button id="btn-disable-2fa" class="btn btn-danger">Désactiver le 2FA</button>
+        </div>
+
+        <!-- Modal: Désactivation 2FA -->
+        <div id="twofa-disable-modal" class="twofa-modal" style="display: none;">
+          <div class="twofa-modal-content">
+            <h3>Désactiver le 2FA</h3>
+            <p>Entrez votre code 2FA pour confirmer la désactivation :</p>
+            <input
+              type="text"
+              id="twofa-disable-code"
+              class="twofa-code-input"
+              maxlength="6"
+              placeholder="000 000"
+              autocomplete="off"
+              inputmode="numeric"
+              pattern="[0-9]*"
+            >
+            <div class="twofa-buttons">
+              <button id="btn-confirm-disable" class="btn btn-danger">Confirmer</button>
+              <button id="btn-cancel-disable" class="btn btn-secondary">Annuler</button>
+            </div>
+            <div id="twofa-disable-error" class="error-message" style="display: none;"></div>
+          </div>
+        </div>
+      </div>
+
       <!-- Déconnexion -->
       <div class="parametre-section">
         <h2 class="parametre-title">Compte</h2>

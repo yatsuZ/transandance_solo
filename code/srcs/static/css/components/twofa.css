@@ -1,0 +1,303 @@
+/**
+ * Styles pour le 2FA (Two-Factor Authentication)
+ * Login + Paramètres
+ */
+
+/* ========================================
+   2FA Login Input (partial)
+   ======================================== */
+
+.twofa-input-container {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.twofa-input-card {
+  background: rgba(0, 0, 0, 0.6);
+  border: 2px solid #00ff00;
+  border-radius: 10px;
+  padding: 2rem;
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+}
+
+.twofa-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 1.2rem;
+  color: #00ff00;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 0 10px #00ff00;
+}
+
+.twofa-description {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.7rem;
+  color: #fff;
+  text-align: center;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.twofa-code-input {
+  width: 100%;
+  padding: 1rem;
+  font-family: 'Courier New', monospace;
+  font-size: 2rem;
+  text-align: center;
+  letter-spacing: 0.5rem;
+  background: rgba(0, 0, 0, 0.8);
+  border: 2px solid #00ff00;
+  border-radius: 5px;
+  color: #00ff00;
+  margin-bottom: 1.5rem;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.twofa-code-input:focus {
+  border-color: #00ffff;
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+}
+
+.twofa-code-input::placeholder {
+  color: rgba(0, 255, 0, 0.3);
+  letter-spacing: 0.5rem;
+}
+
+.twofa-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.twofa-buttons .btn {
+  flex: 1;
+  padding: 0.8rem 1.5rem;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.7rem;
+  border: 2px solid;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.twofa-buttons .btn-primary {
+  background: #00ff00;
+  border-color: #00ff00;
+  color: #000;
+}
+
+.twofa-buttons .btn-primary:hover {
+  background: #00ffff;
+  border-color: #00ffff;
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
+}
+
+.twofa-buttons .btn-secondary {
+  background: transparent;
+  border-color: #888;
+  color: #888;
+}
+
+.twofa-buttons .btn-secondary:hover {
+  border-color: #fff;
+  color: #fff;
+}
+
+/* ========================================
+   2FA Paramètres (Settings)
+   ======================================== */
+
+.twofa-state {
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.twofa-state .btn {
+  padding: 0.8rem 1.5rem;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.7rem;
+  border: 2px solid;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+}
+
+.twofa-state .btn-primary {
+  background: #00ff00;
+  border-color: #00ff00;
+  color: #000;
+  font-weight: bold;
+}
+
+.twofa-state .btn-primary:hover {
+  background: #00ffff;
+  border-color: #00ffff;
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
+  transform: scale(1.05);
+}
+
+.twofa-state .btn-danger,
+#btn-disable-2fa.btn-danger {
+  background: #ff0000 !important;
+  border-color: #ff0000 !important;
+  color: #fff !important;
+  font-weight: bold;
+}
+
+.twofa-state .btn-danger:hover,
+#btn-disable-2fa.btn-danger:hover {
+  background: #cc0000 !important;
+  border-color: #ff0000 !important;
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.7);
+  transform: scale(1.05);
+}
+
+.twofa-help {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.6rem;
+  color: #aaa;
+  margin: 1rem 0;
+  line-height: 1.5;
+}
+
+.twofa-qrcode-container {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 10px;
+  margin: 1.5rem 0;
+}
+
+.twofa-qrcode {
+  max-width: 250px;
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.twofa-buttons .btn-success {
+  background: #00ff00;
+  border-color: #00ff00;
+  color: #000;
+}
+
+.twofa-buttons .btn-success:hover {
+  background: #00cc00;
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.7);
+}
+
+.twofa-buttons .btn-danger {
+  background: #ff0000;
+  border-color: #ff0000;
+  color: #fff;
+}
+
+.twofa-buttons .btn-danger:hover {
+  background: #cc0000;
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.7);
+}
+
+/* ========================================
+   2FA Modal (Désactivation)
+   ======================================== */
+
+.twofa-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 9999;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.twofa-modal[style*="display: block"] {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+}
+
+.twofa-modal-content {
+  background: rgba(0, 0, 0, 0.95);
+  border: 2px solid #ff0000;
+  border-radius: 10px;
+  padding: 2rem;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+  position: relative;
+  margin: auto;
+}
+
+.twofa-modal-content h3 {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 1rem;
+  color: #ff0000;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 0 10px #ff0000;
+}
+
+.twofa-modal-content p {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.6rem;
+  color: #fff;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+/* ========================================
+   Error Messages
+   ======================================== */
+
+#twofa-input-error,
+#twofa-setup-error,
+#twofa-disable-error {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.6rem;
+  color: #ff0000;
+  text-align: center;
+  margin-top: 1rem;
+  padding: 0.8rem;
+  background: rgba(255, 0, 0, 0.1);
+  border: 1px solid #ff0000;
+  border-radius: 5px;
+  line-height: 1.5;
+}
+
+/* ========================================
+   Responsive
+   ======================================== */
+
+@media (max-width: 600px) {
+  .twofa-title {
+    font-size: 0.9rem;
+  }
+
+  .twofa-description,
+  .twofa-help {
+    font-size: 0.5rem;
+  }
+
+  .twofa-code-input {
+    font-size: 1.5rem;
+    letter-spacing: 0.3rem;
+  }
+
+  .twofa-buttons .btn {
+    font-size: 0.6rem;
+    padding: 0.6rem 1rem;
+  }
+}

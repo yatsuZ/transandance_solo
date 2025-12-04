@@ -1,0 +1,31 @@
+<!--
+  Partial 2FA Input
+  Section affichée pendant le login quand 2FA est requis
+  Cachée par défaut, affichée dynamiquement par auth-events.ts
+-->
+<div id="twofa-input-section" class="twofa-input-container" style="display: none;">
+  <div class="twofa-input-card">
+    <h2 class="twofa-title">🔐 Authentification à deux facteurs</h2>
+    <p class="twofa-description">
+      Entrez le code à 6 chiffres de votre application d'authentification
+    </p>
+
+    <input
+      type="text"
+      id="twofa-code-input"
+      class="twofa-code-input"
+      maxlength="6"
+      placeholder="000 000"
+      autocomplete="off"
+      inputmode="numeric"
+      pattern="[0-9]*"
+    >
+
+    <div class="twofa-buttons">
+      <button id="btn-verify-2fa" class="btn btn-primary">Vérifier</button>
+      <button id="btn-cancel-2fa" class="btn btn-secondary">Annuler</button>
+    </div>
+
+    <div id="twofa-input-error" class="error-message" style="display: none;"></div>
+  </div>
+</div>

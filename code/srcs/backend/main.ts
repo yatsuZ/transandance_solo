@@ -10,6 +10,7 @@ import qrcode from 'qrcode-terminal';
 import userRoutes from './routes/users/index.js';
 import matchRoutes from './routes/matches/index.js';
 import authRoutes from './routes/auth/index.js';
+import twofaRoutes from './routes/auth/twofa.routes.js';
 import tournamentRoutes from './routes/tournaments/index.js';
 import friendshipRoutes from './routes/friendships/index.js';
 import path from 'path';
@@ -68,6 +69,7 @@ export async function buildApp(): Promise<FastifyInstance> {
 
   // Routes API
   await fastify.register(authRoutes, { prefix: '/api/auth' });
+  await fastify.register(twofaRoutes, { prefix: '/api/auth/2fa' });
   await fastify.register(userRoutes, { prefix: '/api/users' });
   await fastify.register(matchRoutes, { prefix: '/api/matches' });
   await fastify.register(tournamentRoutes, { prefix: '/api/tournaments' });

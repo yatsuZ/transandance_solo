@@ -7,11 +7,11 @@
 
   <div class="for-center">
     <!-- FORMULAIRE LOGIN -->
-    <div class="login-signup-wrapper">
+    <div id="login-form-section" class="login-signup-wrapper">
       <form id="login-form" aria-label="Formulaire de connexion">
         <!-- TITRE FORM -->
         <h2 class="form-title">Connexion</h2>
-        
+
         <!-- USERNAME -->
         <div class="input-block">
           <label for="login-username">Pseudo :</label>
@@ -24,7 +24,7 @@
           minlength="1"
           maxlength="16">
         </div>
-        
+
         <!-- PASSWORD -->
         <div class="input-block">
           <label for="login-password">Mot de passe :</label>
@@ -36,13 +36,13 @@
           required
           minlength="6">
         </div>
-        
+
         <!-- ERROR MESSAGE -->
         <div id="login-error" class="error-message" style="display: none;"></div>
-        
+
         <!-- SUBMIT -->
         <button type="submit" id="login-btn" class="btn-send-connection">Se connecter</button>
-        
+
         <!-- LIEN VERS SIGNUP -->
         <p class="auth-switch">
           Pas encore de compte ?
@@ -50,5 +50,8 @@
         </p>
       </form>
     </div>
+
+    <!-- PARTIAL 2FA INPUT (caché par défaut) -->
+    <%- include('../partials/2fa-input') %>
   </div>
 </div>

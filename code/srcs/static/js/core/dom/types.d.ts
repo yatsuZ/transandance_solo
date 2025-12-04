@@ -12,6 +12,14 @@ export interface AuthElements {
   signupError: HTMLElement;
   loginBtn: HTMLButtonElement;
   signupBtn: HTMLButtonElement;
+
+  // 2FA Login
+  loginFormSection: HTMLElement;
+  twofaInputSection: HTMLElement;
+  twofaCodeInput: HTMLInputElement;
+  btnVerify2FA: HTMLButtonElement;
+  btnCancel2FA: HTMLButtonElement;
+  twofaInputError: HTMLElement;
 }
 
 // ========================================
@@ -124,6 +132,23 @@ export interface UIElements {
     volumeSlider: HTMLInputElement;
     volumeValue: HTMLElement;
     logoutBtn: HTMLButtonElement;
+
+    // 2FA Settings
+    twofaDisabled: HTMLElement;
+    twofaSetup: HTMLElement;
+    twofaEnabled: HTMLElement;
+    twofaQRCode: HTMLImageElement;
+    twofaVerifyCode: HTMLInputElement;
+    twofaDisableModal: HTMLElement;
+    twofaDisableCode: HTMLInputElement;
+    btnSetup2FA: HTMLButtonElement;
+    btnActivate2FA: HTMLButtonElement;
+    btnDisable2FA: HTMLButtonElement;
+    btnConfirmDisable: HTMLButtonElement;
+    btnCancelSetup: HTMLButtonElement;
+    btnCancelDisable: HTMLButtonElement;
+    twofaSetupError: HTMLElement;
+    twofaDisableError: HTMLElement;
   };
   buttons: {
     nextResult: HTMLButtonElement;

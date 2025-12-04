@@ -23,5 +23,13 @@ export function getAuthElements(): AuthElements {
     signupError: get<HTMLElement>("signup-error", "Auth"),
     loginBtn: get<HTMLButtonElement>("login-btn", "Auth"),
     signupBtn: get<HTMLButtonElement>("signup-btn", "Auth"),
+
+    // 2FA Login
+    loginFormSection: get<HTMLElement>("login-form-section", "Auth"),
+    twofaInputSection: get<HTMLElement>("twofa-input-section", "Auth"),
+    twofaCodeInput: get<HTMLInputElement>("twofa-code-input", "Auth"),
+    btnVerify2FA: get<HTMLButtonElement>("btn-verify-2fa", "Auth"),
+    btnCancel2FA: get<HTMLButtonElement>("btn-cancel-2fa", "Auth"),
+    twofaInputError: get<HTMLElement>("twofa-input-error", "Auth"),
   };
 }

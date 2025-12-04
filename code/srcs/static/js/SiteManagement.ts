@@ -5,6 +5,7 @@ import { MatchController } from './game-management/match-controller.js';
 import { TournamentController } from './game-management/tournament-controller.js';
 import { NavigationEvents } from './navigation/navigation-events.js';
 import { AuthEvents } from './auth/auth-events.js';
+import { TwoFAManager } from './auth/twofa-manager.js';
 import { DOMElements } from './core/dom-elements.js';
 
 /**
@@ -27,6 +28,7 @@ export class SiteManagement {
   private tournamentController: TournamentController | null = null;
   private navigationEvents: NavigationEvents | null = null;
   private authEvents: AuthEvents | null = null;
+  private twofaManager: TwoFAManager | null = null;
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Constructeur et Initialisation
@@ -85,8 +87,36 @@ export class SiteManagement {
     // Initialiser AuthEvents (gère les événements des formulaires login/signup)
     this.authEvents = new AuthEvents(this._DO);
 
+    // Initialiser TwoFAManager (gère le 2FA dans les paramètres)
+    this.twofaManager = new TwoFAManager(this._DO);
+    // Initialiser le statut 2FA quand la page paramètres est active
+    this.init2FAOnParametresPage();
+
     // APRÈS l'initialisation de la navigation, vérifier si on doit démarrer un match au chargement
     this.matchController.initMatchOnStartup(() => SiteManagement.currentActivePage);
+  }
+
+  /**
+   * Initialise le 2FA quand la page paramètres devient active
+   */
+  private init2FAOnParametresPage() {
+    let twofaInitialized = false;
+
+    // Observer le changement de page
+    const checkParametresPage = () => {
+      if (SiteManagement.currentActivePage === this._DO.pages.parametre) {
+        if (!twofaInitialized) {
+          this.twofaManager?.init();
+          twofaInitialized = true;
+        }
+      } else {
+        // Reset quand on quitte la page paramètres
+        twofaInitialized = false;
+      }
+    };
+
+    // Vérifier toutes les 500ms si on est sur la page paramètres
+    setInterval(checkParametresPage, 500);
   }
 
   /**

@@ -44,6 +44,10 @@ CREATE TABLE IF NOT EXISTS users (
   is_online INTEGER DEFAULT 0,
   last_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
 
+  -- Two-Factor Authentication (ajouté par migration 004)
+  twofa_secret TEXT DEFAULT NULL,
+  twofa_enabled INTEGER DEFAULT 0,
+
   -- Meta
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP

@@ -63,6 +63,23 @@ export function getUIElements(): UIElements {
       volumeSlider: get<HTMLInputElement>("volume-slider", "Parametre"),
       volumeValue: get<HTMLElement>("volume-value", "Parametre"),
       logoutBtn: get<HTMLButtonElement>("logout-btn", "Parametre"),
+
+      // 2FA Settings
+      twofaDisabled: get<HTMLElement>("twofa-disabled", "Parametre"),
+      twofaSetup: get<HTMLElement>("twofa-setup", "Parametre"),
+      twofaEnabled: get<HTMLElement>("twofa-enabled", "Parametre"),
+      twofaQRCode: get<HTMLImageElement>("twofa-qrcode", "Parametre"),
+      twofaVerifyCode: get<HTMLInputElement>("twofa-verify-code", "Parametre"),
+      twofaDisableModal: get<HTMLElement>("twofa-disable-modal", "Parametre"),
+      twofaDisableCode: get<HTMLInputElement>("twofa-disable-code", "Parametre"),
+      btnSetup2FA: get<HTMLButtonElement>("btn-setup-2fa", "Parametre"),
+      btnActivate2FA: get<HTMLButtonElement>("btn-activate-2fa", "Parametre"),
+      btnDisable2FA: get<HTMLButtonElement>("btn-disable-2fa", "Parametre"),
+      btnConfirmDisable: get<HTMLButtonElement>("btn-confirm-disable", "Parametre"),
+      btnCancelSetup: get<HTMLButtonElement>("btn-cancel-setup", "Parametre"),
+      btnCancelDisable: get<HTMLButtonElement>("btn-cancel-disable", "Parametre"),
+      twofaSetupError: get<HTMLElement>("twofa-setup-error", "Parametre"),
+      twofaDisableError: get<HTMLElement>("twofa-disable-error", "Parametre"),
     },
     buttons: {
       nextResult: get<HTMLButtonElement>("next-btn_result", "Buttons"),

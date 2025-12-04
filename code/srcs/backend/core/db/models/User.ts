@@ -18,6 +18,8 @@ export interface User {
   controls: string; // JSON string: {"leftUp":"w","leftDown":"s","rightUp":"ArrowUp","rightDown":"ArrowDown"}
   is_online: number; // 1 = online, 0 = offline
   last_seen: string; // ISO timestamp of last activity
+  twofa_secret: string | null; // Secret TOTP pour 2FA (null si pas configuré)
+  twofa_enabled: number; // 0 = désactivé, 1 = activé
   created_at: string;
   updated_at: string;
 }
@@ -367,6 +369,91 @@ export class UserRepository {
       WHERE id = ?
     `);
     stmt.run(userId);
+  }
+
+  // ========================================
+  // MÉTHODES 2FA (Two-Factor Authentication)
+  // ========================================
+
+  /**
+   * Sauvegarde le secret TOTP pour un utilisateur
+   * @param userId - ID de l'utilisateur
+   * @param secret - Secret TOTP généré
+   */
+  set2FASecret(userId: number, secret: string): void {
+    console.log(`[UserRepository] 💾 Sauvegarde du secret 2FA pour user ${userId}`);
+    const stmt = this.db.prepare(`
+      UPDATE users
+      SET twofa_secret = ?,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `);
+    stmt.run(secret, userId);
+    console.log(`[UserRepository] ✅ Secret 2FA sauvegardé`);
+  }
+
+  /**
+   * Active le 2FA pour un utilisateur
+   * @param userId - ID de l'utilisateur
+   */
+  enable2FA(userId: number): void {
+    console.log(`[UserRepository] 🔐 Activation du 2FA pour user ${userId}`);
+    const stmt = this.db.prepare(`
+      UPDATE users
+      SET twofa_enabled = 1,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `);
+    stmt.run(userId);
+    console.log(`[UserRepository] ✅ 2FA activé`);
+  }
+
+  /**
+   * Désactive le 2FA pour un utilisateur
+   * @param userId - ID de l'utilisateur
+   */
+  disable2FA(userId: number): void {
+    console.log(`[UserRepository] 🔓 Désactivation du 2FA pour user ${userId}`);
+    const stmt = this.db.prepare(`
+      UPDATE users
+      SET twofa_enabled = 0,
+          twofa_secret = NULL,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `);
+    stmt.run(userId);
+    console.log(`[UserRepository] ✅ 2FA désactivé et secret supprimé`);
+  }
+
+  /**
+   * Vérifie si le 2FA est activé pour un utilisateur
+   * @param userId - ID de l'utilisateur
+   * @returns true si 2FA activé, false sinon
+   */
+  is2FAEnabled(userId: number): boolean {
+    const stmt = this.db.prepare(`
+      SELECT twofa_enabled FROM users WHERE id = ?
+    `);
+    const result = stmt.get(userId) as { twofa_enabled: number } | undefined;
+    const isEnabled = result?.twofa_enabled === 1;
+    console.log(`[UserRepository] 🔍 2FA enabled pour user ${userId}: ${isEnabled}`);
+    return isEnabled;
+  }
+
+  /**
+   * Récupère le secret TOTP d'un utilisateur
+   * @param userId - ID de l'utilisateur
+   * @returns Le secret ou null si pas configuré
+   */
+  get2FASecret(userId: number): string | null {
+    console.log(`[UserRepository] 🔑 Récupération du secret 2FA pour user ${userId}`);
+    const stmt = this.db.prepare(`
+      SELECT twofa_secret FROM users WHERE id = ?
+    `);
+    const result = stmt.get(userId) as { twofa_secret: string | null } | undefined;
+    const secret = result?.twofa_secret || null;
+    console.log(`[UserRepository] ${secret ? '✅' : '⚠️'} Secret ${secret ? 'trouvé' : 'non configuré'}`);
+    return secret;
   }
 }
 
