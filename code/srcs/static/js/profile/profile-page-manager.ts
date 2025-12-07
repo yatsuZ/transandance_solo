@@ -109,9 +109,6 @@ export class ProfilePageManager {
     // Charger la liste des amis
     await this.loadFriendsList();
 
-    // Afficher les éléments d'édition
-    this.showEditElements();
-
     // Cacher le bouton de retour si présent
     this.hideBackButton();
 
@@ -147,8 +144,7 @@ export class ProfilePageManager {
       // Afficher l'historique de l'ami
       this.displayFriendMatchHistory(matchHistory, user.id);
 
-      // Cacher les éléments d'édition et les contrôles
-      this.hideEditElements();
+      // Cacher les contrôles et amis (pas besoin de cacher edit, setIconsVisibility le fait)
       this.hideControlsSection();
       this.hideFriendsSection();
 
@@ -227,25 +223,6 @@ export class ProfilePageManager {
         const matchItem = this.createMatchHistoryItem(match, userId);
         historyList.appendChild(matchItem);
       });
-    }
-  }
-
-  /**
-   * Cache les éléments d'édition (icône edit, boutons, etc.)
-   */
-  private hideEditElements(): void {
-    // Cacher l'icône d'édition
-    if (this._DO.icons.edit) {
-      this._DO.icons.edit.style.display = 'none';
-    }
-  }
-
-  /**
-   * Affiche les éléments d'édition
-   */
-  private showEditElements(): void {
-    if (this._DO.icons.edit) {
-      this._DO.icons.edit.style.display = 'block';
     }
   }
 

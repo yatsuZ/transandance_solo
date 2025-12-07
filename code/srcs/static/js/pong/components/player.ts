@@ -1,6 +1,6 @@
 import { Ball, Paddle, Point } from "./geometry.js";
 import { InputHandler } from "./input.js";
-import { PADDLE_OFFSET, AI_ERROR_MARGIN_MIN, AI_ERROR_RANGE_DIVISOR, AI_ERROR_MULTIPLIER, AI_UPDATE_COOLDOWN } from "../game-config.js";
+import { PADDLE_OFFSET, AI_DIFFICULTY, type AIDifficultyLevel } from "../game-config.js";
 
 export type PlayerSide = "L" | "R";
 type PlayerType = "IA" | "HUMAN" | "UNDEFINED";
@@ -82,9 +82,13 @@ export abstract class Player {
     this.scoreElement.textContent = "0";
 
     // Mettre à jour la photo de profil
-    this.avatarElement.src = this.typePlayer === "HUMAN"
-      ? "/static/util/icon/profile.png"
-      : "/static/util/icon/profile_robot.png";
+    if (this.typePlayer === "HUMAN") {
+      // Si PlayerHuman a une avatarUrl, l'utiliser, sinon utiliser l'icône par défaut
+      const humanPlayer = this as any;
+      this.avatarElement.src = humanPlayer.avatarUrl || "/static/util/icon/profile.png";
+    } else {
+      this.avatarElement.src = "/static/util/icon/profile_robot.png";
+    }
   }
 
   /**
@@ -111,11 +115,13 @@ export abstract class Player {
 
 export class PlayerHuman extends Player {
   private input: InputHandler;
+  private avatarUrl: string | null;
 
-  constructor(side: "L" | "R", playerCards:{playerCardL: HTMLElement,playerCardR: HTMLElement}, canvasDimension: {height: number, width: number}, speed: number, name: string)
+  constructor(side: "L" | "R", playerCards:{playerCardL: HTMLElement,playerCardR: HTMLElement}, canvasDimension: {height: number, width: number}, speed: number, name: string, avatarUrl: string | null = null)
   {
     super(side, playerCards, canvasDimension, speed, name);
     this.typePlayer = "HUMAN";
+    this.avatarUrl = avatarUrl;
     this.input = new InputHandler(side);
     this.add_to_update();
 
@@ -144,42 +150,274 @@ export class PlayerHuman extends Player {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export class PlayerAI extends Player {
-  private lastUpdateTime: number = 0;
-  private lastKnownBallY: number = 0;
+  // ========================================
+  // PROPRIÉTÉS DE VISION (Contrainte 1/sec)
+  // ========================================
+  private lastAIUpdate: number = 0;
+  private aiUpdateInterval: number = 1000;
 
-  constructor(side: "L" | "R", playerCards:{playerCardL: HTMLElement,playerCardR: HTMLElement}, canvasDimension: {height: number, width: number}, speed: number, name: string)
-  {
-    super(side, playerCards, canvasDimension, speed, name);
+  // ========================================
+  // PROPRIÉTÉS DE PRÉDICTION
+  // ========================================
+  private predictedBallY: number = 0;
+  private targetY: number = 0;
+  private isReturningToCenter: boolean = false;  // Indique si l'IA retourne au centre
+
+  // ========================================
+  // CONFIGURATION DE DIFFICULTÉ
+  // ========================================
+  private difficulty: AIDifficultyLevel;
+  private errorMargin: number = 30;
+  private reactionDelay: number = 100;
+
+  // ========================================
+  // ÉTAT INTERNE
+  // ========================================
+  private isReacting: boolean = true;
+  private fieldHeight: number = 0;
+
+  // Compteur statique pour numéroter les bots de même difficulté
+  private static botCounters: Record<string, number> = {
+    EASY: 0,
+    MEDIUM: 0,
+    HARD: 0,
+    EXPERT: 0
+  };
+
+  constructor(
+    side: "L" | "R",
+    playerCards: {playerCardL: HTMLElement, playerCardR: HTMLElement},
+    canvasDimension: {height: number, width: number},
+    speed: number,
+    name?: string,
+    difficulty: AIDifficultyLevel = 'MEDIUM'
+  ) {
+    // Générer le nom du bot si non fourni
+    const botName = name || PlayerAI.generateBotName(difficulty);
+
+    super(side, playerCards, canvasDimension, speed, botName);
     this.typePlayer = "IA";
+    this.difficulty = difficulty;
+    this.fieldHeight = canvasDimension.height;
+
+    // Appliquer la configuration de difficulté
+    this.applyDifficulty();
+
     this.add_to_update();
 
-    // Mise à jour du texte de contrôle pour l'IA (utilise l'élément déjà récupéré)
+    // Mise à jour du texte de contrôle pour l'IA
     if (this.movementElement) {
-      this.movementElement.textContent = `Parkinson`;
+      const config = AI_DIFFICULTY[this.difficulty];
+      this.movementElement.textContent = `🤖 ${config.label}`;
     } else {
       console.error('[PlayerAI] Élément de contrôle introuvable');
     }
   }
 
-  update(ball: Ball) {
-    const currentTime = Date.now();
+  /**
+   * Génère un nom unique pour un bot selon sa difficulté
+   * Ex: "Rookie", "Rookie #2", "Rookie #3"
+   */
+  private static generateBotName(difficulty: AIDifficultyLevel): string {
+    const config = AI_DIFFICULTY[difficulty];
+    const baseName = config.botName;
 
-    // ⏱️ L'IA ne peut voir le jeu qu'une fois par seconde (contrainte de vision)
-    if (currentTime - this.lastUpdateTime >= AI_UPDATE_COOLDOWN) {
-      this.lastKnownBallY = ball.y;
-      this.lastUpdateTime = currentTime;
+    // Incrémenter le compteur pour cette difficulté
+    PlayerAI.botCounters[difficulty]++;
+    const count = PlayerAI.botCounters[difficulty];
+
+    // Si c'est le premier bot, pas de numéro
+    if (count === 1) {
+      return baseName;
     }
 
-    // L'IA se base sur la dernière position connue de la balle
-    const center = this.paddle.position.y + this.paddle.height / 2;
-    const errorMargin = Math.random() * (this.paddle.height - this.paddle.height / AI_ERROR_RANGE_DIVISOR) * AI_ERROR_MULTIPLIER;
+    // Sinon, ajouter le numéro
+    return `${baseName} #${count}`;
+  }
 
-    if (center < this.lastKnownBallY - AI_ERROR_MARGIN_MIN + errorMargin) {
-        // ✅ Utiliser moveDown() pour respecter les limites
-        this.paddle.moveDown();
-    } else if (center > this.lastKnownBallY + AI_ERROR_MARGIN_MIN + errorMargin) {
-        // ✅ Utiliser moveUp() pour respecter les limites
-        this.paddle.moveUp();
+  /**
+   * Réinitialise les compteurs de bots (utile entre les matchs)
+   */
+  public static resetBotCounters(): void {
+    PlayerAI.botCounters = {
+      EASY: 0,
+      MEDIUM: 0,
+      HARD: 0,
+      EXPERT: 0
+    };
+  }
+
+  /**
+   * Applique les paramètres de difficulté depuis game-config.ts
+   */
+  private applyDifficulty(): void {
+    const config = AI_DIFFICULTY[this.difficulty];
+
+    this.aiUpdateInterval = config.aiUpdateInterval;
+    this.errorMargin = config.errorMargin;
+    this.reactionDelay = config.reactionDelay;
+
+    // ⚠️ PAS de speedMultiplier : tous les paddles ont la MÊME VITESSE (conforme au sujet)
+  }
+
+  /**
+   * Update appelée chaque frame
+   * ✅ Respecte la contrainte "1 vision/seconde"
+   */
+  update(ball: Ball): void {
+    const now = Date.now();
+
+    // ⏱️ Vision limitée à l'intervalle configuré (respecte la contrainte du sujet)
+    if (now - this.lastAIUpdate >= this.aiUpdateInterval) {
+      this.updateAI(ball);
+      this.lastAIUpdate = now;
     }
+
+    // Déplacement fluide vers la cible (même sans nouvelle vision)
+    this.moveTowardsTarget();
+  }
+
+  /**
+   * Logique IA - Appelée 1 fois par seconde (ou selon difficulté)
+   * Calcule la stratégie et la cible à atteindre
+   */
+  private updateAI(ball: Ball): void {
+    // Prédire la position de la balle à l'arrivée
+    this.predictedBallY = this.predictBallPosition(ball);
+
+    // Ajouter imprécision aléatoire (rendre l'IA battable)
+    const randomError = (Math.random() - 0.5) * 2 * this.errorMargin;
+    this.targetY = this.predictedBallY + randomError;
+
+    // Stratégie intelligente : retour au centre si balle loin ou s'éloigne
+    const distanceToBall = Math.abs(ball.x - this.paddle.position.x);
+    const fieldWidth = this.fieldHeight * (4/3); // Ratio 4:3 du terrain
+
+    const isMovingTowards = (this.side === 'R' && ball.velocity.x > 0) ||
+                           (this.side === 'L' && ball.velocity.x < 0);
+
+    if (distanceToBall > fieldWidth / 2 || !isMovingTowards) {
+      // Balle loin ou s'éloigne → se repositionner au centre
+      this.targetY = this.fieldHeight / 2;
+      this.isReturningToCenter = true;  // Marquer qu'on retourne au centre
+    } else {
+      this.isReturningToCenter = false;  // On poursuit activement la balle
+    }
+
+    // Simuler délai de réaction (sauf EXPERT qui réagit instantanément)
+    if (this.reactionDelay > 0) {
+      this.isReacting = false;
+      setTimeout(() => {
+        this.isReacting = true;
+      }, this.reactionDelay);
+    } else {
+      this.isReacting = true;
+    }
+  }
+
+  /**
+   * Prédit où la balle arrivera à la hauteur du paddle
+   * Prend en compte les rebonds haut/bas du terrain
+   * Pour EXPERT: anticipe mieux l'accélération de la balle
+   */
+  private predictBallPosition(ball: Ball): number {
+    let ballX = ball.x;
+    let ballY = ball.y;
+    let velocityX = ball.velocity.x;
+    let velocityY = ball.velocity.y;
+
+    // Si la balle s'éloigne, retourner au centre
+    const isMovingTowards = (this.side === 'R' && velocityX > 0) ||
+                           (this.side === 'L' && velocityX < 0);
+
+    if (!isMovingTowards || Math.abs(velocityX) < 0.1) {
+      return this.fieldHeight / 2;
+    }
+
+    // Calculer le temps avant arrivée au paddle
+    const paddleX = this.paddle.position.x;
+    const deltaX = Math.abs(paddleX - ballX);
+
+    // Pour EXPERT: Anticiper l'accélération de la balle
+    // En supposant que la balle peut accélérer pendant le trajet
+    let adjustedVelocityX = Math.abs(velocityX);
+    if (this.difficulty === 'EXPERT') {
+      // Anticiper que la balle peut devenir beaucoup plus rapide
+      // Compense l'accélération future en réduisant significativement le temps estimé
+      adjustedVelocityX *= 0.85; // 15% de réduction du temps = anticipe accélération
+    }
+
+    const timeToReach = deltaX / adjustedVelocityX;
+
+    // Prédire position Y après ce temps
+    let predictedY = ballY + (velocityY * timeToReach);
+
+    // Simuler les rebonds haut/bas (la balle rebondit sur les murs)
+    const maxIterations = 10; // Éviter boucle infinie si bug
+    let iterations = 0;
+
+    while ((predictedY < 0 || predictedY > this.fieldHeight) && iterations < maxIterations) {
+      if (predictedY < 0) {
+        // Rebond sur mur du haut
+        predictedY = Math.abs(predictedY);
+        velocityY = -velocityY;
+      }
+      if (predictedY > this.fieldHeight) {
+        // Rebond sur mur du bas
+        predictedY = 2 * this.fieldHeight - predictedY;
+        velocityY = -velocityY;
+      }
+      iterations++;
+    }
+
+    // Sécurité : s'assurer que la prédiction reste dans les limites
+    predictedY = Math.max(0, Math.min(this.fieldHeight, predictedY));
+
+    return predictedY;
+  }
+
+  /**
+   * Déplace le paddle vers la cible de manière fluide
+   * Appelée chaque frame (mais la cible est définie 1x/sec)
+   */
+  private moveTowardsTarget(): void {
+    // Ne pas bouger si en délai de réaction
+    if (!this.isReacting) {
+      return;
+    }
+
+    const paddleCenter = this.paddle.position.y + this.paddle.height / 2;
+    const diff = this.targetY - paddleCenter;
+
+    // Zone morte adaptée au contexte
+    let deadZone: number;
+
+    if (this.isReturningToCenter) {
+      // Quand on retourne au centre (pas de balle à intercepter),
+      // zone morte beaucoup plus grande pour éviter les oscillations
+      deadZone = 30;
+    } else {
+      // Quand on poursuit la balle, zone morte normale selon difficulté
+      deadZone = this.difficulty === 'EXPERT' ? 4 : 5;
+    }
+
+    if (Math.abs(diff) < deadZone) {
+      return;
+    }
+
+    // Déplacer vers haut ou bas
+    if (diff > 0) {
+      this.paddle.moveDown();
+    } else {
+      this.paddle.moveUp();
+    }
+  }
+
+  /**
+   * Met à jour la hauteur du terrain lors du redimensionnement
+   */
+  onResize(newDimensions: { width: number; height: number }): void {
+    super.onResize(newDimensions);
+    this.fieldHeight = newDimensions.height;
   }
 }

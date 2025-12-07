@@ -4,11 +4,17 @@ import { Field } from './components/field.js';
 import { updateUrl } from '../utils/url-helpers.js';
 import { activeAnotherPage } from '../navigation/page-manager.js';
 import { SiteManagement } from '../SiteManagement.js';
-import { log } from 'console';
 import { DOMElements } from '../core/dom-elements.js';
-import { PADDLE_SPEED_RATIO, WINNING_SCORE, BALL_RESET_DELAY } from './game-config.js';
+import { PADDLE_SPEED_RATIO, WINNING_SCORE, BALL_RESET_DELAY, type AIDifficultyLevel } from './game-config.js';
 
-export type ConfigMatch = {mode : "PvP" | "PvIA" | "IAvP" | "IAvIA", name: [string, string]};
+export type ConfigMatch = {
+  mode: "PvP" | "PvIA" | "IAvP" | "IAvIA";
+  name: [string, string];
+  aiDifficulty?: AIDifficultyLevel; // Niveau de difficulté de l'IA (optionnel, par défaut MEDIUM) - utilisé pour les matchs simples
+  difficulty?: [string | undefined, string | undefined]; // Niveaux de difficulté pour chaque joueur (utilisé pour les tournois)
+  authenticatedPlayerSide?: 'left' | 'right' | null; // Quel joueur est le user connecté
+  avatarUrls?: [string | null, string | null]; // URLs des avatars pour les joueurs [left, right]
+};
 
 
 // modifier pong game 1 pour afficher les bonne info dans la page match 
@@ -41,6 +47,9 @@ export class PongGame {
 
     this._DO = DO_of_SiteManagement;
 
+    // Réinitialiser les compteurs de bots pour avoir des noms cohérents
+    PlayerAI.resetBotCounters();
+
     // Initialisation du terrain et des joueurs
     this.field = new Field(this._DO.canva);
     const dim = this.field.getDimensions();
@@ -48,22 +57,32 @@ export class PongGame {
     // Calculer la vitesse des paddles proportionnellement à la hauteur du terrain
     const paddleSpeed = dim.height / PADDLE_SPEED_RATIO;
 
+    // Récupérer les difficultés de l'IA
+    // Si config.difficulty existe (tournoi), utiliser les difficultés individuelles
+    // Sinon, utiliser aiDifficulty (match simple) avec MEDIUM par défaut
+    const difficultyLeft = (config.difficulty?.[0] as AIDifficultyLevel) || config.aiDifficulty || 'MEDIUM';
+    const difficultyRight = (config.difficulty?.[1] as AIDifficultyLevel) || config.aiDifficulty || 'MEDIUM';
+
+    // Récupérer les avatars (si fournis)
+    const avatarLeft = config.avatarUrls?.[0] || null;
+    const avatarRight = config.avatarUrls?.[1] || null;
+
     switch (config.mode) {
       case "PvIA":
-        this.playerLeft = new PlayerHuman("L", this._DO.matchElement, dim, paddleSpeed, config.name[0]);
-        this.playerRight = new PlayerAI("R", this._DO.matchElement, dim, paddleSpeed, config.name[1]);
+        this.playerLeft = new PlayerHuman("L", this._DO.matchElement, dim, paddleSpeed, config.name[0], avatarLeft);
+        this.playerRight = new PlayerAI("R", this._DO.matchElement, dim, paddleSpeed, config.name[1], difficultyRight);
         break;
       case "IAvP":
-        this.playerLeft = new PlayerAI("L", this._DO.matchElement, dim, paddleSpeed, config.name[0]);
-        this.playerRight = new PlayerHuman("R", this._DO.matchElement, dim, paddleSpeed, config.name[1]);
+        this.playerLeft = new PlayerAI("L", this._DO.matchElement, dim, paddleSpeed, config.name[0], difficultyLeft);
+        this.playerRight = new PlayerHuman("R", this._DO.matchElement, dim, paddleSpeed, config.name[1], avatarRight);
         break;
       case "IAvIA":
-        this.playerLeft = new PlayerAI("L", this._DO.matchElement, dim, paddleSpeed, config.name[0]);
-        this.playerRight = new PlayerAI("R", this._DO.matchElement, dim, paddleSpeed, config.name[1]);
+        this.playerLeft = new PlayerAI("L", this._DO.matchElement, dim, paddleSpeed, config.name[0], difficultyLeft);
+        this.playerRight = new PlayerAI("R", this._DO.matchElement, dim, paddleSpeed, config.name[1], difficultyRight);
         break;
       default: // PvP
-        this.playerLeft = new PlayerHuman("L", this._DO.matchElement, dim, paddleSpeed, config.name[0]);
-        this.playerRight = new PlayerHuman("R", this._DO.matchElement, dim, paddleSpeed, config.name[1]);
+        this.playerLeft = new PlayerHuman("L", this._DO.matchElement, dim, paddleSpeed, config.name[0], avatarLeft);
+        this.playerRight = new PlayerHuman("R", this._DO.matchElement, dim, paddleSpeed, config.name[1], avatarRight);
     }
 
     // Initialisation de la balle

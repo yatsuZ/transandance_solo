@@ -2,6 +2,39 @@
   width: 80%;
   margin: 20px auto 0 auto;
   padding: 0;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Scrollbar personnalisée pour profile-wrapper */
+.profile-wrapper::-webkit-scrollbar {
+  width: 12px;
+}
+
+.profile-wrapper::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  border: 1px solid var(--color-primary);
+}
+
+.profile-wrapper::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: 6px;
+  box-shadow: 0 0 10px var(--color-primary);
+}
+
+.profile-wrapper::-webkit-scrollbar-thumb:hover {
+  background: var(--color-secondary);
+  box-shadow: 0 0 15px var(--color-secondary);
+}
+
+/* Firefox */
+.profile-wrapper {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary) rgba(0, 0, 0, 0.3);
 }
 
 .profile-card {
@@ -130,7 +163,6 @@
   border: 3px solid #ff9933;
   border-radius: 10px;
   box-shadow: 0 0 15px #ff9933;
-  margin-top: 20px;
 }
 
 .friends-section h3 {
@@ -259,7 +291,6 @@
   border: 3px solid #33ff57;
   border-radius: 10px;
   box-shadow: 0 0 15px #33ff57;
-  margin-top: 20px;
 }
 
 .history-section h3 {
@@ -279,6 +310,34 @@
   padding-right: 5px;
 }
 
+/* Scrollbar personnalisée pour match-history */
+.match-history::-webkit-scrollbar {
+  width: 12px;
+}
+
+.match-history::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  border: 1px solid var(--color-primary);
+}
+
+.match-history::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: 6px;
+  box-shadow: 0 0 10px var(--color-primary);
+}
+
+.match-history::-webkit-scrollbar-thumb:hover {
+  background: var(--color-secondary);
+  box-shadow: 0 0 15px var(--color-secondary);
+}
+
+/* Firefox */
+.match-history {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary) rgba(0, 0, 0, 0.3);
+}
+
 .match-item {
   display: flex;
   justify-content: space-between;
@@ -292,6 +351,8 @@
   font-size: 10px;
   box-shadow: 0 0 6px #33e3ff;
   transition: all 0.2s;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .match-item:hover {
@@ -309,6 +370,10 @@
   flex: 1;
   text-align: left;
   color: #d6ffd9;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 .match-score {

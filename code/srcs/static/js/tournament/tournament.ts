@@ -6,11 +6,14 @@ import { DOMElements } from "../core/dom-elements.js";
 import { TournamentForm } from "../game-management/forms/tournament-form.js";
 import { TournamentAPI } from "./tournament-api.js";
 import { TournamentTree } from "./tournament-tree.js";
+import { AuthManager } from "../auth/auth-manager.js";
 
 export type PlayerForTournament = {
   name: string;
   isHuman: boolean;
   aLive: boolean;
+  difficulty?: string; // Niveau de difficulté pour les IA (EASY, MEDIUM, HARD, EXPERT)
+  avatarUrl?: string | null; // URL de l'avatar si c'est le user connecté
 };
 
 /**
@@ -82,14 +85,20 @@ export class Tournament {
       if (!playerNames || !arePlayersValid(playerNames))
         return createTournament(null, -1);
 
-      // Récupérer si c'est un humain ou une IA
-      const players = playerNames.map((name, i) => {
-        const isHuman = dO.tournamentElement.formIsHumanCheckbox[i].checked;
-        return { name, isHuman, aLive: true };
-      }) as [PlayerForTournament, PlayerForTournament, PlayerForTournament, PlayerForTournament];
-
       // Récupérer quel joueur est le user connecté
       const authenticatedPlayerIndex = tournamentForm.getAuthenticatedPlayerIndex();
+
+      // Récupérer l'avatar du user connecté
+      const userData = AuthManager.getUserData();
+      const userAvatar = userData?.avatar_url || null;
+
+      // Récupérer si c'est un humain ou une IA + la difficulté + l'avatar
+      const players = playerNames.map((name, i) => {
+        const isHuman = dO.tournamentElement.formIsHumanCheckbox[i].checked;
+        const difficulty = isHuman ? undefined : tournamentForm.getAIDifficulty(i);
+        const avatarUrl = (i === authenticatedPlayerIndex && isHuman) ? userAvatar : null;
+        return { name, isHuman, aLive: true, difficulty, avatarUrl };
+      }) as [PlayerForTournament, PlayerForTournament, PlayerForTournament, PlayerForTournament];
 
       clear_Formulaire_Of_Tournament(dO.tournamentElement.formPseudoTournament);
 
@@ -130,6 +139,8 @@ export class Tournament {
     return {
       mode,
       name: [p1.name, p2.name],
+      difficulty: [p1.difficulty, p2.difficulty],
+      avatarUrls: [p1.avatarUrl || null, p2.avatarUrl || null],
     };
   }
 

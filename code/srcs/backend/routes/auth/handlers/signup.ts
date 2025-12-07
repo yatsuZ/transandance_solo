@@ -49,7 +49,8 @@ export const signupSchema = {
               properties: {
                 id: { type: 'integer' },
                 username: { type: 'string' },
-                email: { type: ['string', 'null'] }
+                email: { type: ['string', 'null'] },
+                avatar_url: { type: ['string', 'null'] }
               }
             }
           }

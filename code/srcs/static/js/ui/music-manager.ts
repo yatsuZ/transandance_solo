@@ -1,6 +1,6 @@
 // === GESTION DE LA MUSIQUE ===
 
-import { DOMElements } from "../core/dom-elements";
+import { DOMElements } from "../core/dom-elements.js";
 import { uiPreferences } from "../core/ui-preferences.js";
 
 export function initMusicSystem(all_DO: DOMElements) {

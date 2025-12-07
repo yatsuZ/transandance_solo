@@ -8,6 +8,7 @@ interface MeData {
     id: number;
     username: string;
     email: string | null;
+    avatar_url: string | null;
     controls: string;
   };
 }
@@ -34,6 +35,7 @@ export const meSchema = {
                 id: { type: 'integer' },
                 username: { type: 'string' },
                 email: { type: ['string', 'null'] },
+                avatar_url: { type: ['string', 'null'] },
                 controls: { type: 'string' }
               }
             }
@@ -84,6 +86,7 @@ export async function me(request: FastifyRequest, reply: FastifyReply): Promise<
         id: user.id,
         username: user.username,
         email: user.email,
+        avatar_url: user.avatar_url,
         controls: user.controls
       }
     }

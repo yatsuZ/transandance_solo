@@ -1,4 +1,4 @@
-import { PlayerSide } from "./player";
+import { PlayerSide } from "./player.js";
 import {
   PADDLE_WIDTH,
   PADDLE_HEIGHT_RATIO,
@@ -215,9 +215,15 @@ export class Ball {
     this.x += this.speedX;
     this.y += this.speedY;
 
-    // rebond haut/bas
-    if (this.y - this.radius < 0 || this.y + this.radius > canvasHeight) {
-      this.speedY = -this.speedY;
+    // Rebond haut/bas avec repositionnement pour éviter le blocage
+    if (this.y - this.radius < 0) {
+      // Collision bord haut : repositionner la balle exactement au bord
+      this.y = this.radius;
+      this.speedY = Math.abs(this.speedY);  // Forcer vers le bas
+    } else if (this.y + this.radius > canvasHeight) {
+      // Collision bord bas : repositionner la balle exactement au bord
+      this.y = canvasHeight - this.radius;
+      this.speedY = -Math.abs(this.speedY);  // Forcer vers le haut
     }
   }
 
@@ -309,21 +315,25 @@ export class Ball {
     const paddleLeft = paddle.position.x;
     const paddleRight = paddle.position.x + paddle.width;
 
+    // Position précédente de la balle (avant le dernier update)
+    const prevBallLeft = ballLeft - this.speedX;
+    const prevBallRight = ballRight - this.speedX;
+
     if (paddle.side === "L") {
       // Paddle gauche : vérifier que la balle vient de la droite
-      // et touche la face droite de la paddle
+      // et touche ou a traversé la face droite de la paddle
       return (
         this.speedX < 0 &&           // Balle va vers la gauche
-        ballLeft <= paddleRight &&   // Bord gauche de la balle touche la face droite de la paddle
-        ballLeft > paddleLeft        // Mais pas trop loin à gauche
+        ballLeft <= paddleRight &&   // Position actuelle touche la paddle
+        prevBallLeft >= paddleRight  // Position précédente était à droite (évite le tunneling)
       );
     } else {
       // Paddle droite : vérifier que la balle vient de la gauche
-      // et touche la face gauche de la paddle
+      // et touche ou a traversé la face gauche de la paddle
       return (
         this.speedX > 0 &&           // Balle va vers la droite
-        ballRight >= paddleLeft &&   // Bord droit de la balle touche la face gauche de la paddle
-        ballRight < paddleRight      // Mais pas trop loin à droite
+        ballRight >= paddleLeft &&   // Position actuelle touche la paddle
+        prevBallRight <= paddleLeft  // Position précédente était à gauche (évite le tunneling)
       );
     }
   }
@@ -370,5 +380,17 @@ export class Ball {
    */
   getSpeedMultiplier(): number {
     return this.currentSpeedMultiplier;
+  }
+
+  /**
+   * Retourne la vélocité de la balle sous forme d'objet {x, y}
+   * Utilisé par l'IA pour prédire la trajectoire
+   * @returns Un objet contenant speedX et speedY
+   */
+  get velocity(): { x: number; y: number } {
+    return {
+      x: this.speedX,
+      y: this.speedY
+    };
   }
 }

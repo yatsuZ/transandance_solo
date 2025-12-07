@@ -1,4 +1,4 @@
-import { DOMElements } from "../core/dom-elements";
+import { DOMElements } from "../core/dom-elements.js";
 
 // --- Configuration globale ---
 const MAX_NAME_LENGTH = 16;

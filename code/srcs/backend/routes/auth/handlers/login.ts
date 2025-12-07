@@ -17,6 +17,7 @@ interface LoginData {
     id: number;
     username: string;
     email: string | null;
+    avatar_url: string | null;
   };
 }
 
@@ -50,7 +51,8 @@ export const loginSchema = {
               properties: {
                 id: { type: 'integer' },
                 username: { type: 'string' },
-                email: { type: ['string', 'null'] }
+                email: { type: ['string', 'null'] },
+                avatar_url: { type: ['string', 'null'] }
               }
             }
           }
@@ -168,7 +170,8 @@ export async function login(request: FastifyRequest<{ Body: LoginBody }>, reply:
       user: {
         id: user.id,
         username: user.username,
-        email: user.email
+        email: user.email,
+        avatar_url: user.avatar_url
       }
     },
     message: 'Login successful'

@@ -14,6 +14,7 @@ export interface UserData {
   id: number;
   username: string;
   email: string | null;
+  avatar_url?: string | null; // URL de la photo de profil
   controls?: string; // JSON string des contrôles clavier
 }
 

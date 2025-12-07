@@ -105,10 +105,35 @@ export class MatchController {
     else
       mode = "IAvIA";
 
+    // Récupérer la difficulté de l'IA (si au moins un joueur est IA)
+    let aiDifficulty: ConfigMatch["aiDifficulty"] = 'MEDIUM'; // Par défaut
+    if (playerLeftType === "ia") {
+      aiDifficulty = this.gameConfigForm.getAIDifficulty('left') as any;
+    } else if (playerRightType === "ia") {
+      aiDifficulty = this.gameConfigForm.getAIDifficulty('right') as any;
+    }
+
+    // Récupérer quel joueur est le user connecté et son avatar
+    const authenticatedSide = this.gameConfigForm.getAuthenticatedPlayerSide();
+    const userData = AuthManager.getUserData();
+
+    // Préparer les avatars
+    let avatarLeft: string | null = null;
+    let avatarRight: string | null = null;
+
+    if (userData && authenticatedSide === 'left') {
+      avatarLeft = userData.avatar_url || null;
+    } else if (userData && authenticatedSide === 'right') {
+      avatarRight = userData.avatar_url || null;
+    }
+
     // Créer la config
     const config: ConfigMatch = {
       mode: mode,
-      name: [playerLeftName, playerRightName]
+      name: [playerLeftName, playerRightName],
+      aiDifficulty: aiDifficulty, // Passer la difficulté au jeu
+      authenticatedPlayerSide: authenticatedSide,
+      avatarUrls: [avatarLeft, avatarRight]
     };
 
     // Afficher l'icône accueil
@@ -125,9 +150,7 @@ export class MatchController {
     const isBotLeft = playerLeftType === "ia" ? 1 : 0;
     const isBotRight = playerRightType === "ia" ? 1 : 0;
 
-    // Déterminer quel joueur est le user via la checkbox "C'est moi"
-    const authenticatedSide = this.gameConfigForm.getAuthenticatedPlayerSide();
-    const userData = AuthManager.getUserData();
+    // Utiliser authenticatedSide et userData déjà récupérés plus haut
     const playerLeftId = (authenticatedSide === 'left' && userData) ? userData.id : null;
     const playerRightId = (authenticatedSide === 'right' && userData) ? userData.id : null;
 

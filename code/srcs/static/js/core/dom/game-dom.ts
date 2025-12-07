@@ -49,6 +49,11 @@ export function getGameElements(): GameElements {
       radioGameConfig_PlayerLeftTypeIA: query<HTMLInputElement>('input[name="playerLeftType"][value="ia"]', "GameConfig"),
       radioGameConfig_PlayerRightTypeHuman: query<HTMLInputElement>('input[name="playerRightType"][value="human"]', "GameConfig"),
       radioGameConfig_PlayerRightTypeIA: query<HTMLInputElement>('input[name="playerRightType"][value="ia"]', "GameConfig"),
+      // Sélecteurs de difficulté IA
+      playerLeftAIDifficultyBlock: get<HTMLElement>("playerLeftAIDifficulty", "GameConfig"),
+      playerRightAIDifficultyBlock: get<HTMLElement>("playerRightAIDifficulty", "GameConfig"),
+      playerLeftDifficultySelect: get<HTMLSelectElement>("playerLeftDifficulty", "GameConfig"),
+      playerRightDifficultySelect: get<HTMLSelectElement>("playerRightDifficulty", "GameConfig"),
     },
     resultElement: {
       winnerNameEl: get<HTMLElement>("winner-name", "Result"),
@@ -79,6 +84,19 @@ export function getGameElements(): GameElements {
         get<HTMLInputElement>("isMe2", "Tournament"),
         get<HTMLInputElement>("isMe3", "Tournament"),
         get<HTMLInputElement>("isMe4", "Tournament"),
+      ],
+      // Sélecteurs de difficulté IA pour tournoi
+      playerDifficultyBlocks: [
+        get<HTMLElement>("player1AIDifficulty", "Tournament"),
+        get<HTMLElement>("player2AIDifficulty", "Tournament"),
+        get<HTMLElement>("player3AIDifficulty", "Tournament"),
+        get<HTMLElement>("player4AIDifficulty", "Tournament"),
+      ],
+      playerDifficultySelects: [
+        get<HTMLSelectElement>("player1Difficulty", "Tournament"),
+        get<HTMLSelectElement>("player2Difficulty", "Tournament"),
+        get<HTMLSelectElement>("player3Difficulty", "Tournament"),
+        get<HTMLSelectElement>("player4Difficulty", "Tournament"),
       ],
     },
   };

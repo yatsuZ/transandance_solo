@@ -6,6 +6,7 @@ import { AuthManager } from './auth-manager.js';
 import { activeAnotherPage, activeOrHiden } from '../navigation/page-manager.js';
 import { updateUrl } from '../utils/url-helpers.js';
 import { DOMElements } from '../core/dom-elements.js';
+import { PAGE_IDS } from '../navigation/helpers.js';
 
 export class AuthEvents {
   private _DO: DOMElements;
@@ -110,6 +111,9 @@ export class AuthEvents {
         // Masquer l'erreur
         this.hideError(errorDiv);
 
+        // Vérifier l'auth pour initialiser la session
+        await AuthManager.verifyAuth();
+
         // Rediriger vers la page d'accueil
         this.redirectToHome();
       } else {
@@ -161,6 +165,9 @@ export class AuthEvents {
 
         // Masquer l'erreur
         this.hideError(errorDiv);
+
+        // Vérifier l'auth pour initialiser la session
+        await AuthManager.verifyAuth();
 
         // Rediriger vers la page d'accueil
         this.redirectToHome();
@@ -241,6 +248,9 @@ export class AuthEvents {
         // Masquer l'erreur
         this.hideError(errorDiv);
 
+        // Vérifier l'auth pour initialiser la session
+        await AuthManager.verifyAuth();
+
         // Rediriger vers la page d'accueil
         this.redirectToHome();
       } else {
@@ -278,14 +288,17 @@ export class AuthEvents {
    */
   private redirectToHome(): void {
     const accueilPage = this._DO.pages.accueil;
+    const iconEdit = this._DO.icons.edit;
     const iconAccueil = this._DO.icons.accueil;
     const iconProfile = this._DO.icons.profile;
     const iconSettings = this._DO.icons.settings;
 
-    // Afficher les icônes
+    // Afficher les icônes selon la logique de la page accueil
+    // Sur la page accueil: accueil=OFF, profile=ON, settings=ON, edit=OFF
+    activeOrHiden(iconEdit, 'Off');
     activeOrHiden(iconAccueil, 'Off'); // Cache l'icône accueil sur la page accueil
-    activeOrHiden(iconSettings, 'On');
     activeOrHiden(iconProfile, 'On');
+    activeOrHiden(iconSettings, 'On');
 
     // Activer la page accueil
     activeAnotherPage(accueilPage);

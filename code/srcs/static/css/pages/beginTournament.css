@@ -123,3 +123,48 @@
   accent-color: rgb(0, 255, 76);
   cursor: pointer;
 }
+
+/* Bloc difficulté IA dans le tournoi */
+.tournament-player-card .ai-difficulty-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  width: 100%;
+}
+
+.tournament-player-card .ai-difficulty-block label {
+  font-size: 0.75rem;
+  color: rgb(0, 255, 76);
+  font-weight: bold;
+  text-align: left;
+}
+
+.tournament-player-card .difficulty-select {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 0.75rem;
+  background: rgba(0, 0, 0, 0.5);
+  color: var(--color-secondary);
+  border: 1px solid rgba(0, 255, 76, 0.3);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.tournament-player-card .difficulty-select:hover {
+  border-color: rgb(0, 255, 76);
+  background: rgba(0, 255, 76, 0.1);
+}
+
+.tournament-player-card .difficulty-select:focus {
+  outline: none;
+  border-color: rgb(0, 255, 76);
+  box-shadow: 0 0 8px rgba(0, 255, 76, 0.4);
+}
+
+.tournament-player-card .difficulty-select option {
+  background: var(--bg-gray-dark);
+  color: var(--color-secondary);
+  padding: 0.5rem;
+}

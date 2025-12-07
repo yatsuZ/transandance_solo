@@ -165,4 +165,50 @@
   cursor: pointer;
 }
 
+/* BLOC DIFFICULTÉ IA */
+
+.ai-difficulty-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  gap: 0.5rem;
+}
+
+.ai-difficulty-block label {
+  font-size: 0.85rem;
+  color: rgb(0, 255, 76);
+  font-weight: bold;
+}
+
+.difficulty-select {
+  width: 100%;
+  padding: 0.6rem;
+  font-size: 0.85rem;
+  background: rgba(0, 0, 0, 0.5);
+  color: var(--color-secondary);
+  border: 1px solid rgba(0, 255, 76, 0.3);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.difficulty-select:hover {
+  border-color: rgb(0, 255, 76);
+  background: rgba(0, 255, 76, 0.1);
+}
+
+.difficulty-select:focus {
+  outline: none;
+  border-color: rgb(0, 255, 76);
+  box-shadow: 0 0 8px rgba(0, 255, 76, 0.4);
+}
+
+.difficulty-select option {
+  background: var(--bg-gray-dark);
+  color: var(--color-secondary);
+  padding: 0.5rem;
+}
+
 /* Le bouton .start-btn est défini dans components/common.css */

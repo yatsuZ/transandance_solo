@@ -96,6 +96,10 @@ export interface GameElements {
     radioGameConfig_PlayerLeftTypeIA: HTMLInputElement;
     radioGameConfig_PlayerRightTypeHuman: HTMLInputElement;
     radioGameConfig_PlayerRightTypeIA: HTMLInputElement;
+    playerLeftAIDifficultyBlock: HTMLElement;
+    playerRightAIDifficultyBlock: HTMLElement;
+    playerLeftDifficultySelect: HTMLSelectElement;
+    playerRightDifficultySelect: HTMLSelectElement;
   };
   resultElement: {
     winnerNameEl: HTMLElement;
@@ -112,6 +116,8 @@ export interface GameElements {
     formPseudoTournament: [HTMLInputElement, HTMLInputElement, HTMLInputElement, HTMLInputElement];
     formIsHumanCheckbox: [HTMLInputElement, HTMLInputElement, HTMLInputElement, HTMLInputElement];
     formIsMeCheckbox: [HTMLInputElement, HTMLInputElement, HTMLInputElement, HTMLInputElement];
+    playerDifficultyBlocks: [HTMLElement, HTMLElement, HTMLElement, HTMLElement];
+    playerDifficultySelects: [HTMLSelectElement, HTMLSelectElement, HTMLSelectElement, HTMLSelectElement];
   };
 }
 
