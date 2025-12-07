@@ -82,6 +82,14 @@ export async function signup(request: FastifyRequest<{ Body: SignupBody }>, repl
     });
   }
 
+  // Vérifier que l'email est fourni (requis depuis Google OAuth)
+  if (!email || email.trim() === '') {
+    return reply.code(StatusCodes.BAD_REQUEST).send({
+      success: false,
+      error: 'Email is required'
+    });
+  }
+
   // Vérifier si l'email existe déjà
   const existingUserByEmail = userRepo.getUserByEmail(email);
   if (existingUserByEmail) {

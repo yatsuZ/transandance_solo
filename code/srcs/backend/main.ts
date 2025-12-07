@@ -41,6 +41,8 @@ export async function buildApp(): Promise<FastifyInstance> {
     parseOptions: {}
   });
 
+  // Note: Plugin Google OAuth2 est maintenant enregistré dans authRoutes pour avoir le bon scope
+
   // Plugin Multipart (pour upload de fichiers)
   await fastify.register(fastifyMultipart, {
     limits: {

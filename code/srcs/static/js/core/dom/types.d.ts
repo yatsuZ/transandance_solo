@@ -37,8 +37,12 @@ export interface ProfileElements {
   statGoalAgainst: HTMLElement;
   ControlLU: HTMLElement;
   ControlLD: HTMLElement;
+  ControlLL: HTMLElement;
+  ControlLR: HTMLElement;
   ControlRU: HTMLElement;
   ControlRD: HTMLElement;
+  ControlRL: HTMLElement;
+  ControlRR: HTMLElement;
   btnEditControl: HTMLElement;
   historyList: HTMLElement;
   historyEmpty: HTMLElement;
@@ -126,7 +130,7 @@ export interface GameElements {
 // ========================================
 export interface UIElements {
   pages: Record<
-    "login" | "signup" | "accueil" | "profile" | "leaderboard" | "gameConfig" | "match" | "result" | "beginTournament" | "treeTournament" | "parametre" | "error",
+    "login" | "signup" | "accueil" | "profile" | "leaderboard" | "gameConfig" | "match" | "tron" | "result" | "beginTournament" | "treeTournament" | "parametre" | "error",
     HTMLElement
   >;
   errorElement: {
@@ -187,8 +191,12 @@ export interface UIElements {
     modal: HTMLElement;
     inputLeftUp: HTMLInputElement;
     inputLeftDown: HTMLInputElement;
+    inputLeftLeft: HTMLInputElement;
+    inputLeftRight: HTMLInputElement;
     inputRightUp: HTMLInputElement;
     inputRightDown: HTMLInputElement;
+    inputRightLeft: HTMLInputElement;
+    inputRightRight: HTMLInputElement;
     btnSave: HTMLButtonElement;
     btnCancel: HTMLButtonElement;
   };

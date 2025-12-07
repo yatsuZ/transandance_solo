@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   username VARCHAR(16) UNIQUE NOT NULL,
   email VARCHAR(255) UNIQUE,
-  password_hash VARCHAR(255) NOT NULL,
+  password_hash VARCHAR(255),  -- Nullable pour Google OAuth (comptes Google n'ont pas de mot de passe)
 
   -- Profil
   avatar_url VARCHAR(255) DEFAULT '/static/util/icon/profile.png',
@@ -34,19 +34,22 @@ CREATE TABLE IF NOT EXISTS users (
   tournaments_played INTEGER DEFAULT 0,
   tournaments_won INTEGER DEFAULT 0,
 
-  -- Social (ajouté par migration 002)
+  -- Social
   friend_count INTEGER DEFAULT 0,
 
-  -- Customization (ajouté par migration 001)
-  controls TEXT DEFAULT '{"leftUp":"w","leftDown":"s","rightUp":"ArrowUp","rightDown":"ArrowDown"}',
+  -- Customization
+  controls TEXT DEFAULT '{"leftUp":"w","leftDown":"s","leftLeft":"a","leftRight":"d","rightUp":"ArrowUp","rightDown":"ArrowDown","rightLeft":"ArrowLeft","rightRight":"ArrowRight"}',
 
-  -- Online Status (ajouté par migration 003)
+  -- Online Status
   is_online INTEGER DEFAULT 0,
   last_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
 
-  -- Two-Factor Authentication (ajouté par migration 004)
+  -- Two-Factor Authentication
   twofa_secret TEXT DEFAULT NULL,
   twofa_enabled INTEGER DEFAULT 0,
+
+  -- Google OAuth
+  google_id TEXT DEFAULT NULL UNIQUE,  -- ID Google (NULL si compte classique)
 
   -- Meta
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,

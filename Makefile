@@ -11,9 +11,9 @@
 # **************************************************************************** #
 
 # Default targets
-.PHONY:	all help local install build_local clean fclean exec test_local docker \
-		build_img up_cont stop_dock clean_dock test_dock show_img \
-		show_container go_in_container re test check_goinfre
+.PHONY:	all help local install build_local clean fclean exec test_local docker prod \
+		build_img build_img_prod up_cont stop_dock clean_dock test_dock show_img \
+		show_container go_in_container re test check_goinfre re_prod
 
 # OTHER
 SHELL := /bin/bash
@@ -81,7 +81,13 @@ test_local: install build_local exec
 
 ### Docker Management
 
+# Development mode (root user for bind mount compatibility)
 docker: build_img up_cont
+	@echo -e "$(BLUE)ℹ️  Running in DEVELOPMENT mode (root user)$(NC)"
+
+# Production mode (non-root user for security)
+prod: build_img_prod up_cont
+	@echo -e "$(BLUE)ℹ️  Running in PRODUCTION mode (non-root user)$(NC)"
 
 # check_goinfre:
 # 	@if [ ! -d /sgoinfre/$(USER)/ft_trans/db ]; then \
@@ -91,11 +97,17 @@ docker: build_img up_cont
 # 		echo "✅ Dossier /sgoinfre/$(USER)/ft_trans/db déjà présent."; \
 # 	fi
 
-# Build Docker image
+# Build Docker image (dev mode - root user)
 build_img: #check_goinfre
-	@echo -e "$(YELLOW)🐳 Building Docker image...$(NC)"
+	@echo -e "$(YELLOW)🐳 Building Docker image (DEV MODE - root user)...$(NC)"
 	@$(DC) build --no-cache
 	@echo -e "$(GREEN)✔ Docker image "$(IMG_NAME)" built successfully!$(NC)"
+
+# Build Docker image (prod mode - non-root user)
+build_img_prod: #check_goinfre
+	@echo -e "$(YELLOW)🐳 Building Docker image (PROD MODE - non-root user)...$(NC)"
+	@$(DC) build --no-cache -f Docker/backFastify/Dockerfile.prod game_project_cont
+	@echo -e "$(GREEN)✔ Docker production image "$(IMG_NAME)" built successfully!$(NC)"
 
 # Start Docker containers
 up_cont:
@@ -150,10 +162,15 @@ go_in_nginx:
 
 ### Combined Actions
 
-# Rebuild and restart Docker containers
+# Rebuild and restart Docker containers (dev mode)
 re_docker: clean_dock build_img up_cont
-	@echo -e "$(BLUE)🔄 Rebuilding and restarting Docker environment...$(NC)"
+	@echo -e "$(BLUE)🔄 Rebuilding and restarting Docker environment (DEV MODE)...$(NC)"
 	@echo -e "$(GREEN)✔ Docker environment rebuilt and restarted!$(NC)"
+
+# Rebuild and restart Docker containers (prod mode)
+re_prod: clean_dock build_img_prod up_cont
+	@echo -e "$(BLUE)🔄 Rebuilding and restarting Docker environment (PROD MODE)...$(NC)"
+	@echo -e "$(GREEN)✔ Production Docker environment rebuilt and restarted!$(NC)"
 
 ### Run local tests
 re: fclean local
@@ -192,7 +209,8 @@ help:
 	
 	@echo -e "$(YELLOW)🔄 Combined & Reset Actions (Rebuilds & Restarts):$(NC)"
 	@echo -e " $(BLUE)make re$(NC)           : Rebuilds and restarts the local environment (clean + build + exec)."
-	@echo -e " $(BLUE)make re_docker$(NC)    : Rebuilds and restarts the Docker environment (clean_dock + build_img + up_cont)."
+	@echo -e " $(BLUE)make re_docker$(NC)    : Rebuilds and restarts the Docker environment in DEV mode (root user)."
+	@echo -e " $(BLUE)make re_prod$(NC)      : Rebuilds and restarts the Docker environment in PROD mode (non-root user)."
 	@echo -e " "
 
 	@echo -e "$(YELLOW)🎯 Local Development:$(NC)"
@@ -210,9 +228,11 @@ help:
 	@echo -e " "
 
 	@echo -e "$(YELLOW)🐳 Docker Management:$(NC)"
-	@echo -e " $(BLUE)make docker$(NC)       : Builds and starts Docker containers."
+	@echo -e " $(BLUE)make docker$(NC)       : Builds and starts Docker containers (DEV MODE - root user)."
+	@echo -e " $(BLUE)make prod$(NC)         : Builds and starts Docker containers (PROD MODE - non-root user)."
 	@echo -e " $(GREEN)make up_cont$(NC)      : Starts Docker containers."
-	@echo -e " $(GREEN)make build_img$(NC)    : Builds the Docker image."
+	@echo -e " $(GREEN)make build_img$(NC)    : Builds the Docker image (dev mode)."
+	@echo -e " $(GREEN)make build_img_prod$(NC): Builds the Docker image (prod mode)."
 	@echo -e " $(GREEN)make stop_dock$(NC)    : Stops Docker containers."
 	@echo -e " $(GREEN)make show_img$(NC)     : Shows existing Docker images."
 	@echo -e " $(GREEN)make show_container$(NC): Shows running Docker containers."

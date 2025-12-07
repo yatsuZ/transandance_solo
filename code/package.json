@@ -14,6 +14,7 @@
     "clean:coverage": "rm -rf ./coverage",
     "clean:data": "rm -rf ./srcs/backend/data/pong.db",
     "clean:all": "rm -rf ./dist ./coverage ./srcs/backend/data/pong.db",
+    "reset:db": "rm -rf ./srcs/backend/data/pong.db && echo '✅ Base de données supprimée, elle sera recréée au prochain démarrage'",
     "redev": "npm run clean; npm run build && npm run build:client && npm run start | pino-pretty --colorize",
     "redev:watch": "npm run clean; ts-node-dev --respawn --transpile-only --watch srcs/backend,srcs/static/js srcs/backend/main.ts",
     "test": "jest --verbose",
@@ -25,6 +26,7 @@
   "dependencies": {
     "@fastify/cookie": "^11.0.2",
     "@fastify/multipart": "^9.3.0",
+    "@fastify/oauth2": "^8.1.2",
     "@fastify/static": "^8.2.0",
     "@fastify/view": "^11.1.1",
     "@sinclair/typebox": "^0.34.41",

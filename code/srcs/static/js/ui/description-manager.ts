@@ -55,7 +55,8 @@ export function update_description_de_page(dom: DOMElements): void {
     pagesProfile: 'Voici la page profile DE :',
     pagesLeaderboard: 'Les meilleurs joueurs de la galaxie arcade',
     pagesGame_Config: 'Choisis ton jeu et prépare ton duel !',
-    pagesMatch: 'Le premier à 3 points gagne la partie',// faire gaffe c'est en fonctione de game config modifier sa
+    pagesMatch: 'Le premier à 3 points gagne la partie',
+    pagesTron: 'Évite les murs et les traînées lumineuses - Premier à 3 rounds gagne!',
     pagesBegin_Tournament: 'Prépare ton tournoi et affronte les meilleurs !',
     pagesResult: 'Voici les résultats de ton dernier match !',
     pagesParametre: 'Parametre du site',

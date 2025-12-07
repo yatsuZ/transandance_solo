@@ -22,7 +22,12 @@ import {
  */
 export class NavigationEvents {
   private _DO: DOMElements;
-  private matchController: { hasActiveMatch: () => boolean; stopMatch: (reason: string) => void };
+  private matchController: {
+    hasActiveMatch: () => boolean;
+    stopMatch: (reason: string) => void;
+    hasActiveTronMatch: () => boolean;
+    stopTronMatch: (reason: string) => void;
+  };
   private tournamentController: { hasActiveTournament: () => boolean; stopTournament: (reason: string) => void };
   private getCurrentPage: () => HTMLElement | null;
   private profilePageManager: ProfilePageManager;
@@ -31,7 +36,12 @@ export class NavigationEvents {
 
   constructor(
     dO: DOMElements,
-    matchController: { hasActiveMatch: () => boolean; stopMatch: (reason: string) => void },
+    matchController: {
+      hasActiveMatch: () => boolean;
+      stopMatch: (reason: string) => void;
+      hasActiveTronMatch: () => boolean;
+      stopTronMatch: (reason: string) => void;
+    },
     tournamentController: { hasActiveTournament: () => boolean; stopTournament: (reason: string) => void },
     getCurrentPage: () => HTMLElement | null
   ) {
@@ -303,7 +313,8 @@ export class NavigationEvents {
       targetPage,
       isAuthenticated,
       () => this.tournamentController.hasActiveTournament(),
-      () => this.matchController.hasActiveMatch()
+      () => this.matchController.hasActiveMatch(),
+      () => this.matchController.hasActiveTronMatch()
     )) {
       return;
     }
@@ -314,8 +325,10 @@ export class NavigationEvents {
       targetPage,
       () => this.tournamentController.hasActiveTournament(),
       () => this.matchController.hasActiveMatch(),
+      () => this.matchController.hasActiveTronMatch(),
       (reason) => this.tournamentController.stopTournament(reason),
-      (reason) => this.matchController.stopMatch(reason)
+      (reason) => this.matchController.stopMatch(reason),
+      (reason) => this.matchController.stopTronMatch(reason)
     )) {
       return;
     }

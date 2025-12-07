@@ -14,6 +14,7 @@ export class AuthEvents {
   constructor(dO: DOMElements) {
     this._DO = dO;
     this.attachEventListeners();
+    this.checkURLParams();
   }
 
   /**
@@ -42,6 +43,36 @@ export class AuthEvents {
         this.handle2FAVerify();
       }
     });
+  }
+
+  /**
+   * Vérifie les paramètres URL pour afficher des messages (ex: Google OAuth)
+   */
+  private checkURLParams(): void {
+    const urlParams = new URLSearchParams(window.location.search);
+    const error = urlParams.get('error');
+    const email = urlParams.get('email');
+
+    // Cas: Tentative de connexion Google sans compte
+    if (error === 'no_account' && email) {
+      const signupErrorDiv = this._DO.auth.signupError;
+      const emailInput = document.querySelector('#signup-email') as HTMLInputElement;
+
+      // Afficher un message explicatif
+      this.showError(
+        signupErrorDiv,
+        `🔐 Aucun compte trouvé pour ${email}. Créez d'abord un compte, puis vous pourrez le lier à Google.`
+      );
+
+      // Pré-remplir l'email
+      if (emailInput) {
+        emailInput.value = email;
+      }
+
+      // Nettoyer l'URL (enlever les paramètres)
+      const cleanUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, cleanUrl);
+    }
   }
 
   // Stockage temporaire des credentials pour le 2FA

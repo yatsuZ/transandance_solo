@@ -12,8 +12,12 @@
 export interface PlayerControls {
   leftUp: string;
   leftDown: string;
+  leftLeft: string;
+  leftRight: string;
   rightUp: string;
   rightDown: string;
+  rightLeft: string;
+  rightRight: string;
 }
 
 class UIPreferences {
@@ -27,8 +31,12 @@ class UIPreferences {
   private controls: PlayerControls = {
     leftUp: 'w',
     leftDown: 's',
+    leftLeft: 'a',
+    leftRight: 'd',
     rightUp: 'ArrowUp',
-    rightDown: 'ArrowDown'
+    rightDown: 'ArrowDown',
+    rightLeft: 'ArrowLeft',
+    rightRight: 'ArrowRight'
   };
 
   private constructor() {
@@ -116,8 +124,12 @@ class UIPreferences {
     this.controls = {
       leftUp: 'w',
       leftDown: 's',
+      leftLeft: 'a',
+      leftRight: 'd',
       rightUp: 'ArrowUp',
-      rightDown: 'ArrowDown'
+      rightDown: 'ArrowDown',
+      rightLeft: 'ArrowLeft',
+      rightRight: 'ArrowRight'
     };
     console.log('🔄 [UIPreferences] Préférences réinitialisées');
   }

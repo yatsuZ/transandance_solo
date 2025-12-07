@@ -1,4 +1,5 @@
 import { ConfigMatch, PongGame } from "../pong/pong-game.js";
+import { TronGame } from "../tron/tron-game.js";
 import { activeAnotherPage, activeOrHiden } from "../navigation/page-manager.js";
 import { updateUrl } from "../utils/url-helpers.js";
 import { DOMElements } from "../core/dom-elements.js";
@@ -12,6 +13,7 @@ import { MatchAPI } from "./match-api.js";
  */
 export class MatchController {
   private pongGameSingleMatch: PongGame | null = null;
+  private tronGameSingleMatch: TronGame | null = null;
   private currentMatchId: number | null = null;
   private _DO: DOMElements;
   private event_stop_MatchHandler: () => void;
@@ -35,8 +37,12 @@ export class MatchController {
       }
     });
 
+    // Attacher le listener à tous les boutons SAUF le bouton musique
     this._DO.buttons.linkButtons.forEach(btn => {
-      btn.addEventListener("click", this.event_stop_MatchHandler);
+      // Exclure le bouton musique (interupteur_du_son)
+      if (btn.getAttribute('data-link') !== 'interupteur_du_son') {
+        btn.addEventListener("click", this.event_stop_MatchHandler);
+      }
     });
   }
 
@@ -70,9 +76,9 @@ export class MatchController {
     // Récupérer le jeu sélectionné
     const selectedGame = (document.querySelector('input[name="game"]:checked') as HTMLInputElement)?.value;
 
-    // Vérifier si c'est Tron (pas encore implémenté)
-    if (selectedGame === "tron") { 
-      alert("Le jeu Tron n'est pas encore prêt !\nRevenez plus tard 🎮");
+    // Vérifier si c'est Tron
+    if (selectedGame === "tron") {
+      this.startTronMatch();
       return;
     }
 
@@ -140,7 +146,7 @@ export class MatchController {
     activeOrHiden(iconAccueil, "On");
 
     // IMPORTANT: Afficher la page match AVANT de créer le PongGame
-    updateUrl(matchPage);
+    updateUrl(matchPage, '/match/pong');
 
     // Créer le jeu avec la config personnalisée
     console.log("[MATCH CONTROLLER] Création du match avec config:", config);
@@ -186,8 +192,16 @@ export class MatchController {
    */
   private event_stop_Match(getCurrentPage: () => HTMLElement | null) {
     const activePage = getCurrentPage();
-    if (activePage?.id === "pagesMatch" && this.hasActiveMatch()) 
+
+    // Arrêter Pong si on quitte la page match
+    if (activePage?.id === "pagesMatch" && this.hasActiveMatch()) {
       this.stopMatch("Quite la page match");
+    }
+
+    // Arrêter Tron si on quitte la page tron
+    if (activePage?.id === "pagesTron" && this.hasActiveTronMatch()) {
+      this.stopTronMatch("Quite la page tron");
+    }
   }
 
   /**
@@ -218,11 +232,41 @@ export class MatchController {
   }
 
   /**
+   * Vérifie si un match Tron est actif
+   */
+  public hasActiveTronMatch(): boolean {
+    return this.tronGameSingleMatch !== null;
+  }
+
+  /**
+   * Arrête le match Tron actuel (si existant)
+   * @param reason - Raison de l'arrêt
+   */
+  public stopTronMatch(reason: string): void {
+    if (this.tronGameSingleMatch) {
+      // Si le match est quitté avant la fin, envoyer status 'leave'
+      if (this.currentMatchId) {
+        const scoreLeft = this.tronGameSingleMatch.getPlayerLeftScore();
+        const scoreRight = this.tronGameSingleMatch.getPlayerRightScore();
+
+        this.matchAPI.endMatch(this.currentMatchId, null, null, scoreLeft, scoreRight, 'leave');
+      }
+
+      this.tronGameSingleMatch.stop(reason);
+      this.tronGameSingleMatch = null;
+      this.currentMatchId = null;
+    }
+  }
+
+  /**
    * Nettoie les event listeners (appelé à la destruction)
    */
   public cleanup(): void {
     this._DO.buttons.linkButtons.forEach(btn => {
-      btn.removeEventListener("click", this.event_stop_MatchHandler);
+      // Exclure le bouton musique (interupteur_du_son)
+      if (btn.getAttribute('data-link') !== 'interupteur_du_son') {
+        btn.removeEventListener("click", this.event_stop_MatchHandler);
+      }
     });
   }
 
@@ -235,7 +279,8 @@ export class MatchController {
     playerLeftId: number | null,
     playerRightId: number | null,
     isBotLeft: number,
-    isBotRight: number
+    isBotRight: number,
+    gameType: string = 'pong'
   ): Promise<void> {
     this.currentMatchId = await this.matchAPI.createMatch(
       playerLeftName,
@@ -243,7 +288,8 @@ export class MatchController {
       playerLeftId,
       playerRightId,
       isBotLeft,
-      isBotRight
+      isBotRight,
+      gameType
     );
   }
 
@@ -266,5 +312,130 @@ export class MatchController {
     }
 
     return null;
+  }
+
+  /**
+   * Démarre un match Tron
+   */
+  private startTronMatch(): void {
+    const tronPage = this._DO.pages.tron;
+    const iconAccueil = this._DO.icons.accueil;
+
+    // Récupérer les données du formulaire
+    const playerLeftName = this._DO.gameConfigElement.inputFormulaireGameConfig_PlayerLeft.value.trim();
+    const playerRightName = this._DO.gameConfigElement.inputFormulaireGameConfig_PlayerRight.value.trim();
+
+    // Vérifier que les pseudos sont remplis
+    if (!playerLeftName || !playerRightName) {
+      alert("Tous les joueurs doivent avoir un pseudo !");
+      return;
+    }
+
+    // Valider les pseudos
+    if (!arePlayersValid([playerLeftName, playerRightName])) {
+      return;
+    }
+
+    // Récupérer les types des joueurs (humain/IA)
+    const playerLeftType = (document.querySelector('input[name="playerLeftType"]:checked') as HTMLInputElement)?.value;
+    const playerRightType = (document.querySelector('input[name="playerRightType"]:checked') as HTMLInputElement)?.value;
+
+    // Déterminer le mode
+    let mode: "PvP" | "PvIA" | "IAvP" | "IAvIA";
+    if (playerLeftType === "human" && playerRightType === "human")
+      mode = "PvP";
+    else if (playerLeftType === "human" && playerRightType === "ia")
+      mode = "PvIA";
+    else if (playerLeftType === "ia" && playerRightType === "human")
+      mode = "IAvP";
+    else
+      mode = "IAvIA";
+
+    // Récupérer la difficulté de l'IA (si au moins un joueur est IA)
+    let aiDifficulty: 'EASY' | 'MEDIUM' | 'HARD' | 'EXPERT' = 'MEDIUM';
+    if (playerLeftType === "ia") {
+      aiDifficulty = this.gameConfigForm.getAIDifficulty('left') as any;
+    } else if (playerRightType === "ia") {
+      aiDifficulty = this.gameConfigForm.getAIDifficulty('right') as any;
+    }
+
+    // Récupérer quel joueur est le user connecté et son avatar
+    const authenticatedSide = this.gameConfigForm.getAuthenticatedPlayerSide();
+    const userData = AuthManager.getUserData();
+
+    // Préparer les avatars
+    let avatarLeft: string | null = null;
+    let avatarRight: string | null = null;
+
+    if (userData && authenticatedSide === 'left') {
+      avatarLeft = userData.avatar_url || null;
+    } else if (userData && authenticatedSide === 'right') {
+      avatarRight = userData.avatar_url || null;
+    }
+
+    // Créer la config
+    const config = {
+      mode: mode,
+      name: [playerLeftName, playerRightName] as [string, string],
+      aiDifficulty: aiDifficulty,
+      authenticatedPlayerSide: authenticatedSide,
+      avatarUrls: [avatarLeft, avatarRight] as [string | null, string | null]
+    };
+
+    // Afficher l'icône accueil
+    activeOrHiden(iconAccueil, "On");
+
+    // Afficher la page Tron
+    updateUrl(tronPage, '/match/tron');
+
+    // Créer le jeu Tron avec la config complète
+    console.log("[MATCH CONTROLLER] Création du match Tron avec config:", config);
+    this.tronGameSingleMatch = new TronGame(
+      this._DO,
+      config,
+      () => this.onTronMatchEnd()
+    );
+
+    // Créer le match en BDD avec game_type='tron'
+    const isBotLeft = playerLeftType === "ia" ? 1 : 0;
+    const isBotRight = playerRightType === "ia" ? 1 : 0;
+
+    const playerLeftId = (authenticatedSide === 'left' && userData) ? userData.id : null;
+    const playerRightId = (authenticatedSide === 'right' && userData) ? userData.id : null;
+
+    this.createMatchInDatabase(
+      playerLeftName,
+      playerRightName,
+      playerLeftId,
+      playerRightId,
+      isBotLeft,
+      isBotRight,
+      'tron' // game_type
+    );
+  }
+
+  /**
+   * Callback appelé quand un match Tron se termine
+   */
+  private onTronMatchEnd(): void {
+    console.log("[MATCH CONTROLLER] Match Tron terminé");
+
+    // Envoyer la fin du match à la BDD
+    if (this.currentMatchId && this.tronGameSingleMatch) {
+      const matchResult = this.tronGameSingleMatch.getWinnerAndLooser();
+      if (matchResult) {
+        const winnerName = matchResult.Winner.name;
+        const scoreLeft = this.tronGameSingleMatch.getPlayerLeftScore();
+        const scoreRight = this.tronGameSingleMatch.getPlayerRightScore();
+
+        // Déterminer si le winner est le user connecté
+        const winnerId = this.getWinnerId(winnerName);
+
+        this.matchAPI.endMatch(this.currentMatchId, winnerId, winnerName, scoreLeft, scoreRight, 'completed');
+      }
+    }
+
+    this.tronGameSingleMatch = null;
+    this.currentMatchId = null;
   }
 }

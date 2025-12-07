@@ -50,12 +50,16 @@
             <h3>Vos touches</h3>
             <div class="controls">
               <p>Si vous jouez à gauche :
-                <strong id="control-left-up"></strong> /
-                <strong id="control-left-down"></strong>
+                Haut: <strong id="control-left-up"></strong> /
+                Bas: <strong id="control-left-down"></strong> /
+                Gauche: <strong id="control-left-left"></strong> /
+                Droite: <strong id="control-left-right"></strong>
               </p>
               <p>Si vous jouez à droite :
-                <strong id="control-right-up"></strong> /
-                <strong id="control-right-down"></strong>
+                Haut: <strong id="control-right-up"></strong> /
+                Bas: <strong id="control-right-down"></strong> /
+                Gauche: <strong id="control-right-left"></strong> /
+                Droite: <strong id="control-right-right"></strong>
               </p>
             </div>
             <button id="edit-controls-btn" class="btn-edit">Modifier mes touches</button>
@@ -77,9 +81,24 @@
 
     <!-- HISTORIQUE DES MATCHS -->
     <section class="history-section">
-      <h3>Historique des parties</h3>
-      <ul class="match-history" id="history-list"></ul>
-      <p id="history-empty">Aucune partie jouée pour le moment.</p>
+      <h3>📜 Historique des parties</h3>
+      <div class="history-table-wrapper">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th class="col-date">Date</th>
+              <th class="col-game">Jeu</th>
+              <th class="col-match">Match</th>
+              <th class="col-score">Score</th>
+              <th class="col-result">Résultat</th>
+            </tr>
+          </thead>
+          <tbody id="history-list">
+            <!-- Rempli dynamiquement par JS -->
+          </tbody>
+        </table>
+      </div>
+      <p id="history-empty" class="history-empty" style="display: none;">Aucune partie jouée pour le moment.</p>
     </section>
   </div>
 </div>

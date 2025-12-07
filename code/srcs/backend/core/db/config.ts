@@ -55,19 +55,28 @@ export class DatabaseManager {
 
   /**
    * Exécute les migrations SQL dans l'ordre
+   * Note: En phase de dev, toutes les colonnes sont directement dans schema.sql
+   * Cette méthode est conservée pour compatibilité future
    */
   private runMigrations(): void {
     try {
       const baseDir = getDirname();
       const migrationsDir = path.join(baseDir, 'script/migrations');
 
+      // Si le dossier migrations n'existe pas, on skip (normal en dev)
       if (!fs.existsSync(migrationsDir)) {
+        Logger.info('No migrations folder found (using schema.sql directly)');
         return;
       }
 
       const migrationFiles = fs.readdirSync(migrationsDir)
         .filter(file => file.endsWith('.sql'))
         .sort();
+
+      if (migrationFiles.length === 0) {
+        Logger.info('No migration files found');
+        return;
+      }
 
       migrationFiles.forEach(file => {
         const migrationPath = path.join(migrationsDir, file);

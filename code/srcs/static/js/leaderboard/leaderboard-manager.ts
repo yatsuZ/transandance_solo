@@ -258,7 +258,7 @@ export class LeaderboardManager {
    * Affiche l'état vide si aucun joueur
    */
   private showEmptyState(): void {
-    this._DO.leaderboard.noMatchSection.style.display = 'block';
+    this._DO.leaderboard.noMatchSection.style.display = 'flex';
     this._DO.leaderboard.podiumSection.style.display = 'none';
     this._DO.leaderboard.rankingSection.style.display = 'none';
   }

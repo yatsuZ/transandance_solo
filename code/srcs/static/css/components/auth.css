@@ -153,3 +153,63 @@
   margin-top: 4px;
   display: block;
 }
+
+/* ====== SÉPARATEUR "OU" ====== */
+.auth-separator {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 20px 0;
+  opacity: 0.7;
+}
+
+.auth-separator::before,
+.auth-separator::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.auth-separator span {
+  padding: 0 15px;
+  font-size: 0.9rem;
+  color: #d8a8ff;
+}
+
+/* ====== BOUTON GOOGLE SIGN-IN ====== */
+.btn-google-signin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 0;
+  background: white;
+  color: #3c4043;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  font-family: 'VT323', 'Courier New', monospace;
+}
+
+.btn-google-signin:hover {
+  background: #f8f9fa;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
+}
+
+.btn-google-signin:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.google-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}

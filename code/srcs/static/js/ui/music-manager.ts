@@ -54,7 +54,7 @@ function toggleMusic(music: HTMLAudioElement, iconSoundImg : HTMLImageElement) {
 
 // === UTILITAIRE COMMUN ===
 function updateMusicUI(icon: HTMLImageElement, state: 'on' | 'off') {
-  icon.src = `./static/util/icon/son_${state}.png`;
+  icon.src = `/static/util/icon/son_${state}.png`;
   uiPreferences.setMusicPlaying(state === 'on');
 }
 

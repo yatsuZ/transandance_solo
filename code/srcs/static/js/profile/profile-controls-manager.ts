@@ -22,8 +22,12 @@ export class ProfileControlsManager {
 
     this._DO.profile.ControlLU.textContent = this.formatKeyDisplay(controls.leftUp);
     this._DO.profile.ControlLD.textContent = this.formatKeyDisplay(controls.leftDown);
+    this._DO.profile.ControlLL.textContent = this.formatKeyDisplay(controls.leftLeft);
+    this._DO.profile.ControlLR.textContent = this.formatKeyDisplay(controls.leftRight);
     this._DO.profile.ControlRU.textContent = this.formatKeyDisplay(controls.rightUp);
     this._DO.profile.ControlRD.textContent = this.formatKeyDisplay(controls.rightDown);
+    this._DO.profile.ControlRL.textContent = this.formatKeyDisplay(controls.rightLeft);
+    this._DO.profile.ControlRR.textContent = this.formatKeyDisplay(controls.rightRight);
 
     // Ajouter l'event pour modifier les contrôles
     this._DO.profile.btnEditControl.onclick = () => this.handleEditControls();
@@ -58,8 +62,12 @@ export class ProfileControlsManager {
     // Afficher les valeurs actuelles dans les inputs
     this._DO.controlsModal.inputLeftUp.value = this.formatKeyDisplay(currentControls.leftUp);
     this._DO.controlsModal.inputLeftDown.value = this.formatKeyDisplay(currentControls.leftDown);
+    this._DO.controlsModal.inputLeftLeft.value = this.formatKeyDisplay(currentControls.leftLeft);
+    this._DO.controlsModal.inputLeftRight.value = this.formatKeyDisplay(currentControls.leftRight);
     this._DO.controlsModal.inputRightUp.value = this.formatKeyDisplay(currentControls.rightUp);
     this._DO.controlsModal.inputRightDown.value = this.formatKeyDisplay(currentControls.rightDown);
+    this._DO.controlsModal.inputRightLeft.value = this.formatKeyDisplay(currentControls.rightLeft);
+    this._DO.controlsModal.inputRightRight.value = this.formatKeyDisplay(currentControls.rightRight);
 
     // Afficher la modal
     modal.classList.remove('hidden');
@@ -69,8 +77,12 @@ export class ProfileControlsManager {
     const keyMapping: Record<string, { key: keyof typeof newControls; input: HTMLInputElement }> = {
       'key-left-up': { key: 'leftUp', input: this._DO.controlsModal.inputLeftUp },
       'key-left-down': { key: 'leftDown', input: this._DO.controlsModal.inputLeftDown },
+      'key-left-left': { key: 'leftLeft', input: this._DO.controlsModal.inputLeftLeft },
+      'key-left-right': { key: 'leftRight', input: this._DO.controlsModal.inputLeftRight },
       'key-right-up': { key: 'rightUp', input: this._DO.controlsModal.inputRightUp },
-      'key-right-down': { key: 'rightDown', input: this._DO.controlsModal.inputRightDown }
+      'key-right-down': { key: 'rightDown', input: this._DO.controlsModal.inputRightDown },
+      'key-right-left': { key: 'rightLeft', input: this._DO.controlsModal.inputRightLeft },
+      'key-right-right': { key: 'rightRight', input: this._DO.controlsModal.inputRightRight }
     };
 
     // Gestion des inputs

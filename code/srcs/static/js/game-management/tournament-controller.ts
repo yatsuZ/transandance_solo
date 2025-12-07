@@ -29,8 +29,12 @@ export class TournamentController {
 
     // Event listeners
     this._DO.buttons.giveUpTournament.addEventListener("click", this.event_GivUpTournamentHandler);
+    // Attacher le listener à tous les boutons SAUF le bouton musique
     this._DO.buttons.linkButtons.forEach(btn => {
-      btn.addEventListener("click", this.event_LeaveTournamentHandler);
+      // Exclure le bouton musique (interupteur_du_son)
+      if (btn.getAttribute('data-link') !== 'interupteur_du_son') {
+        btn.addEventListener("click", this.event_LeaveTournamentHandler);
+      }
     });
     this._DO.buttons.nextResult.addEventListener("click", this.event_Btn_next_After_MatchHandler);
   }
@@ -142,7 +146,10 @@ export class TournamentController {
   public cleanup(): void {
     this._DO.buttons.giveUpTournament.removeEventListener("click", this.event_GivUpTournamentHandler);
     this._DO.buttons.linkButtons.forEach(btn => {
-      btn.removeEventListener("click", this.event_LeaveTournamentHandler);
+      // Exclure le bouton musique (interupteur_du_son)
+      if (btn.getAttribute('data-link') !== 'interupteur_du_son') {
+        btn.removeEventListener("click", this.event_LeaveTournamentHandler);
+      }
     });
     this._DO.buttons.nextResult.removeEventListener("click", this.event_Btn_next_After_MatchHandler);
   }

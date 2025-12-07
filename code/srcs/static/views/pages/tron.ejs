@@ -1,0 +1,31 @@
+<div class="container">
+  <header class="arcade-header" style="border-bottom: none;">
+    <h1 class="arcade-title tron-title"><%= title %></h1>
+    <p class="arcade-subtitle">Évite les murs et les traînées lumineuses - Premier à 3 rounds gagne!</p>
+  </header>
+
+  <div class="match-wrapper tron-wrapper">
+    <!-- === Joueur 1 (Cyan) === -->
+    <div id="player-Left-Card-Tron" class="player-card player-left tron-player-left">
+      <img src="/static/util/icon/profile.png" alt="Profil Joueur 1" class="player-avatar">
+      <h2 class="player-name player-name-cyan">Joueur 1</h2>
+      <p class="player-type">Humain</p>
+      <p class="player-controls">Commandes :<br><span class="tron-controls-cyan">A W D S</span></p>
+      <p class="player-score player-score-cyan">Score : <span id="score-tron-left">0</span></p>
+      <div class="player-color-indicator" style="background: #00FFFF; box-shadow: 0 0 20px #00FFFF;"></div>
+    </div>
+
+    <!-- === Canvas Tron === -->
+    <canvas id="tron-canvas" width="800" height="600"></canvas>
+
+    <!-- === Joueur 2 (Orange) === -->
+    <div id="player-Right-Card-Tron" class="player-card player-right tron-player-right">
+      <img src="/static/util/icon/profile.png" alt="Profil Joueur 2" class="player-avatar">
+      <h2 class="player-name player-name-orange">Joueur 2</h2>
+      <p class="player-type">Humain</p>
+      <p class="player-controls">Commandes :<br><span class="tron-controls-orange">← ↑ → ↓ </span></p>
+      <p class="player-score player-score-orange">Score : <span id="score-tron-right">0</span></p>
+      <div class="player-color-indicator" style="background: #FF6600; box-shadow: 0 0 20px #FF6600;"></div>
+    </div>
+  </div>
+</div>

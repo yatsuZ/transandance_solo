@@ -91,6 +91,15 @@ export async function login(request: FastifyRequest<{ Body: LoginBody }>, reply:
 
   console.log(`[Login] ✅ User trouvé: ${user.username} (ID: ${user.id})`);
 
+  // Vérifier que l'utilisateur n'est pas un compte Google OAuth uniquement
+  if (!user.password_hash) {
+    console.log('[Login] ❌ Compte Google OAuth - utilisez "Continuer avec Google"');
+    return reply.code(StatusCodes.UNAUTHORIZED).send({
+      success: false,
+      error: 'This account uses Google Sign-In. Please use "Continue with Google" button.'
+    });
+  }
+
   // Vérifier le mot de passe
   const isPasswordValid = await AuthService.verifyPassword(password, user.password_hash);
   if (!isPasswordValid) {

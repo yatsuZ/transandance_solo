@@ -15,4 +15,6 @@
 @import url('./profile.css');
 
 @import url('./leaderboard.css');
+
+@import url('./tron.css');
 /* Auth styles déplacés dans /components/auth.css */

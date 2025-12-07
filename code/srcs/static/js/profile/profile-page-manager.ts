@@ -36,6 +36,7 @@ interface MatchHistoryItem {
   score_right: number;
   winner_id: number | null;
   status: 'completed' | 'leave';
+  game_type: 'pong' | 'tron';
   start_at: string;
 }
 
@@ -216,7 +217,7 @@ export class ProfilePageManager {
       historyList.style.display = 'none';
     } else {
       historyEmpty.style.display = 'none';
-      historyList.style.display = 'block';
+      historyList.style.display = ''; // Garder le comportement par défaut du tbody (table-row-group)
 
       const recentMatches = matches.slice(0, 10);
       recentMatches.forEach((match: any) => {
@@ -308,7 +309,7 @@ export class ProfilePageManager {
     } else {
       // Des matchs existent : afficher la liste
       historyEmpty.style.display = 'none';
-      historyList.style.display = 'block';
+      historyList.style.display = ''; // Garder le comportement par défaut du tbody (table-row-group)
 
       // Afficher les 10 derniers matchs
       const recentMatches = matches.slice(0, 10);
@@ -325,9 +326,9 @@ export class ProfilePageManager {
   /**
    * Crée un élément HTML pour un match de l'historique
    */
-  private createMatchHistoryItem(match: MatchHistoryItem, userId: number): HTMLLIElement {
-    const li = document.createElement('li');
-    li.className = 'match-item';
+  private createMatchHistoryItem(match: MatchHistoryItem, userId: number): HTMLTableRowElement {
+    const tr = document.createElement('tr');
+    tr.className = 'match-row';
 
     // Déterminer le nom du user, l'adversaire et son type
     const { userName, opponent } = this.getMatchPlayers(match, userId);
@@ -340,15 +341,19 @@ export class ProfilePageManager {
       year: 'numeric'
     });
 
+    // Type de jeu
+    const gameType = match.game_type === 'tron' ? '🏍️ Tron' : '🏓 Pong';
+
     // Construire le HTML
-    li.innerHTML = `
-      <span class="match-date">${date}</span>
-      <span class="match-players">${userName} vs ${opponent}</span>
-      <span class="match-score">${match.score_left} - ${match.score_right}</span>
-      <span class="match-result ${resultClass}">${resultText}</span>
+    tr.innerHTML = `
+      <td class="col-date">${date}</td>
+      <td class="col-game">${gameType}</td>
+      <td class="col-match">${userName} vs ${opponent}</td>
+      <td class="col-score">${match.score_left} - ${match.score_right}</td>
+      <td class="col-result ${resultClass}">${resultText}</td>
     `;
 
-    return li;
+    return tr;
   }
 
   /**

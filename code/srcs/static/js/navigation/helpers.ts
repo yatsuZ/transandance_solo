@@ -14,6 +14,7 @@ export const PAGE_IDS = {
   LOGIN: "pagesLogin",
   SIGNUP: "pagesSignup",
   MATCH: "pagesMatch",
+  TRON: "pagesTron",
   RESULT: "pagesResult",
   ERROR: "pagesError",
   PARAMETRE: "pagesParametre",
@@ -28,7 +29,8 @@ export const PAGE_IDS = {
  * Routes interdites en accès direct (nécessitent un contexte actif : match/tournoi/profil ami)
  */
 export const CONTEXT_RESTRICTED_ROUTES = [
-  '/match',
+  '/match/pong',
+  '/match/tron',
   '/match/result',
   '/tournament/match',
   '/tournament/result',
@@ -286,7 +288,8 @@ export class NavigationHelpers {
     targetPage: HTMLElement,
     isLoggedIn: boolean,
     hasActiveTournament: () => boolean,
-    hasActiveMatch: () => boolean
+    hasActiveMatch: () => boolean,
+    hasActiveTronMatch: () => boolean
   ): boolean {
     const allowedTournamentPages = [
       this._DO.pages.match.id,
@@ -294,14 +297,39 @@ export class NavigationHelpers {
       this._DO.pages.treeTournament.id,
     ];
 
-    // BLOCAGE 1 : Match solo sans contexte
+    // BLOCAGE 1 : Match Pong sans contexte
     if (
       !hasActiveTournament() &&
       !hasActiveMatch() &&
-      ((targetPage.id === PAGE_IDS.MATCH && path === "/match") ||
-        (targetPage.id === PAGE_IDS.RESULT && path === "/match/result"))
+      targetPage.id === PAGE_IDS.MATCH &&
+      path === "/match/pong"
     ) {
-      console.log("🚫 [MATCH SOLO] Accès interdit : Aucun match classique actif");
+      console.log("🚫 [MATCH PONG] Accès interdit : Aucun match Pong actif");
+      this.redirectToErrorWithIcons(403, isLoggedIn);
+      return true;
+    }
+
+    // BLOCAGE 1b : Match Tron sans contexte
+    if (
+      !hasActiveTournament() &&
+      !hasActiveTronMatch() &&
+      targetPage.id === PAGE_IDS.TRON &&
+      path === "/match/tron"
+    ) {
+      console.log("🚫 [MATCH TRON] Accès interdit : Aucun match Tron actif");
+      this.redirectToErrorWithIcons(403, isLoggedIn);
+      return true;
+    }
+
+    // BLOCAGE 1c : Result page sans contexte
+    if (
+      !hasActiveTournament() &&
+      !hasActiveMatch() &&
+      !hasActiveTronMatch() &&
+      targetPage.id === PAGE_IDS.RESULT &&
+      path === "/match/result"
+    ) {
+      console.log("🚫 [MATCH RESULT] Accès interdit : Aucun match actif");
       this.redirectToErrorWithIcons(403, isLoggedIn);
       return true;
     }
@@ -325,8 +353,10 @@ export class NavigationHelpers {
     targetPage: HTMLElement,
     hasActiveTournament: () => boolean,
     hasActiveMatch: () => boolean,
+    hasActiveTronMatch: () => boolean,
     stopTournament: (reason: string) => void,
-    stopMatch: (reason: string) => void
+    stopMatch: (reason: string) => void,
+    stopTronMatch: (reason: string) => void
   ): boolean {
     const allowedTournamentPages = [
       this._DO.pages.match.id,
@@ -344,14 +374,24 @@ export class NavigationHelpers {
       return true;
     }
 
-    // Backward depuis match solo
+    // Backward depuis match solo (Pong)
     if (
       !hasActiveTournament() &&
       hasActiveMatch() &&
       targetPage.id !== PAGE_IDS.MATCH
     ) {
-      console.log("🛑 [MATCH SOLO] Backward depuis match classique → Arrêt du match");
+      console.log("🛑 [MATCH SOLO] Backward depuis match Pong → Arrêt du match");
       stopMatch("Navigation back/forward du navigateur");
+    }
+
+    // Backward depuis match Tron
+    if (
+      !hasActiveTournament() &&
+      hasActiveTronMatch() &&
+      targetPage.id !== PAGE_IDS.TRON
+    ) {
+      console.log("🛑 [TRON SOLO] Backward depuis match Tron → Arrêt du match");
+      stopTronMatch("Navigation back/forward du navigateur");
     }
 
     return false;

@@ -1,0 +1,176 @@
+/* ========================================
+   TRON - Style Néon années 80
+   ======================================== */
+
+.tron-title {
+  color: #00FFFF;
+  text-shadow:
+    0 0 10px #00FFFF,
+    0 0 20px #00FFFF,
+    0 0 30px #00FFFF,
+    0 0 40px #00FFFF;
+  animation: tronGlow 2s ease-in-out infinite;
+}
+
+@keyframes tronGlow {
+  0%, 100% {
+    text-shadow:
+      0 0 10px #00FFFF,
+      0 0 20px #00FFFF,
+      0 0 30px #00FFFF;
+  }
+  50% {
+    text-shadow:
+      0 0 20px #00FFFF,
+      0 0 30px #00FFFF,
+      0 0 40px #00FFFF,
+      0 0 50px #00FFFF;
+  }
+}
+
+.tron-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  gap: 2rem;
+}
+
+/* ========================================
+   CANVAS TRON
+   ======================================== */
+
+#tron-canvas {
+  display: block;
+  background: #000;
+  border: 3px solid #00FFFF;
+  box-shadow:
+    0 0 20px #00FFFF,
+    inset 0 0 20px rgba(0, 255, 255, 0.2);
+  border-radius: 12px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* ========================================
+   PLAYER CARDS TRON
+   ======================================== */
+
+.tron-player-left,
+.tron-player-right {
+  width: 160px;
+  padding: 1rem;
+}
+
+.tron-player-left {
+  border: 2px solid #00FFFF;
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+  background: rgba(0, 255, 255, 0.05);
+}
+
+.tron-player-right {
+  border: 2px solid #FF6600;
+  box-shadow: 0 0 15px rgba(255, 102, 0, 0.5);
+  background: rgba(255, 102, 0, 0.05);
+}
+
+.player-name-cyan {
+  color: #00FFFF;
+  text-shadow: 0 0 10px #00FFFF;
+}
+
+.player-name-orange {
+  color: #FF6600;
+  text-shadow: 0 0 10px #FF6600;
+}
+
+.tron-controls-cyan {
+  color: #00FFFF;
+  font-weight: bold;
+  font-size: 1.2rem;
+  text-shadow: 0 0 5px #00FFFF;
+  letter-spacing: 0.5rem;
+}
+
+.tron-controls-orange {
+  color: #FF6600;
+  font-weight: bold;
+  font-size: 1.2rem;
+  text-shadow: 0 0 5px #FF6600;
+  letter-spacing: 0.3rem;
+}
+
+.player-score-cyan {
+  color: #00FFFF;
+  font-weight: bold;
+  text-shadow: 0 0 5px #00FFFF;
+}
+
+.player-score-orange {
+  color: #FF6600;
+  font-weight: bold;
+  text-shadow: 0 0 5px #FF6600;
+}
+
+.player-color-indicator {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  margin: 1rem auto;
+  border: 2px solid #FFF;
+  animation: colorPulse 2s ease-in-out infinite;
+}
+
+@keyframes colorPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 1200px) {
+  .tron-wrapper {
+    flex-direction: column;
+  }
+
+  #tron-canvas {
+    width: 100%;
+    max-width: 600px;
+    height: auto;
+  }
+
+  .tron-player-left,
+  .tron-player-right {
+    width: 100%;
+    max-width: 400px;
+  }
+}
+
+@media (max-width: 768px) {
+  .tron-title {
+    font-size: 2rem;
+  }
+
+  #tron-canvas {
+    max-width: 400px;
+  }
+
+  .player-controls {
+    font-size: 0.9rem;
+  }
+
+  .tron-controls-cyan,
+  .tron-controls-orange {
+    font-size: 1rem;
+    letter-spacing: 0.3rem;
+  }
+}

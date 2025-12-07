@@ -15,7 +15,8 @@ export class MatchAPI {
     playerLeftId: number | null,
     playerRightId: number | null,
     isBotLeft: number,
-    isBotRight: number
+    isBotRight: number,
+    gameType: string = 'pong'
   ): Promise<number | null> {
     try {
       const response = await fetch('/api/matches', {
@@ -31,7 +32,7 @@ export class MatchAPI {
           player_right_id: playerRightId,
           player_right_name: playerRightName,
           is_bot_right: isBotRight,
-          game_type: 'pong'
+          game_type: gameType
         })
       });
 

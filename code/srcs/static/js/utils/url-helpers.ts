@@ -17,6 +17,22 @@ export function findPageFromUrl(url: string, allPages: DOMElements["pages"]): HT
     return allPages.accueil;
   }
 
+  // CAS SPÉCIAL : /match/pong → pagesMatch
+  if (url.startsWith('/match/pong')) {
+    return allPages.match;
+  }
+
+  // CAS SPÉCIAL : /match/tron → pagesTron
+  if (url.startsWith('/match/tron')) {
+    return allPages.tron;
+  }
+
+  // BLOCAGE : /match seul n'est plus accessible (seulement /match/pong ou /match/tron)
+  if (url === '/match') {
+    console.warn('[findPageFromUrl] Route /match bloquée - utilisez /match/pong ou /match/tron');
+    return null;
+  }
+
   // Dernier segment = nom de la page
   const pageName = segments[segments.length - 1];
 
@@ -46,14 +62,23 @@ export function findPageFromUrl(url: string, allPages: DOMElements["pages"]): HT
 /**
  * Met à jour l'URL dans le navigateur et définit la page active
  * @param page - Page à activer
- * @param prefix - Préfixe optionnel pour l'URL (ex: "tournament")
+ * @param urlOrPrefix - URL complète (si commence par '/') ou préfixe optionnel (ex: "tournament")
  */
-export function updateUrl(page: HTMLElement, prefix: string = "") {
+export function updateUrl(page: HTMLElement, urlOrPrefix: string = "") {
   SiteManagement.activePage = page;
 
-  const pageName = page.id.slice("pages".length).toLowerCase();
-  const url = prefix ? `${prefix}/${pageName}` : `/${pageName}`;
-  window.history.pushState({ page: pageName, prefix }, "", url);
+  let url: string;
+
+  // Si urlOrPrefix commence par '/', c'est une URL complète
+  if (urlOrPrefix.startsWith('/')) {
+    url = urlOrPrefix;
+  } else {
+    // Sinon c'est un préfixe
+    const pageName = page.id.slice("pages".length).toLowerCase();
+    url = urlOrPrefix ? `${urlOrPrefix}/${pageName}` : `/${pageName}`;
+  }
+
+  window.history.pushState({ page: page.id }, "", url);
 }
 
 /**

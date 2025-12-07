@@ -82,21 +82,37 @@ export async function endMatch(request: FastifyRequest<{ Params: EndMatchParams;
     matchRepo.updateMatchScore(matchId, { score_left, score_right });
   }
 
+  // Calculer le winner_id si non fourni mais scores disponibles
+  let finalWinnerId = winner_id || null;
+  let finalWinnerName = winner_name || null;
+
+  if (!finalWinnerId && status !== 'leave' && score_left !== undefined && score_right !== undefined) {
+    // Déterminer le gagnant à partir des scores
+    if (score_left > score_right) {
+      finalWinnerId = match.player_left_id;
+      finalWinnerName = match.player_left_name;
+    } else if (score_right > score_left) {
+      finalWinnerId = match.player_right_id;
+      finalWinnerName = match.player_right_name;
+    }
+    // Si scores égaux, on laisse null (match nul)
+  }
+
   // Terminer le match
-  const endedMatch = matchRepo.endMatch(matchId, winner_id || null, winner_name || null, status || 'completed');
+  const endedMatch = matchRepo.endMatch(matchId, finalWinnerId, finalWinnerName, status || 'completed');
 
   // Mettre à jour les stats si le match est complété
-  if (status !== 'leave' && winner_id) {
-    const loserId = match.player_left_id === winner_id ? match.player_right_id : match.player_left_id;
-
-    if (winner_id) {
-      const winnerStats = matchRepo.getMatchStatsForPlayer(matchId, winner_id);
-      if (winnerStats) userRepo.updateStats(winner_id, winnerStats);
+  if (status !== 'leave') {
+    // Mettre à jour les stats pour le joueur gauche s'il existe
+    if (match.player_left_id) {
+      const leftStats = matchRepo.getMatchStatsForPlayer(matchId, match.player_left_id);
+      if (leftStats) userRepo.updateStats(match.player_left_id, leftStats);
     }
 
-    if (loserId) {
-      const loserStats = matchRepo.getMatchStatsForPlayer(matchId, loserId);
-      if (loserStats) userRepo.updateStats(loserId, loserStats);
+    // Mettre à jour les stats pour le joueur droit s'il existe
+    if (match.player_right_id) {
+      const rightStats = matchRepo.getMatchStatsForPlayer(matchId, match.player_right_id);
+      if (rightStats) userRepo.updateStats(match.player_right_id, rightStats);
     }
   }
 

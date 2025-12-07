@@ -5,7 +5,7 @@ export interface User {
   id: number;
   username: string;
   email: string | null;
-  password_hash: string;
+  password_hash: string | null; // Nullable pour les comptes Google OAuth
   avatar_url: string;
   wins: number;
   losses: number;
@@ -15,11 +15,12 @@ export interface User {
   tournaments_played: number;
   tournaments_won: number;
   friend_count: number;
-  controls: string; // JSON string: {"leftUp":"w","leftDown":"s","rightUp":"ArrowUp","rightDown":"ArrowDown"}
+  controls: string; // JSON string: {"leftUp":"w","leftDown":"s","leftLeft":"a","leftRight":"d","rightUp":"ArrowUp","rightDown":"ArrowDown","rightLeft":"ArrowLeft","rightRight":"ArrowRight"}
   is_online: number; // 1 = online, 0 = offline
   last_seen: string; // ISO timestamp of last activity
   twofa_secret: string | null; // Secret TOTP pour 2FA (null si pas configuré)
   twofa_enabled: number; // 0 = désactivé, 1 = activé
+  google_id: string | null; // ID Google OAuth (null si compte classique)
   created_at: string;
   updated_at: string;
 }
@@ -27,8 +28,9 @@ export interface User {
 export interface CreateUserData {
   username: string;
   email?: string;
-  password_hash: string;
+  password_hash?: string; // Optionnel pour Google OAuth
   avatar_url?: string;
+  google_id?: string; // Pour Google OAuth
 }
 
 export interface UpdateUserData {
@@ -59,15 +61,16 @@ export class UserRepository {
    */
   createUser(data: CreateUserData): User {
     const stmt = this.db.prepare(`
-      INSERT INTO users (username, email, password_hash, avatar_url)
-      VALUES (?, ?, ?, ?)
+      INSERT INTO users (username, email, password_hash, avatar_url, google_id)
+      VALUES (?, ?, ?, ?, ?)
     `);
 
     const result = stmt.run(
       data.username,
       data.email || null,
-      data.password_hash,
-      data.avatar_url || '/static/util/icon/profile.png'
+      data.password_hash || null,
+      data.avatar_url || '/static/util/icon/profile.png',
+      data.google_id || null
     );
 
     return this.getUserById(result.lastInsertRowid as number)!;
@@ -454,6 +457,59 @@ export class UserRepository {
     const secret = result?.twofa_secret || null;
     console.log(`[UserRepository] ${secret ? '✅' : '⚠️'} Secret ${secret ? 'trouvé' : 'non configuré'}`);
     return secret;
+  }
+
+  // ========================================
+  // MÉTHODES GOOGLE OAUTH
+  // ========================================
+
+  /**
+   * Récupère un utilisateur par son Google ID
+   * @param googleId - ID Google de l'utilisateur
+   * @returns L'utilisateur ou null si non trouvé
+   */
+  getUserByGoogleId(googleId: string): User | null {
+    console.log(`[UserRepository] 🔍 Recherche user par Google ID: ${googleId}`);
+    const stmt = this.db.prepare('SELECT * FROM users WHERE google_id = ?');
+    const result = stmt.get(googleId) as User | undefined;
+    console.log(`[UserRepository] ${result ? '✅ Utilisateur trouvé' : '⚠️ Aucun utilisateur trouvé'}`);
+    return result || null;
+  }
+
+  /**
+   * Crée un utilisateur depuis Google OAuth
+   * @param googleId - ID Google de l'utilisateur
+   * @param email - Email Google de l'utilisateur
+   * @param username - Username généré ou fourni
+   * @param avatarUrl - URL de l'avatar Google (optionnel)
+   * @returns L'utilisateur créé
+   */
+  createUserFromGoogle(googleId: string, email: string, username: string, avatarUrl?: string): User {
+    console.log(`[UserRepository] 🆕 Création user depuis Google: ${email}`);
+    return this.createUser({
+      username,
+      email,
+      google_id: googleId,
+      avatar_url: avatarUrl || '/static/util/icon/profile.png',
+      // Pas de password_hash pour les comptes Google
+    });
+  }
+
+  /**
+   * Lie un compte existant à Google OAuth
+   * @param userId - ID de l'utilisateur existant
+   * @param googleId - ID Google à lier
+   */
+  linkGoogleAccount(userId: number, googleId: string): void {
+    console.log(`[UserRepository] 🔗 Liaison compte ${userId} avec Google ID ${googleId}`);
+    const stmt = this.db.prepare(`
+      UPDATE users
+      SET google_id = ?,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `);
+    stmt.run(googleId, userId);
+    console.log(`[UserRepository] ✅ Compte lié à Google`);
   }
 }
 

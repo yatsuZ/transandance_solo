@@ -1,0 +1,40 @@
+FROM node:20-alpine
+
+# NOTE: Dockerfile pour la PRODUCTION avec utilisateur non-root (sécurité)
+# Pour le développement, utiliser le Dockerfile standard (mode root pour éviter conflits bind mount)
+
+# Créer un utilisateur non-root pour la sécurité avec shell
+RUN addgroup -g 1001 -S appgroup && \
+    adduser -u 1001 -S appuser -G appgroup -s /bin/sh
+
+WORKDIR /app
+
+# Copier les fichiers nécessaires
+COPY ./code/srcs/ srcs
+COPY ./code/*.json .
+
+RUN apk add --no-cache tree curl
+
+RUN npm install typescript
+
+RUN npm install
+
+# Build le projet
+RUN npm run build && npm run build:client
+
+# Créer tous les dossiers nécessaires avec les bonnes permissions
+RUN mkdir -p /app/dist \
+    /app/coverage \
+    /app/uploads/avatars \
+    /app/srcs/backend/data
+
+# Changer le propriétaire de TOUS les fichiers (y compris les dossiers créés)
+RUN chown -R appuser:appgroup /app
+
+# Passer à l'utilisateur non-root
+USER appuser
+
+EXPOSE 3000
+
+# Démarrer l'application
+CMD ["npm", "run", "start"]
