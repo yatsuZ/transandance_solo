@@ -73,6 +73,12 @@ export class ProfilePageManager {
    * @param friendUsername - Si fourni, charge le profil de cet ami (mode lecture seule)
    */
   public async loadProfile(friendUsername?: string): Promise<void> {
+    // CORRECTION GLITCH : Cacher les sections pendant le chargement
+    const historyEmpty = this._DO.profile.historyEmpty;
+    const historyList = this._DO.profile.historyList;
+    if (historyEmpty) historyEmpty.style.display = 'none';
+    if (historyList) historyList.style.display = 'none';
+
     // Vérifier l'auth pour rafraîchir la session avec les données du serveur
     const isAuthenticated = await AuthManager.verifyAuth();
 

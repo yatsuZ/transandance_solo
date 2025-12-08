@@ -18,6 +18,11 @@ export class LeaderboardManager {
    * Charge et affiche le leaderboard
    */
   public async loadLeaderboard(): Promise<void> {
+    // CORRECTION GLITCH : Cacher tout dès le début, on affichera après le chargement
+    this._DO.leaderboard.podiumSection.style.display = 'none';
+    this._DO.leaderboard.rankingSection.style.display = 'none';
+    this._DO.leaderboard.noMatchSection.style.display = 'none';
+
     try {
       // Récupérer l'utilisateur connecté depuis UserSession
       this.currentUserId = userSession.getUserId();

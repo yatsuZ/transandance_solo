@@ -364,6 +364,36 @@ export class NavigationHelpers {
       this._DO.pages.treeTournament.id,
     ];
 
+    // BLOCAGE STRICT : Empêcher TOUT accès à match/pong via back/forward (même depuis un match actif)
+    if (currentPage?.id === PAGE_IDS.MATCH && targetPage.id !== PAGE_IDS.MATCH) {
+      console.log("🚫 [SÉCURITÉ] Backward depuis /match/pong → Arrêt et redirection immédiate vers accueil");
+      if (hasActiveMatch()) {
+        stopMatch("Navigation back/forward bloquée depuis match Pong");
+      }
+      if (hasActiveTournament()) {
+        stopTournament("Navigation back/forward bloquée depuis match Pong en tournoi");
+      }
+      activeAnotherPage(this._DO.pages.accueil);
+      this.setIconsVisibility(PAGE_IDS.ACCUEIL, true);
+      window.history.replaceState({ page: 'accueil' }, "", "/accueil");
+      return true;
+    }
+
+    // BLOCAGE STRICT : Empêcher TOUT accès à match/tron via back/forward (même depuis un match actif)
+    if (currentPage?.id === PAGE_IDS.TRON && targetPage.id !== PAGE_IDS.TRON) {
+      console.log("🚫 [SÉCURITÉ] Backward depuis /match/tron → Arrêt et redirection immédiate vers accueil");
+      if (hasActiveTronMatch()) {
+        stopTronMatch("Navigation back/forward bloquée depuis match Tron");
+      }
+      if (hasActiveTournament()) {
+        stopTournament("Navigation back/forward bloquée depuis match Tron en tournoi");
+      }
+      activeAnotherPage(this._DO.pages.accueil);
+      this.setIconsVisibility(PAGE_IDS.ACCUEIL, true);
+      window.history.replaceState({ page: 'accueil' }, "", "/accueil");
+      return true;
+    }
+
     // Backward depuis tournoi → Arrêt et redirection accueil
     if (hasActiveTournament() && allowedTournamentPages.includes(currentPage?.id ?? "")) {
       console.log("🛑 [TOURNOI] Backward depuis tournoi → Arrêt du tournoi et redirection accueil");
@@ -374,7 +404,7 @@ export class NavigationHelpers {
       return true;
     }
 
-    // Backward depuis match solo (Pong)
+    // Backward depuis match solo (Pong) - Cas restant
     if (
       !hasActiveTournament() &&
       hasActiveMatch() &&
@@ -384,7 +414,7 @@ export class NavigationHelpers {
       stopMatch("Navigation back/forward du navigateur");
     }
 
-    // Backward depuis match Tron
+    // Backward depuis match Tron - Cas restant
     if (
       !hasActiveTournament() &&
       hasActiveTronMatch() &&

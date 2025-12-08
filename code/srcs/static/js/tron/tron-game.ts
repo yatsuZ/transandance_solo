@@ -2,7 +2,7 @@ import { DOMElements } from '../core/dom-elements.js';
 import { activeAnotherPage } from '../navigation/page-manager.js';
 import { updateUrl } from '../utils/url-helpers.js';
 import { TronPlayerHuman, TronPlayerAI, TronPlayerBase, type AIDifficultyLevel } from './tron-player.js';
-import { WINNING_SCORE, GAME_SPEED, GRID_SIZE, ROUND_DELAY, PLAYER_LEFT_COLOR, PLAYER_RIGHT_COLOR, SPEED_INCREASE_INTERVAL, SPEED_INCREASE_RATE, MIN_GAME_SPEED } from './tron-config.js';
+import { WINNING_SCORE, GAME_SPEED, GRID_SIZE, ROUND_DELAY, PLAYER_LEFT_COLOR, PLAYER_RIGHT_COLOR, PLAYER_LEFT_HEAD_COLOR, PLAYER_RIGHT_HEAD_COLOR, SPEED_INCREASE_INTERVAL, SPEED_INCREASE_RATE, MIN_GAME_SPEED } from './tron-config.js';
 
 export interface TronPlayer {
   id: number;
@@ -390,9 +390,12 @@ export class TronGame {
   private drawPlayer(player: TronPlayer): void {
     if (!player.alive) return;
 
-    this.ctx.fillStyle = player.color;
+    // Utiliser une couleur différente pour la tête
+    const headColor = player.id === 1 ? PLAYER_LEFT_HEAD_COLOR : PLAYER_RIGHT_HEAD_COLOR;
+
+    this.ctx.fillStyle = headColor;
     this.ctx.shadowBlur = 15;
-    this.ctx.shadowColor = player.color;
+    this.ctx.shadowColor = headColor;
     this.ctx.fillRect(
       player.x * this.gridSize,
       player.y * this.gridSize,

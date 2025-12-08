@@ -65,10 +65,10 @@ export class SiteManagement {
   /**
    * Initialise tous les systèmes de l'application
    */
-  private initApp() {
+  private async initApp() {
     // Initialiser les systèmes de base
-    initMusicSystem(this._DO);
-    initVolumeControl(this._DO);
+    await initMusicSystem(this._DO);
+    await initVolumeControl(this._DO);
     update_description_de_page(this._DO);
     this.initLogoutButton();
 

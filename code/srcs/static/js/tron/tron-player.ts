@@ -277,11 +277,11 @@ export class TronPlayerAI extends TronPlayerBase {
       scores.push({ direction: dir, score });
     }
 
+    if (scores.length === 0) return;
+
     // Choisir la direction avec le meilleur score
-    if (scores.length > 0) {
-      scores.sort((a, b) => b.score - a.score);
-      this.data.direction = scores[0].direction;
-    }
+    scores.sort((a, b) => b.score - a.score);
+    this.data.direction = scores[0].direction;
   }
 
   private evaluateDirection(dir: 'up' | 'down' | 'left' | 'right', gridState: boolean[][], opponent: TronPlayer): number {
@@ -298,16 +298,15 @@ export class TronPlayerAI extends TronPlayerBase {
   }
 
   /**
-   * Évalue la sécurité d'une direction (défensif)
+   * Évalue la sécurité d'une direction (défensif) - VERSION SIMPLIFIÉE
    */
   private evaluateDefensive(dir: 'up' | 'down' | 'left' | 'right', gridState: boolean[][]): number {
     let score = 0;
     let x = this.data.x;
     let y = this.data.y;
 
-    // Simuler le mouvement dans cette direction
-    for (let i = 0; i < this.lookAhead; i++) {
-      // Avancer d'une case
+    // STRATÉGIE 1: Éviter les collisions immédiates (3 cases devant)
+    for (let i = 0; i < 3; i++) {
       switch (dir) {
         case 'up': y--; break;
         case 'down': y++; break;
@@ -315,16 +314,39 @@ export class TronPlayerAI extends TronPlayerBase {
         case 'right': x++; break;
       }
 
-      // Vérifier si c'est une position valide
       if (!this.isValidPosition(x, y, gridState)) {
-        // Collision immédiate = très mauvais
-        score -= 1000 * (this.lookAhead - i);
+        // Collision = très mauvais (plus c'est proche, pire c'est)
+        score -= 2000 * (4 - i);
         break;
       }
 
-      // Compter l'espace libre autour de cette position
+      // Compter l'espace libre autour
       const freeSpace = this.countFreeSpaceAround(x, y, gridState);
-      score += freeSpace * (this.lookAhead - i) * 10;
+
+      // Bonus pour espace libre (priorité aux cases proches)
+      score += freeSpace * (4 - i) * 20;
+
+      // RÈGLE ANTI-CERCLE : Pénalité si on a peu d'espace autour
+      // (évite de tourner en rond et se coincer)
+      if (i === 0 && freeSpace <= 2) {
+        score -= 500; // Pénalité si on va dans un couloir étroit
+      }
+    }
+
+    // STRATÉGIE 2: Préférer aller vers les bords/murs au début
+    // puis rester au centre ensuite (pattern "mur puis centre")
+    const maxX = gridState[0].length - 1;
+    const maxY = gridState.length - 1;
+    const distToEdge = Math.min(x, y, maxX - x, maxY - y);
+
+    // Si on est loin des bords (> 5 cases), bonus pour rester au centre
+    if (distToEdge > 5) {
+      score += 50;
+    }
+
+    // STRATÉGIE 3: Bonus pour continuer tout droit (évite les zigzags inutiles)
+    if (dir === this.data.direction) {
+      score += 30;
     }
 
     return score;

@@ -21,6 +21,8 @@ export interface User {
   twofa_secret: string | null; // Secret TOTP pour 2FA (null si pas configuré)
   twofa_enabled: number; // 0 = désactivé, 1 = activé
   google_id: string | null; // ID Google OAuth (null si compte classique)
+  music_volume: number; // Volume de la musique 0-100
+  music_enabled: number; // 0 = popup à afficher, 1 = musique autorisée, 2 = musique refusée
   created_at: string;
   updated_at: string;
 }
@@ -38,6 +40,8 @@ export interface UpdateUserData {
   email?: string;
   password_hash?: string;
   avatar_url?: string;
+  music_volume?: number;
+  music_enabled?: number;
 }
 
 export interface UserStats {
@@ -138,6 +142,14 @@ export class UserRepository {
     if (data.avatar_url !== undefined) {
       updates.push('avatar_url = ?');
       values.push(data.avatar_url);
+    }
+    if (data.music_volume !== undefined) {
+      updates.push('music_volume = ?');
+      values.push(data.music_volume);
+    }
+    if (data.music_enabled !== undefined) {
+      updates.push('music_enabled = ?');
+      values.push(data.music_enabled);
     }
 
     if (updates.length === 0) {

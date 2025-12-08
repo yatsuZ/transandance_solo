@@ -9,6 +9,7 @@ import { deleteUser, deleteUserSchema } from './handlers/delete-user.js';
 import { getUserMatches, getUserMatchesSchema } from './handlers/get-user-matches.js';
 import { getLeaderboard, getLeaderboardSchema } from './handlers/get-leaderboard.js';
 import { authMiddleware } from '../../core/auth/auth.middleware.js';
+import { preferencesRoutes } from './preferences.routes.js';
 
 /**
  * Routes users - fichier principal de routage
@@ -29,4 +30,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
 
   fastify.get('/:id/matches', { schema: getUserMatchesSchema }, getUserMatches);
   fastify.get('/leaderboard/top', { schema: getLeaderboardSchema }, getLeaderboard);
+
+  // Routes des préférences utilisateur (musique, etc.) - protégées par authMiddleware dans preferences.routes.ts
+  fastify.register(preferencesRoutes, { prefix: '/preferences' });
 }

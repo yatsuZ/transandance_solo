@@ -40,6 +40,10 @@ CREATE TABLE IF NOT EXISTS users (
   -- Customization
   controls TEXT DEFAULT '{"leftUp":"w","leftDown":"s","leftLeft":"a","leftRight":"d","rightUp":"ArrowUp","rightDown":"ArrowDown","rightLeft":"ArrowLeft","rightRight":"ArrowRight"}',
 
+  -- Music Preferences
+  music_volume INTEGER DEFAULT 50,  -- Volume 0-100
+  music_enabled INTEGER DEFAULT 0,  -- 0=popup à afficher, 1=musique autorisée, 2=musique refusée
+
   -- Online Status
   is_online INTEGER DEFAULT 0,
   last_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
