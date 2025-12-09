@@ -10,183 +10,99 @@
 #                                                                              #
 # **************************************************************************** #
 
-# Default targets
-.PHONY:	all help local install build_local clean fclean exec test_local docker prod \
-		build_img build_img_prod up_cont stop_dock clean_dock test_dock show_img \
-		show_container go_in_container re test check_goinfre re_prod
+.PHONY: all help local install build_local clean fclean exec docker prod \
+		build_img build_img_prod up_cont stop_dock clean_dock \
+		show_img show_container go_in_container go_in_nginx re re_docker re_prod dock_logs qrcode
 
-# OTHER
 SHELL := /bin/bash
 
-# Colors
-GREEN  = \033[1;32m
-BLUE   = \033[1;34m
-YELLOW = \033[1;33m
-RED    = \033[1;31m
-MAGENTA := \033[1;35m
-NC     = \033[0m # No Color
+GREEN   = \033[1;32m
+BLUE    = \033[1;34m
+YELLOW  = \033[1;33m
+RED     = \033[1;31m
+MAGENTA = \033[1;35m
+NC      = \033[0m
 
-# Variables
 PORT             = 3000
 PROJECT_NAME     = transandance
 GAME_DIR         = ./code/
 JS_EXEC_PATH     = $(GAME_DIR)/dist/
 NODE_MODULE_PATH = $(GAME_DIR)/node_modules
-DOCKER_COMPOSE   := docker compose
-COMPOSE_FILE     := ./docker-compose.yml
-DC               := $(DOCKER_COMPOSE) -f $(COMPOSE_FILE)
+DOCKER_COMPOSE   = docker compose
+COMPOSE_FILE     = ./docker-compose.yml
+DC               = $(DOCKER_COMPOSE) -f $(COMPOSE_FILE)
 IMG_NAME         = game_project_img
 CONTAINER_NAME   = game_project_cont
 
-
-# Default action
 all: help
-
-### Local Development
 
 local: build_local exec
 
-# Install Node.js dependencies
 install:
-	@echo -e "$(YELLOW)🔄 Installing Node.js dependencies...$(NC)"
 	@npm install --prefix "$(GAME_DIR)"
-	@echo -e "$(GREEN)✔ Node.js dependencies installed successfully!$(NC)"
 
-# Build the local project
 build_local: install
-	@echo -e "$(YELLOW)🛠️ Building local project...$(NC)"
 	@npm --prefix "$(GAME_DIR)" run build
-	@echo -e "$(GREEN)✔ Local build completed!$(NC)"
 
-# Clean build files
 clean:
-	@echo -e "$(YELLOW)🧹 Cleaning build files...$(NC)"
 	@npm --prefix "$(GAME_DIR)" run clean
-	@echo -e "$(RED)🗑️ Build files cleaned!$(NC)"
 
-# Force clean: remove node_modules and package-lock.json
 fclean: clean
-	@echo -e "$(YELLOW)🧹 Force cleaning project...$(NC)"
 	@rm -rf "$(NODE_MODULE_PATH)"
-	@echo -e "$(RED)🗑️ Project cleaned (node_modules and lock file removed)!$(NC)"
 
-# Execute the built code locally
 exec: build_local
-	@echo -e "$(YELLOW)🚀 Executing local application...$(NC)"
 	@npm --prefix "$(GAME_DIR)" start
-	@echo -e "$(GREEN)✔ Application started locally!$(NC)"
 
-# Test the local setup
-test_local: install build_local exec
-
-### Docker Management
-
-# Development mode (root user for bind mount compatibility)
 docker: build_img up_cont
-	@echo -e "$(BLUE)ℹ️  Running in DEVELOPMENT mode (root user)$(NC)"
 
-# Production mode (non-root user for security)
 prod: build_img_prod up_cont
-	@echo -e "$(BLUE)ℹ️  Running in PRODUCTION mode (non-root user)$(NC)"
 
-# check_goinfre:
-# 	@if [ ! -d /sgoinfre/$(USER)/ft_trans/db ]; then \
-# 		echo "📁 Dossier /sgoinfre/$(USER)/ft_trans/db non trouvé. Création..."; \
-# 		sudo mkdir -p /sgoinfre/$(USER)/ft_trans/db; \
-# 	else \
-# 		echo "✅ Dossier /sgoinfre/$(USER)/ft_trans/db déjà présent."; \
-# 	fi
-
-# Build Docker image (dev mode - root user)
-build_img: #check_goinfre
-	@echo -e "$(YELLOW)🐳 Building Docker image (DEV MODE - root user)...$(NC)"
+build_img:
 	@$(DC) build --no-cache
-	@echo -e "$(GREEN)✔ Docker image "$(IMG_NAME)" built successfully!$(NC)"
 
-# Build Docker image (prod mode - non-root user)
-build_img_prod: #check_goinfre
-	@echo -e "$(YELLOW)🐳 Building Docker image (PROD MODE - non-root user)...$(NC)"
+build_img_prod:
 	@$(DC) build --no-cache -f Docker/backFastify/Dockerfile.prod game_project_cont
-	@echo -e "$(GREEN)✔ Docker production image "$(IMG_NAME)" built successfully!$(NC)"
 
-# Start Docker containers
 up_cont:
-	@echo -e "$(YELLOW)🚀 Starting Docker containers...$(NC)"
 	@$(DC) up -d --remove-orphans --no-deps
-	@echo -e "$(GREEN)✔ Docker containers started successfully!$(NC)"
-	@echo ""
 	@. ./.env 2>/dev/null || true; \
 	HTTPS_PORT=$${NGINX_HTTPS_PORT:-443}; \
 	if [ "$$HTTPS_PORT" = "443" ]; then \
-		echo -e "$(MAGENTA)🌐 Access your application at:$(NC) $(GREEN)https://localhost$(NC)"; \
+		echo -e "$(GREEN)https://localhost$(NC)"; \
 	else \
-		echo -e "$(MAGENTA)🌐 Access your application at:$(NC) $(GREEN)https://localhost:$$HTTPS_PORT$(NC)"; \
+		echo -e "$(GREEN)https://localhost:$$HTTPS_PORT$(NC)"; \
 	fi
-	@echo ""
 
-# Stop Docker containers
 stop_dock:
-	@echo -e "$(YELLOW)🛑 Stopping Docker containers...$(NC)"
 	@$(DC) down
-	@echo -e "$(GREEN)✔ Docker containers stopped!$(NC)"
 
-# Clean Docker containers, volumes, and networks
 clean_dock: stop_dock
-	@echo -e "$(YELLOW)🧹 Cleaning Docker resources...$(NC)"
 	@$(DC) down -v --rmi all
-	@echo -e "$(RED)🗑️ Docker resources cleaned!$(NC)"
 
-# Show existing Docker images
 show_img:
-	@echo -e "$(YELLOW)🖼️ Showing existing Docker images...$(NC)"
 	@docker images
-	@echo -e "$(GREEN)✔ Docker images listed!$(NC)"
 
-# Show running Docker containers
 show_container:
-	@echo -e "$(YELLOW)🐳 Showing running Docker containers...$(NC)"
 	@docker ps
-	@echo -e "$(GREEN)✔ Running Docker containers listed!$(NC)"
 
-# Enter the running Docker container
 go_in_container:
-	@echo -e "$(YELLOW)🚪 Entering Docker container "$(CONTAINER_NAME)"...$(NC)"
 	@docker exec -it "$(CONTAINER_NAME)" /bin/sh
-	@echo -e "$(GREEN)✔ You are now inside the container! Type 'exit' to return.$(NC)"
 
-# Enter the nginx Docker container
 go_in_nginx:
-	@echo -e "$(YELLOW)🚪 Entering nginx container...$(NC)"
 	@docker exec -it container-nginx-tr /bin/sh
-	@echo -e "$(GREEN)✔ You are now inside the nginx container! Type 'exit' to return.$(NC)"
 
-### Combined Actions
-
-# Rebuild and restart Docker containers (dev mode)
 re_docker: clean_dock build_img up_cont
-	@echo -e "$(BLUE)🔄 Rebuilding and restarting Docker environment (DEV MODE)...$(NC)"
-	@echo -e "$(GREEN)✔ Docker environment rebuilt and restarted!$(NC)"
 
-# Rebuild and restart Docker containers (prod mode)
 re_prod: clean_dock build_img_prod up_cont
-	@echo -e "$(BLUE)🔄 Rebuilding and restarting Docker environment (PROD MODE)...$(NC)"
-	@echo -e "$(GREEN)✔ Production Docker environment rebuilt and restarted!$(NC)"
 
-### Run local tests
 re: fclean local
-	@echo -e "$(BLUE)🔄 Rebuilding and restarting local environment...$(NC)"
-	@echo -e "$(GREEN)✔ Local environment rebuilt and restarted!$(NC)"
 
-# Commande pour afficher les logs du conteneur
 dock_logs:
-	docker logs -f $(CONTAINER_NAME)
+	@docker logs -f $(CONTAINER_NAME)
 
-# Générer un QR code pour accéder depuis le téléphone
 qrcode:
-	@echo -e "$(YELLOW)📱 Generating QR code for mobile access...$(NC)"
 	@if ! command -v qrencode &> /dev/null; then \
-		echo -e "$(RED)Error: qrencode is not installed!$(NC)"; \
-		echo -e "$(YELLOW)Install it with:$(NC) sudo apt-get install qrencode"; \
+		echo "qrencode not installed"; \
 		exit 1; \
 	fi
 	@. ./.env 2>/dev/null || true; \
@@ -197,53 +113,30 @@ qrcode:
 	else \
 		URL="https://$$HOST_IP:$$HTTPS_PORT"; \
 	fi; \
-	echo -e "$(GREEN)Scan this QR code to access from your phone:$(NC)"; \
-	echo -e "$(BLUE)$$URL$(NC)"; \
-	echo ""; \
 	echo "$$URL" | qrencode -t ANSIUTF8
 
-# Help message
 help:
-	@echo -e "$(BLUE)✨ Makefile Help for $(PROJECT_NAME) ✨$(NC)"
-	@echo -e " "
-	
-	@echo -e "$(YELLOW)🔄 Combined & Reset Actions (Rebuilds & Restarts):$(NC)"
-	@echo -e " $(BLUE)make re$(NC)           : Rebuilds and restarts the local environment (clean + build + exec)."
-	@echo -e " $(BLUE)make re_docker$(NC)    : Rebuilds and restarts the Docker environment in DEV mode (root user)."
-	@echo -e " $(BLUE)make re_prod$(NC)      : Rebuilds and restarts the Docker environment in PROD mode (non-root user)."
-	@echo -e " "
-
-	@echo -e "$(YELLOW)🎯 Local Development:$(NC)"
-	@echo -e " $(BLUE)make local$(NC)        : Builds and runs the application locally."
-	@echo -e " $(GREEN)make test_local$(NC)   : Runs local tests."
-	@echo -e " $(GREEN)make exec$(NC)         : Executes the built local application."
-	@echo -e " $(GREEN)make build_local$(NC)  : Builds the local project."
-	@echo -e " $(GREEN)make install$(NC)      : Installs Node.js dependencies."
-	@echo -e " "
-
-	@echo -e "$(YELLOW)🧹 Cleanup Actions:$(NC)"
-	@echo -e " $(GREEN)make fclean$(NC)       : Force cleans (removes node_modules and lock file)."
-	@echo -e " $(GREEN)make clean$(NC)        : Cleans build files."
-	@echo -e " $(GREEN)make clean_dock$(NC)   : Cleans Docker containers, volumes, and networks."
-	@echo -e " "
-
-	@echo -e "$(YELLOW)🐳 Docker Management:$(NC)"
-	@echo -e " $(BLUE)make docker$(NC)       : Builds and starts Docker containers (DEV MODE - root user)."
-	@echo -e " $(BLUE)make prod$(NC)         : Builds and starts Docker containers (PROD MODE - non-root user)."
-	@echo -e " $(GREEN)make up_cont$(NC)      : Starts Docker containers."
-	@echo -e " $(GREEN)make build_img$(NC)    : Builds the Docker image (dev mode)."
-	@echo -e " $(GREEN)make build_img_prod$(NC): Builds the Docker image (prod mode)."
-	@echo -e " $(GREEN)make stop_dock$(NC)    : Stops Docker containers."
-	@echo -e " $(GREEN)make show_img$(NC)     : Shows existing Docker images."
-	@echo -e " $(GREEN)make show_container$(NC): Shows running Docker containers."
-	@echo -e " $(GREEN)make go_in_container$(NC): Enters the running game Docker container."
-	@echo -e " $(GREEN)make go_in_nginx$(NC)  : Enters the running nginx Docker container."
-	@echo -e " $(GREEN)make dock_logs$(NC)    : Displays container logs."
-	@echo -e " $(GREEN)make qrcode$(NC)       : Generate QR code for mobile access."
-	@echo -e " "
-
-	@echo -e "$(YELLOW)ℹ️ Additional Notes:$(NC)"
-	@echo -e " - Ensure Docker is installed and running if you intend to use Docker targets."
-	@echo -e " - The '$(CONTAINER_NAME)' variable is used to interact with your container."
-	@echo -e " - You can customize variables like PORT, PROJECT_NAME, etc., at the top of this file."
-	@echo -e " "
+	@echo "Makefile - $(PROJECT_NAME)"
+	@echo ""
+	@echo "Local:"
+	@echo "  make local       - Build + run locally"
+	@echo "  make install     - Install dependencies"
+	@echo "  make build_local - Build project"
+	@echo "  make exec        - Run application"
+	@echo "  make clean       - Clean build files"
+	@echo "  make fclean      - Clean all (+ node_modules)"
+	@echo "  make re          - Rebuild local"
+	@echo ""
+	@echo "Docker:"
+	@echo "  make docker      - Build + start (dev mode)"
+	@echo "  make prod        - Build + start (prod mode)"
+	@echo "  make stop_dock   - Stop containers"
+	@echo "  make clean_dock  - Clean Docker resources"
+	@echo "  make re_docker   - Rebuild Docker (dev)"
+	@echo "  make re_prod     - Rebuild Docker (prod)"
+	@echo "  make dock_logs   - Show container logs"
+	@echo "  make show_img    - List Docker images"
+	@echo "  make show_container - List running containers"
+	@echo "  make go_in_container - Enter game container"
+	@echo "  make go_in_nginx - Enter nginx container"
+	@echo "  make qrcode      - Generate QR for mobile"

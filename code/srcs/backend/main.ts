@@ -17,60 +17,45 @@ import { customizationRoutes } from './routes/customization/index.js';
 import path from 'path';
 import { mkdirSync, existsSync } from 'fs';
 
-// Constantes de configuration
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB en bytes
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
-/**
- * Fonction pour construire l'application Fastify
- * Utilisée par main.ts ET par les tests
- */
 export async function buildApp(): Promise<FastifyInstance> {
   const fastify = Fastify({
-    logger: process.env.NODE_ENV !== 'test', // Désactiver les logs en mode test
+    logger: process.env.NODE_ENV !== 'test',
   });
 
-  // Créer le dossier uploads/avatars s'il n'existe pas
   const uploadsDir = path.join(process.cwd(), 'uploads', 'avatars');
   if (!existsSync(uploadsDir)) {
     mkdirSync(uploadsDir, { recursive: true });
-    console.log('✅ Dossier uploads/avatars créé');
   }
 
-  // Plugin Cookie (pour gérer les cookies HTTP-only)
   await fastify.register(fastifyCookie, {
     secret: process.env.COOKIE_SECRET || 'ATTENTion_YaSssine8JEdoisDefinirDansLesVariebleDenvirnementCArklacVisibleToutLemondeVoiiiitEtCpasBienPOurlasecu',
     parseOptions: {}
   });
 
-  // Note: Plugin Google OAuth2 est maintenant enregistré dans authRoutes pour avoir le bon scope
-
-  // Plugin Multipart (pour upload de fichiers)
   await fastify.register(fastifyMultipart, {
     limits: {
       fileSize: MAX_FILE_SIZE,
     }
   });
 
-  // Plugin EJS
   await fastify.register(fastifyView, {
     engine: { ejs },
     root: path.join(__dirname, './../../static/views'),
   });
 
-  // Fichiers statiques (CSS / JS / images)
   await fastify.register(fastifyStatic, {
     root: path.join(__dirname, './../../static'),
     prefix: '/static/',
   });
 
-  // Dossier uploads (avatars uploadés par les users)
   await fastify.register(fastifyStatic, {
     root: path.join(process.cwd(), 'uploads'),
     prefix: '/uploads/',
-    decorateReply: false // Important pour éviter les conflits avec le premier plugin static
+    decorateReply: false
   });
 
-  // Routes API
   await fastify.register(authRoutes, { prefix: '/api/auth' });
   await fastify.register(twofaRoutes, { prefix: '/api/auth/2fa' });
   await fastify.register(userRoutes, { prefix: '/api/users' });
@@ -79,7 +64,6 @@ export async function buildApp(): Promise<FastifyInstance> {
   await fastify.register(friendshipRoutes, { prefix: '/api/friendships' });
   await fastify.register(customizationRoutes, { prefix: '/api/customization' });
 
-  // Routes frontend
   fastify.setNotFoundHandler(async (request, reply) => {
     if (request.url.startsWith('/static/')) {
       return reply.code(404).send({ error: 'File not found' });
@@ -97,7 +81,6 @@ export async function buildApp(): Promise<FastifyInstance> {
   return fastify;
 }
 
-// 4. Fonction pour récupérer l'adresse IP locale
 function getLocalIP(): string {
   const interfaces = os.networkInterfaces();
   for (const name of Object.keys(interfaces)) {
@@ -110,10 +93,9 @@ function getLocalIP(): string {
   return 'localhost';
 }
 
-// Démarrer le serveur SEULEMENT si on n'est pas en mode test
 if (process.env.NODE_ENV !== 'test') {
   const start = async () => {
-    console.log(chalk.magenta("\n🚀 Serveur démarré avec Fastify + EJS\n"));
+    console.log(chalk.magenta("\nServeur demarre avec Fastify + EJS\n"));
 
     try {
       const fastify = await buildApp();
@@ -125,10 +107,10 @@ if (process.env.NODE_ENV !== 'test') {
       const hostIP = process.env.HOST_IP || getLocalIP();
       const localURL = `https://${hostIP}`;
 
-      console.log(chalk.cyanBright(`\n🌐 Accessible sur ton PC : https://localhost`));
-      console.log(chalk.greenBright(`📱 Scan ce QR code pour ouvrir sur ton téléphone :`));
+      console.log(chalk.cyanBright(`\nAccessible sur ton PC : https://localhost`));
+      console.log(chalk.greenBright(`Scan ce QR code pour ouvrir sur ton telephone :`));
       console.log(chalk.yellowBright(`(${localURL})\n`));
-      console.log(chalk.gray(`ℹ️  Fastify écoute en interne sur le port ${port} (forwarding via nginx HTTPS)`));
+      console.log(chalk.gray(`Fastify ecoute en interne sur le port ${port} (forwarding via nginx HTTPS)`));
 
       qrcode.generate(localURL, { small: true });
     } catch (err) {

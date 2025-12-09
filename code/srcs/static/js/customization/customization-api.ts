@@ -47,7 +47,6 @@ export class CustomizationAPI {
       throw new Error(result.error || 'Erreur inconnue');
     }
 
-    // console.log(`[Customization API] Config ${gameType} chargée:`, result.data);
     return result.data;
   }
 
@@ -73,7 +72,6 @@ export class CustomizationAPI {
       throw new Error(result.error || 'Erreur lors de la sauvegarde');
     }
 
-    console.log(`✅ [Customization] Config ${gameType} sauvegardée`);
     return result.data;
   }
 
@@ -90,6 +88,5 @@ export class CustomizationAPI {
       throw new Error(`Erreur ${response.status}`);
     }
 
-    console.log(`🔄 [Customization] Config ${gameType} réinitialisée`);
   }
 }

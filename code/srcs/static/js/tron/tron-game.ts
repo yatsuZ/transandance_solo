@@ -61,7 +61,6 @@ export class TronGame {
     this.onGameEnd = onGameEnd;
     this.config = config;
 
-    console.log("[TRON] Création du jeu avec config:", config);
 
     // Réinitialiser les compteurs de bots
     TronPlayerAI.resetBotCounters();
@@ -130,7 +129,6 @@ export class TronGame {
     const avatarLeft = this.config.avatarUrls?.[0] || null;
     const avatarRight = this.config.avatarUrls?.[1] || null;
 
-    console.log(`[TRON] Création des joueurs - powerups: ${this.powerupsEnabled ? 'ACTIVÉS' : 'désactivés'}`);
 
     // Créer les instances de joueurs selon le mode
     switch (this.config.mode) {
@@ -348,7 +346,6 @@ export class TronGame {
   }
 
   private start(): void {
-    console.log('[TRON] Démarrage du jeu avec countdown');
     // Afficher le countdown avant de démarrer
     this.showCountdown(3, () => {
       this.gameLoop = window.setInterval(() => {
@@ -411,7 +408,6 @@ export class TronGame {
           }, this.gameSpeed);
         }
 
-        console.log(`[TRON] Vitesse augmentée ! Nouveau interval: ${this.gameSpeed}ms`);
       }
     }, SPEED_INCREASE_INTERVAL);
   }
@@ -421,7 +417,6 @@ export class TronGame {
     if (this.isStopped) return;
     this.isStopped = true;
 
-    console.log(`[TRON] Arrêt du jeu: ${reason || 'fin normale'}`);
 
     // Annuler le timeout de reset du round (évite de redémarrer le jeu après un stop)
     if (this.roundResetTimeout) {
@@ -544,7 +539,6 @@ export class TronGame {
       if (this.playerLeft.x === this.playerRight.x && this.playerLeft.y === this.playerRight.y) {
         leftCollided = true;
         rightCollided = true;
-        console.log('[TRON] Collision frontale détectée!');
       }
     }
 
@@ -560,7 +554,6 @@ export class TronGame {
           if (leftPos.x === rightPos.x && leftPos.y === rightPos.y) {
             leftCollided = true;
             rightCollided = true;
-            console.log('[TRON] Croisement détecté - les traces se touchent!');
             break;
           }
         }
@@ -572,7 +565,6 @@ export class TronGame {
         for (const rightPos of rightNewTrail) {
           if (this.playerLeft.x === rightPos.x && this.playerLeft.y === rightPos.y) {
             leftCollided = true;
-            console.log('[TRON] Joueur gauche touche nouvelle trace droite!');
             break;
           }
         }
@@ -582,7 +574,6 @@ export class TronGame {
         for (const leftPos of leftNewTrail) {
           if (this.playerRight.x === leftPos.x && this.playerRight.y === leftPos.y) {
             rightCollided = true;
-            console.log('[TRON] Joueur droit touche nouvelle trace gauche!');
             break;
           }
         }
@@ -625,17 +616,14 @@ export class TronGame {
     if (leftCollided && rightCollided) {
       this.playerLeft.alive = false;
       this.playerRight.alive = false;
-      console.log('[TRON] Collision simultanée - ÉGALITÉ!');
     }
     // Seulement joueur gauche
     else if (leftCollided) {
       this.playerLeft.alive = false;
-      console.log(`[TRON] ${this.playerLeft.name} est mort`);
     }
     // Seulement joueur droit
     else if (rightCollided) {
       this.playerRight.alive = false;
-      console.log(`[TRON] ${this.playerRight.name} est mort`);
     }
   }
 
@@ -759,14 +747,11 @@ export class TronGame {
     if (this.playerLeft.alive && !this.playerRight.alive) {
       // Joueur gauche gagne le round
       this.playerLeft.score++;
-      console.log(`[TRON] ${this.playerLeft.name} remporte le round! Score: ${this.playerLeft.score}-${this.playerRight.score}`);
     } else if (!this.playerLeft.alive && this.playerRight.alive) {
       // Joueur droit gagne le round
       this.playerRight.score++;
-      console.log(`[TRON] ${this.playerRight.name} remporte le round! Score: ${this.playerLeft.score}-${this.playerRight.score}`);
     } else {
       // Égalité - aucun point
-      console.log('[TRON] Round nul - aucun point marqué');
     }
 
     // Mettre à jour l'affichage des scores
@@ -796,7 +781,6 @@ export class TronGame {
   }
 
   private resetRound(): void {
-    console.log('[TRON] Nouveau round!');
 
     // Réinitialiser la vitesse à la vitesse de base
     this.gameSpeed = GAME_SPEED;

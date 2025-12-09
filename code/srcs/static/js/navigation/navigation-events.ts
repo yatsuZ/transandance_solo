@@ -96,7 +96,6 @@ export class NavigationEvents {
 
     // 3️⃣ VÉRIF ROUTES AVEC CONTEXTE (match/tournoi/profil ami - accès direct interdit)
     if (isContextRestrictedRoute(currentPath)) {
-      console.warn("🚫 [403] Route nécessite un contexte actif (accès direct interdit):", currentPath);
       this.navHelpers.redirectToErrorWithIcons(403, isAuthenticated);
       return;
     }
@@ -104,7 +103,6 @@ export class NavigationEvents {
     // 4️⃣ VÉRIF 404 : Route invalide
     const targetPage = this.navHelpers.resolveTargetPage(currentPath);
     if (!targetPage) {
-      console.warn("⚠️ [404] Route invalide:", currentPath);
       this.navHelpers.redirectToErrorWithIcons(404, isAuthenticated, currentPath);
       return;
     }
@@ -112,12 +110,10 @@ export class NavigationEvents {
     // Routes publiques (login/signup) : autoriser si déconnecté, bloquer si connecté
     if (isPublicRoute(currentPath)) {
       if (isAuthenticated) {
-        console.log("🚫 [403] Déjà authentifié, pour re acceder a login etc deconnecter vous dans param");
         this.navHelpers.redirectToErrorWithIcons(403, true);
         return;
       }
       // Pas connecté : autoriser l'accès
-      console.log("✅ Accès autorisé à la route publique:", currentPath);
       this.navHelpers.navigateToPage(targetPage, false, false);
       return;
     }
@@ -125,14 +121,12 @@ export class NavigationEvents {
     // Routes protégées : vérifier authentification
     if (isAuthProtectedRoute(currentPath)) {
       if (!isAuthenticated) {
-        console.warn("🔒 [401] Cookie JWT invalide ou expiré:", currentPath);
         this.navHelpers.redirectToErrorWithIcons(401, false);
         return;
       }
     }
 
     // 5️⃣ NAVIGATION NORMALE : Afficher la page demandée
-    console.log("✅ Navigation vers:", targetPage.id);
     this.navHelpers.navigateToPage(targetPage, isAuthenticated, false);
 
     if (targetPage.id === PAGE_IDS.PROFILE) {
@@ -171,11 +165,10 @@ export class NavigationEvents {
     e.preventDefault();
     const target = (e.target as Element | null);
     const link = target?.closest("button[data-link]");
-    if (!link) return console.error("Bouton avec data-link introuvable");
 
+    if (!link) return;
     const get_data_link = link.getAttribute("data-link");
-    if (!get_data_link || !get_data_link.startsWith("go_to_"))
-      return console.log("it s not a data-link for redirection:", get_data_link);
+    if (!get_data_link || !get_data_link.startsWith("go_to_")) return;
 
     const pageName = get_data_link.slice("go_to_".length);
     const isLoggedIn = AuthManager.isLoggedIn();
@@ -214,7 +207,6 @@ export class NavigationEvents {
    * Appelle les méthodes stop appropriées selon la situation
    */
   private async handlePopStateNavigation(event: PopStateEvent): Promise<void> {
-    console.log("🔙 Navigation back/forward détectée:", window.location.pathname);
 
     const path = window.location.pathname;
 
@@ -239,7 +231,6 @@ export class NavigationEvents {
       const isAuthenticated = await AuthManager.verifyAuth();
 
       if (!isAuthenticated) {
-        console.warn("🔒 [401] Cookie JWT invalide ou expiré:", path);
         this.navHelpers.redirectToErrorWithIcons(401, false);
         return;
       }
@@ -260,12 +251,10 @@ export class NavigationEvents {
     // Routes publiques (login/signup) : autoriser si déconnecté, bloquer si connecté
     if (isPublicRoute(path)) {
       if (isAuthenticated) {
-        console.log("🚫 [403] Déjà authentifié, redirection depuis route publique");
         this.navHelpers.redirectToErrorWithIcons(403, true);
         return;
       }
       // Pas connecté : autoriser l'accès
-      console.log("✅ Accès autorisé à la route publique (popstate):", path);
       const targetPage = findPageFromUrl(path, this._DO.pages);
       if (targetPage) {
         this.navHelpers.setIconsVisibility(targetPage.id, false);
@@ -277,7 +266,6 @@ export class NavigationEvents {
     // Routes protégées : vérifier authentification
     if (isAuthProtectedRoute(path) || isContextRestrictedRoute(path)) {
       if (!isAuthenticated) {
-        console.warn("🔒 [401] Cookie JWT invalide ou expiré:", path);
         this.navHelpers.redirectToErrorWithIcons(401, false);
         return;
       }
@@ -297,7 +285,6 @@ export class NavigationEvents {
 
     // 404 - Page introuvable
     if (!targetPage) {
-      console.error("[popstate] Impossible de trouver la page pour:", path);
       this.navHelpers.redirectToErrorWithIcons(404, isAuthenticated, path);
       return;
     }
@@ -344,6 +331,5 @@ export class NavigationEvents {
     }
 
     activeAnotherPage(targetPage);
-    console.log("✅ Page affichée:", targetPage.id);
   }
 }

@@ -23,7 +23,6 @@ export class TournamentForm {
     this.difficultySelects = Array.from(dO.tournamentElement.playerDifficultySelects);
 
     if (this.isMeCheckboxes.some(cb => !cb) || this.humanCheckboxes.some(cb => !cb)) {
-      console.error('⚠️ Éléments du formulaire tournament introuvables');
       return;
     }
 

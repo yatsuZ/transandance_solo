@@ -24,7 +24,6 @@ export class ProfileEditManager {
   public async openEditModal(): Promise<void> {
     const userData = AuthManager.getUserData();
     if (!userData) {
-      console.error('❌ Pas de données utilisateur');
       return;
     }
 
@@ -68,7 +67,6 @@ export class ProfileEditManager {
       // Attacher les event listeners
       this.attachEventListeners();
     } catch (error) {
-      console.error('❌ Erreur lors de l\'ouverture de la modal:', error);
     }
   }
 
@@ -256,10 +254,8 @@ export class ProfileEditManager {
       // Fermer après 1.5s
       setTimeout(() => {
         this.closeModal();
-        console.log('✅ Profil mis à jour sans reload (SPA)');
       }, 1500);
     } catch (error: any) {
-      console.error('❌ Erreur lors de la sauvegarde:', error);
       this.showMessage(error.message || 'Erreur lors de la mise à jour', 'error');
       this._DO.profileEditModal.btnSave.disabled = false;
     }

@@ -135,12 +135,9 @@ export class ProfileControlsManager {
         });
 
         if (response.ok) {
-          console.log('✅ Contrôles sauvegardés en BDD');
         } else {
-          console.log('⚠️ Échec sauvegarde contrôles en BDD');
         }
       } catch (error) {
-        console.log('⚠️ Erreur lors de la sauvegarde des contrôles:', error);
       }
 
       modal.classList.add('hidden');

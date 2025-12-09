@@ -1,14 +1,3 @@
-/**
- * Schémas JSON réutilisables pour la validation Fastify
- * Source de vérité unique basée sur les interfaces dans core/db/models/
- * Les propriétés sont réutilisées partout pour éviter la duplication
- */
-
-// ==================== Schémas d'entités complètes (définis en premier pour réutilisation) ====================
-
-/**
- * Schéma User complet basé sur l'interface User dans models/User.ts
- */
 export const userSchema = {
   type: 'object' as const,
   properties: {
@@ -30,9 +19,6 @@ export const userSchema = {
   }
 } as const;
 
-/**
- * Schéma Match complet basé sur l'interface Match dans models/Match.ts
- */
 export const matchSchema = {
   type: 'object' as const,
   properties: {
@@ -53,8 +39,6 @@ export const matchSchema = {
     end_at: { type: ['string', 'null'], format: 'date-time', description: 'Date de fin du match (null si en cours)' }
   }
 } as const;
-
-// ==================== Schémas de paramètres communs (réutilisent les propriétés ci-dessus) ====================
 
 export const idParamSchema = {
   type: 'object' as const,
@@ -83,11 +67,6 @@ export const limitQuerySchema = {
   }
 };
 
-// ==================== Schémas Tournament ====================
-
-/**
- * Schéma Tournament complet
- */
 export const tournamentSchema = {
   type: 'object' as const,
   properties: {
@@ -102,9 +81,6 @@ export const tournamentSchema = {
   }
 } as const;
 
-/**
- * Schéma TournamentParticipant complet
- */
 export const tournamentParticipantSchema = {
   type: 'object' as const,
   properties: {
@@ -118,9 +94,6 @@ export const tournamentParticipantSchema = {
   }
 } as const;
 
-/**
- * Schéma TournamentMatch complet
- */
 export const tournamentMatchSchema = {
   type: 'object' as const,
   properties: {

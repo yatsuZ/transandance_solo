@@ -47,7 +47,6 @@ export class AuthManager {
    */
   static async verifyAuth(): Promise<boolean> {
     try {
-      // console.log('🔍 [verifyAuth] Vérification du cookie JWT...');
 
       // Appeler /api/auth/me pour vérifier le cookie et récupérer les données user
       const response = await fetch('/api/auth/me', {
@@ -59,7 +58,6 @@ export class AuthManager {
         const data = await response.json();
         if (data.success && data.data?.user) {
           const user = data.data.user;
-          // console.log(`✅ [verifyAuth] Cookie JWT valide pour ${user.username}`);
 
           // Mettre à jour la session en mémoire
           userSession.setUser(user);
@@ -69,31 +67,25 @@ export class AuthManager {
             try {
               const controls: PlayerControls = JSON.parse(user.controls);
               uiPreferences.setControls(controls);
-              // console.log('🎮 [verifyAuth] Contrôles chargés depuis la BDD');
             } catch (error) {
-              console.log('⚠️ [verifyAuth] Contrôles corrompus, utilisation des valeurs par défaut');
             }
           }
 
           return true;
         } else {
-          console.log('⚠️ [verifyAuth] Réponse serveur invalide');
           userSession.clear();
           return false;
         }
       } else if (response.status === 401) {
         // Cookie invalide/expiré
-        console.log('🧹 [verifyAuth] Cookie JWT invalide/expiré ! Nettoyage de la session');
         userSession.clear();
         return false;
       } else {
         // Autre erreur (500, etc.) - on considère comme déconnecté par sécurité
-        console.log(`⚠️ [verifyAuth] Erreur serveur (${response.status}) → Non authentifié par sécurité`);
         userSession.clear();
         return false;
       }
     } catch (error) {
-      console.log('⚠️ [verifyAuth] Erreur réseau lors de la vérification auth:', error);
       userSession.clear();
       return false;
     }
@@ -128,9 +120,7 @@ export class AuthManager {
         method: 'POST',
         credentials: 'include' // Important pour envoyer le cookie
       });
-      console.log('👋 Déconnexion effectuée');
     } catch (error) {
-      console.log('⚠️ Erreur lors de la déconnexion:', error);
     }
   }
 
@@ -161,7 +151,6 @@ export class AuthManager {
       return data;
     } catch (error) {
       // Seulement si erreur réseau (pas de réponse du serveur)
-      console.log('⚠️ Impossible de se connecter au serveur');
       return {
         success: false,
         error: 'Erreur de connexion au serveur',
@@ -204,7 +193,6 @@ export class AuthManager {
       return data;
     } catch (error) {
       // Seulement si erreur réseau (pas de réponse du serveur)
-      console.log('⚠️ Impossible de créer le compte');
       return {
         success: false,
         error: 'Erreur de connexion au serveur',

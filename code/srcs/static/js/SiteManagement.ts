@@ -55,7 +55,6 @@ export class SiteManagement {
    */
   private waitForStyleThenInit() {
     const do_style = this._DO.style;
-    if (!do_style) return console.error("Pas reussie a recupere style.css");
 
     if (do_style.sheet)
       this.initApp();
@@ -167,7 +166,6 @@ export class SiteManagement {
       activeAnotherPage(loginPage);
       updateUrl(loginPage, '/login');
 
-      console.log('👋 Déconnexion réussie - Navigation SPA vers /login');
     });
   }
 

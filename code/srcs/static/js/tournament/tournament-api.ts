@@ -17,7 +17,6 @@ export class TournamentAPI {
     try {
       const userData = AuthManager.getUserData();
       if (!userData) {
-        console.log('⚠️ Pas de user connecté, impossible de créer le tournoi en BDD');
         return null;
       }
 
@@ -34,16 +33,13 @@ export class TournamentAPI {
       });
 
       if (!response.ok) {
-        console.log('⚠️ Échec création tournoi en BDD');
         return null;
       }
 
       const data = await response.json();
       this.tournamentId = data.data.id;
-      console.log('✅ Tournoi créé en BDD avec ID:', this.tournamentId);
       return this.tournamentId;
     } catch (error) {
-      console.log('⚠️ Erreur lors de la création du tournoi en BDD');
       return null;
     }
   }
@@ -79,14 +75,11 @@ export class TournamentAPI {
         const data = await response.json();
         const participantId = data.data.id;
         this.participantIds.set(player.name, participantId);
-        console.log(`✅ Participant ${player.name} ajouté (ID: ${participantId})`);
         return participantId;
       } else {
-        console.log(`⚠️ Échec ajout participant ${player.name}`);
         return null;
       }
     } catch (error) {
-      console.log(`⚠️ Erreur ajout participant ${player.name}`);
       return null;
     }
   }
@@ -114,12 +107,9 @@ export class TournamentAPI {
       });
 
       if (response.ok) {
-        console.log(`✅ Tournoi ${this.tournamentId} terminé en BDD (${status})`);
       } else {
-        console.log('⚠️ Échec fin tournoi en BDD');
       }
     } catch (error) {
-      console.log('⚠️ Erreur lors de la fin du tournoi en BDD');
     }
   }
 

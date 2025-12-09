@@ -49,7 +49,6 @@ export abstract class TronPlayerBase {
 
   private initDOMElements(): void {
     if (!this.playerCard) {
-      console.error('[TronPlayer] Carte du joueur introuvable');
       return;
     }
 
@@ -64,7 +63,6 @@ export abstract class TronPlayerBase {
    */
   public updateCard(): void {
     if (!this.nameElement || !this.typeElement || !this.avatarElement) {
-      console.error('[TronPlayer] Éléments DOM non initialisés');
       return;
     }
 
@@ -130,7 +128,6 @@ export class TronPlayerHuman extends TronPlayerBase {
       }
     }
 
-    console.log(`[TRON] TronPlayerHuman créé pour ${side} - powerups: ${powerupsEnabled ? 'ACTIVÉS' : 'désactivés'} (double-tap pour boost)`);
   }
 
   /**
@@ -228,7 +225,6 @@ export class TronPlayerHuman extends TronPlayerBase {
   public triggerBoost(): void {
     if (this.isBoosting || this.boostCooldown) return;
 
-    console.log(`[TRON BOOST] Boost déclenché !`);
 
     this.isBoosting = true;
     this.boostCooldown = true;
@@ -339,7 +335,6 @@ export class TronPlayerAI extends TronPlayerBase {
       this.controlsElement.innerHTML = `🤖 ${config.label}`;
     }
 
-    console.log(`[TRON AI] Bot créé - difficulté: ${difficulty}, powerups: ${powerupsEnabled ? 'ACTIVÉS' : 'désactivés'}`);
   }
 
   private static generateBotName(difficulty: AIDifficultyLevel): string {
@@ -451,7 +446,6 @@ export class TronPlayerAI extends TronPlayerBase {
   private triggerBoost(): void {
     if (this.isBoosting || this.boostCooldown) return;
 
-    console.log(`[TRON AI BOOST] Bot ${this.name} boost !`);
 
     this.isBoosting = true;
     this.boostCooldown = true;

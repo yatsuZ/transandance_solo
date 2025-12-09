@@ -3,19 +3,10 @@ import path from 'path';
 import fs from 'fs';
 import { Logger } from '../utils/logger.js';
 
-/**
- * Obtient le répertoire actuel de manière compatible CommonJS/ES modules
- * En mode test (Jest/CommonJS), utilise process.cwd() + chemin relatif
- * En production (ES modules), le chemin sera correct via les imports compilés
- */
 const getDirname = (): string => {
   return path.join(process.cwd(), 'srcs', 'backend', 'core', 'db');
 };
 
-/**
- * Gère la connexion à la base de données SQLite
- * Initialise automatiquement le schéma au premier démarrage
- */
 export class DatabaseManager {
   private db: Database.Database;
   private dbPath: string;
@@ -37,9 +28,6 @@ export class DatabaseManager {
     this.runMigrations();
   }
 
-  /**
-   * Exécute le fichier schema.sql pour créer les tables
-   */
   private initSchema(): void {
     try {
       const baseDir = getDirname();
@@ -53,17 +41,11 @@ export class DatabaseManager {
     }
   }
 
-  /**
-   * Exécute les migrations SQL dans l'ordre
-   * Note: En phase de dev, toutes les colonnes sont directement dans schema.sql
-   * Cette méthode est conservée pour compatibilité future
-   */
   private runMigrations(): void {
     try {
       const baseDir = getDirname();
       const migrationsDir = path.join(baseDir, 'script/migrations');
 
-      // Si le dossier migrations n'existe pas, on skip (normal en dev)
       if (!fs.existsSync(migrationsDir)) {
         Logger.info('No migrations folder found (using schema.sql directly)');
         return;
@@ -99,21 +81,14 @@ export class DatabaseManager {
     }
   }
 
-  /**
-   * Retourne la connexion à la base de données
-   */
   getConnection(): Database.Database {
     return this.db;
   }
 
-  /**
-   * Ferme la connexion à la base de données
-   */
   close(): void {
     this.db.close();
     Logger.info('Database connection closed');
   }
 }
 
-// Export de l'instance unique (singleton)
 export const db = new DatabaseManager();

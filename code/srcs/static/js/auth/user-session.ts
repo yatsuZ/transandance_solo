@@ -41,7 +41,6 @@ class UserSession {
    */
   setUser(user: UserData): void {
     this.currentUser = user;
-    // console.log(`✅ [UserSession] Session créée pour ${user.username} (ID: ${user.id})`);
   }
 
   /**
@@ -63,7 +62,6 @@ class UserSession {
    */
   clear(): void {
     if (this.currentUser) {
-      console.log(`🧹 [UserSession] Session nettoyée pour ${this.currentUser.username}`);
     }
     this.currentUser = null;
   }

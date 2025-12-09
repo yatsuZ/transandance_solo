@@ -66,9 +66,7 @@ export class CustomizationManager {
     try {
       this.pongConfig = await CustomizationAPI.getConfig('pong');
       this.tronConfig = await CustomizationAPI.getConfig('tron');
-      // console.log('[CustomizationManager] Configs chargées');
     } catch (error) {
-      console.error('❌ [Customization] Erreur lors du chargement des configs:', error);
       this.showMessage('Erreur de chargement', 'error');
     }
   }
@@ -193,14 +191,12 @@ export class CustomizationManager {
     const hiddenInput = palette.previousElementSibling as HTMLInputElement;
     if (hiddenInput && hiddenInput.tagName === 'INPUT' && hiddenInput.type === 'hidden') {
       hiddenInput.value = color;
-      console.log(`🎨 [Customization] ${hiddenInput.id} = ${color}`);
     }
   }
 
   private switchTab(game: 'pong' | 'tron') {
     this.currentGame = game;
 
-    console.log(`🎮 [Customization] Switch vers ${game.toUpperCase()}`);
 
     // Changer la classe active des onglets (boutons) - SANS JAMAIS TOUCHER À 'hidden'
     const tabPong = document.getElementById('tab-pong');
@@ -222,8 +218,6 @@ export class CustomizationManager {
         tabTron.classList.add('active');
       }
 
-      console.log(`[Customization] Classes PONG:`, tabPong.className);
-      console.log(`[Customization] Classes TRON:`, tabTron.className);
     }
 
     // Cacher tous les contenus, puis afficher uniquement celui sélectionné
@@ -246,7 +240,6 @@ export class CustomizationManager {
   private switchTabWithoutPushState(game: 'pong' | 'tron') {
     this.currentGame = game;
 
-    console.log(`🎮 [Customization] Switch vers ${game.toUpperCase()} (popstate)`);
 
     // Changer la classe active des onglets (boutons) - SANS JAMAIS TOUCHER À 'hidden'
     const tabPong = document.getElementById('tab-pong');
@@ -380,7 +373,6 @@ export class CustomizationManager {
 
       this.showMessage('✅ Configuration réinitialisée', 'success');
     } catch (error) {
-      console.error('❌ [Customization] Erreur lors de la réinitialisation:', error);
       this.showMessage('❌ Erreur lors de la réinitialisation', 'error');
     }
   }
@@ -420,12 +412,10 @@ export class CustomizationManager {
         };
       }
 
-      console.log(`📤 [Customization] Envoi PUT /api/customization/${game}:`, config);
 
       // Sauvegarder
       const savedConfig = await CustomizationAPI.saveConfig(game, config);
 
-      console.log(`📥 [Customization] Réponse du serveur:`, savedConfig);
 
       // Mettre à jour la config locale
       if (game === 'pong') {
@@ -439,14 +429,12 @@ export class CustomizationManager {
 
       this.showMessage('✅ Configuration sauvegardée', 'success');
     } catch (error) {
-      console.error('❌ [Customization] Erreur lors de la sauvegarde:', error);
       this.showMessage('❌ Erreur lors de la sauvegarde', 'error');
     }
   }
 
   private goToPreview(game: 'pong' | 'tron') {
     // TODO: Implémenter la navigation vers /custom/exemple/pong ou /custom/exemple/tron
-    console.log(`🎮 [Customization] Preview ${game} - À implémenter`);
     this.showMessage(`Preview ${game} - À implémenter`, 'success');
   }
 

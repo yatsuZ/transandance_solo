@@ -45,7 +45,6 @@ export class Tournament {
     this.authenticatedPlayerIndex = authenticatedPlayerIndex;
     this.players = players;
 
-    console.log("🎮 Tournament créé :", this.players);
 
     // Initialiser les modules
     this.tournamentAPI = new TournamentAPI();
@@ -151,18 +150,15 @@ export class Tournament {
     const doMatchTournamentBtn = this._DO.buttons.startMatchTournament;
 
     this.onDoMatchTournamentClick = () => {
-      if (this.stopTournament === true)
-        return console.log("Pas de match pour ce tournoi car ce tournoi si est desactiver");
+      if (this.stopTournament === true) return;
 
       const configMatch = this.creatConfig();
-      console.log("A faire : ⚔️ Début du match suivant. ConfigMatch =", configMatch);
       const matchPage = this._DO.pages.match;
 
       activeAnotherPage(matchPage);
       updateUrl(matchPage, "/tournament");
 
-      if (configMatch == null)
-        return console.log("Le tournoi est fini il y a un vainquer.");
+      if (configMatch == null) return;
 
       this.currentMatch = new PongGame(this._DO, configMatch, true);
     };
@@ -175,9 +171,8 @@ export class Tournament {
    */
   public updatePlayerStatus(name: string, alive: boolean): void {
     const player = this.players.find(p => p.name === name);
-    if (!player) return console.error(`Joueur ${name} introuvable`);
+    if (!player) return;
     player.aLive = alive;
-    console.log("player mort :", player);
     this.tournamentTree.createTree();
   }
 
@@ -185,7 +180,6 @@ export class Tournament {
    * Mise à jour de l'état d'un joueur par index
    */
   public updatePlayerStatusByIndex(index: number, alive: boolean): void {
-    if (index < 0 || index > 3) return console.error("Index joueur invalide");
     this.players[index].aLive = alive;
     this.tournamentTree.createTree();
   }
@@ -196,10 +190,9 @@ export class Tournament {
   public updateEndMatch(): void {
     const winnerAndLosser = this.currentMatch ? this.currentMatch.getWinnerAndLooser() : null;
 
-    if (this.currentMatch === null)
-      return console.log("Il n'y a pas de match actuellement dans le tournoi.");
-    else if (winnerAndLosser === null)
-      return console.log("Le match dans le tournoi n'est pas encore fini.");
+    if (this.currentMatch === null || winnerAndLosser === null) {
+      return;
+    }
 
     // Mettre à jour l'arbre + joueurs vivants/morts + détruire l'entité match
     this.updatePlayerStatus(winnerAndLosser.Looser.name, false);
@@ -213,7 +206,6 @@ export class Tournament {
       // Désactiver les boutons
       const boutonDeTournoi = this._DO.tournamentElement.divOfButton;
       activeOrHiden(boutonDeTournoi, "Off");
-      console.log("FIN du tournoi montrer le vainquer du tournoi.");
 
       // Envoyer la fin du tournoi en BDD (completed avec winner)
       if (alivePlayers.length === 1) {
@@ -255,7 +247,6 @@ export class Tournament {
 
     if (this.onDoMatchTournamentClick) {
       doMatchTournamentBtn.removeEventListener("click", this.onDoMatchTournamentClick);
-      console.log("🧹 Listener supprimé sur #doMatchTournament");
     }
     this.onDoMatchTournamentClick = null;
 

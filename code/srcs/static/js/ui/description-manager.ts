@@ -114,7 +114,6 @@ export function refreshPageDescription(): void {
 export function update_description_de_page(dom: DOMElements): void {
   const subtitles = dom.subtitles;
   if (!subtitles.length) {
-    console.warn('[update_description_de_page] Aucun sous-titre trouvé');
     return;
   }
 

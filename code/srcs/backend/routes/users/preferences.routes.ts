@@ -4,16 +4,9 @@ import { userRepo } from '../../core/db/models/User.js';
 import { errorResponseSchema } from '../types.js';
 import { authMiddleware } from '../../core/auth/auth.middleware.js';
 
-/**
- * Routes pour gérer les préférences utilisateur (musique, volume, etc.)
- */
 export async function preferencesRoutes(fastify: FastifyInstance) {
-  // Appliquer le middleware d'authentification à toutes les routes de ce plugin
   fastify.addHook('preHandler', authMiddleware);
-  /**
-   * GET /api/users/preferences/music
-   * Récupère les préférences musicales de l'utilisateur connecté
-   */
+
   fastify.get('/music', {
     schema: {
       response: {
@@ -42,10 +35,6 @@ export async function preferencesRoutes(fastify: FastifyInstance) {
     });
   });
 
-  /**
-   * PUT /api/users/preferences/music
-   * Met à jour les préférences musicales de l'utilisateur connecté
-   */
   fastify.put('/music', {
     schema: {
       body: Type.Object({

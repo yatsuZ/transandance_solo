@@ -39,14 +39,11 @@ export class MatchAPI {
       if (response.ok) {
         const data = await response.json();
         const matchId = data.data.id;
-        console.log('✅ Match créé en BDD avec ID:', matchId);
         return matchId;
       } else {
-        console.log('⚠️ Échec création match en BDD');
         return null;
       }
     } catch (error) {
-      console.log('⚠️ Erreur lors de la création du match en BDD');
       return null;
     }
   }
@@ -79,12 +76,9 @@ export class MatchAPI {
       });
 
       if (response.ok) {
-        console.log(`✅ Match ${matchId} terminé en BDD (${status})`);
       } else {
-        console.log('⚠️ Échec fin match en BDD');
       }
     } catch (error) {
-      console.log('⚠️ Erreur lors de la fin du match en BDD');
     }
   }
 }

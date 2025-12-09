@@ -83,14 +83,12 @@ export class ProfilePageManager {
     const isAuthenticated = await AuthManager.verifyAuth();
 
     if (!isAuthenticated) {
-      console.error('❌ Non authentifié');
       return;
     }
 
     const userData = AuthManager.getUserData();
 
     if (!userData) {
-      console.error('❌ Pas de données utilisateur');
       return;
     }
 
@@ -161,9 +159,7 @@ export class ProfilePageManager {
       // Rafraîchir la description de la page
       refreshPageDescription();
 
-      console.log(`✅ Profil de ${username} chargé`);
     } catch (error) {
-      console.error('❌ Erreur lors du chargement du profil ami:', error);
       alert('Erreur lors du chargement du profil');
     }
   }
@@ -293,7 +289,6 @@ export class ProfilePageManager {
     this._DO.profile.statGoal.textContent = user.total_goals_scored?.toString() || '0';
     this._DO.profile.statGoalAgainst.textContent = user.total_goals_conceded?.toString() || '0';
 
-    console.log('✅ Profil chargé avec succès');
   }
 
   /**
@@ -325,7 +320,6 @@ export class ProfilePageManager {
         historyList.appendChild(matchItem);
       });
 
-      console.log(`✅ ${matches.length} match(s) chargé(s)`);
     }
   }
 
@@ -432,7 +426,6 @@ export class ProfilePageManager {
       });
 
       if (!response.ok) {
-        console.error('❌ Erreur lors du chargement des amis');
         return;
       }
 
@@ -462,10 +455,8 @@ export class ProfilePageManager {
           friendsList.appendChild(friendCard);
         });
 
-        console.log(`✅ ${friends.length} ami(s) chargé(s)`);
       }
     } catch (error) {
-      console.error('❌ Erreur lors du chargement des amis:', error);
     }
   }
 
@@ -585,7 +576,6 @@ export class ProfilePageManager {
         alert(result.error || 'Erreur lors du retrait de l\'ami');
       }
     } catch (error) {
-      console.error('❌ Erreur lors du retrait de l\'ami:', error);
       alert('Erreur lors du retrait de l\'ami');
     }
   }

@@ -34,10 +34,7 @@ export function findPage(allPages: DOMElements["pages"], targetId: string): HTML
   let targetPage = Object.values(allPages).find(p => p?.id === targetId);
 
   if (!targetPage) {
-    console.warn(`[SPA] Page "${targetId}" introuvable dans DOMElements, tentative de récupération via document.getElementById...`);
     const tmpTargetPage = document.getElementById(targetId) as HTMLElement | null;
-    if (tmpTargetPage) console.log(`[SPA] Page "${tmpTargetPage}" récupérée avec succès via document.getElementById.`);
-    else console.error(`[SPA] Impossible de récupérer la page "${tmpTargetPage}" depuis le DOM.`);
     return tmpTargetPage;
   }
   return targetPage;

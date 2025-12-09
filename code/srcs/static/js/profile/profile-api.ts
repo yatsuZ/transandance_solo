@@ -25,7 +25,6 @@ export class ProfileAPI {
       const result = await response.json();
       return result.data;
     } catch (error) {
-      console.error('❌ Erreur lors du chargement du profil:', error);
       return null;
     }
   }
@@ -50,7 +49,6 @@ export class ProfileAPI {
       const result = await response.json();
       return result.data || [];
     } catch (error) {
-      console.error('❌ Erreur lors du chargement de l\'historique:', error);
       return [];
     }
   }

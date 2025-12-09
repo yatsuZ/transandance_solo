@@ -10,12 +10,9 @@ export interface Friendship {
 }
 
 export interface FriendWithDetails extends User {
-  friendship_date: string; // Date à laquelle l'amitié a été créée
+  friendship_date: string;
 }
 
-/**
- * Repository pour gérer les opérations sur la table friendships
- */
 export class FriendshipRepository {
   private db: Database.Database;
 
@@ -23,12 +20,7 @@ export class FriendshipRepository {
     this.db = database || db.getConnection();
   }
 
-  /**
-   * Ajoute une amitié entre deux utilisateurs
-   * Note: On normalise toujours user_id < friend_id
-   */
   addFriend(userId: number, friendId: number): Friendship {
-    // Normaliser les IDs pour éviter les doublons
     const [smallerId, biggerId] = userId < friendId ? [userId, friendId] : [friendId, userId];
 
     const stmt = this.db.prepare(`
@@ -38,18 +30,13 @@ export class FriendshipRepository {
 
     const result = stmt.run(smallerId, biggerId);
 
-    // Incrémenter le compteur d'amis pour les deux utilisateurs
     this.incrementFriendCount(userId);
     this.incrementFriendCount(friendId);
 
     return this.getFriendship(result.lastInsertRowid as number)!;
   }
 
-  /**
-   * Retire une amitié entre deux utilisateurs
-   */
   removeFriend(userId: number, friendId: number): boolean {
-    // Normaliser les IDs
     const [smallerId, biggerId] = userId < friendId ? [userId, friendId] : [friendId, userId];
 
     const stmt = this.db.prepare(`
@@ -60,7 +47,6 @@ export class FriendshipRepository {
     const result = stmt.run(smallerId, biggerId);
 
     if (result.changes > 0) {
-      // Décrémenter le compteur d'amis pour les deux utilisateurs
       this.decrementFriendCount(userId);
       this.decrementFriendCount(friendId);
       return true;
@@ -69,11 +55,7 @@ export class FriendshipRepository {
     return false;
   }
 
-  /**
-   * Vérifie si deux utilisateurs sont amis
-   */
   areFriends(userId: number, friendId: number): boolean {
-    // Normaliser les IDs
     const [smallerId, biggerId] = userId < friendId ? [userId, friendId] : [friendId, userId];
 
     const stmt = this.db.prepare(`
@@ -86,18 +68,12 @@ export class FriendshipRepository {
     return result.count > 0;
   }
 
-  /**
-   * Récupère une amitié par son ID
-   */
   getFriendship(id: number): Friendship | null {
     const stmt = this.db.prepare('SELECT * FROM friendships WHERE id = ?');
     const result = stmt.get(id) as Friendship | undefined;
     return result || null;
   }
 
-  /**
-   * Récupère la liste des amis d'un utilisateur avec leurs détails
-   */
   getFriendsWithDetails(userId: number): FriendWithDetails[] {
     const stmt = this.db.prepare(`
       SELECT
@@ -115,9 +91,6 @@ export class FriendshipRepository {
     return stmt.all(userId, userId, userId) as FriendWithDetails[];
   }
 
-  /**
-   * Récupère uniquement les IDs des amis d'un utilisateur
-   */
   getFriendIds(userId: number): number[] {
     const stmt = this.db.prepare(`
       SELECT
@@ -133,9 +106,6 @@ export class FriendshipRepository {
     return results.map((r) => r.friend_id);
   }
 
-  /**
-   * Compte le nombre d'amis d'un utilisateur
-   */
   getFriendCount(userId: number): number {
     const stmt = this.db.prepare(`
       SELECT COUNT(*) as count
@@ -147,9 +117,6 @@ export class FriendshipRepository {
     return result.count;
   }
 
-  /**
-   * Incrémente le compteur d'amis d'un utilisateur
-   */
   private incrementFriendCount(userId: number): void {
     const stmt = this.db.prepare(`
       UPDATE users
@@ -160,9 +127,6 @@ export class FriendshipRepository {
     stmt.run(userId);
   }
 
-  /**
-   * Décrémente le compteur d'amis d'un utilisateur
-   */
   private decrementFriendCount(userId: number): void {
     const stmt = this.db.prepare(`
       UPDATE users
@@ -173,10 +137,6 @@ export class FriendshipRepository {
     stmt.run(userId);
   }
 
-  /**
-   * Synchronise le compteur d'amis pour tous les utilisateurs
-   * Utile après une migration ou des incohérences
-   */
   syncAllFriendCounts(): void {
     const stmt = this.db.prepare(`
       UPDATE users
@@ -189,14 +149,10 @@ export class FriendshipRepository {
     stmt.run();
   }
 
-  /**
-   * Récupère toutes les amitiés (pour debug/admin)
-   */
   getAllFriendships(): Friendship[] {
     const stmt = this.db.prepare('SELECT * FROM friendships ORDER BY created_at DESC');
     return stmt.all() as Friendship[];
   }
 }
 
-// Export de l'instance unique
 export const friendshipRepo = new FriendshipRepository();

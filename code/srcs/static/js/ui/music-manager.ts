@@ -8,25 +8,20 @@ import { AuthManager } from "../auth/auth-manager.js";
  */
 async function loadMusicPreferences(): Promise<{ volume: number; enabled: number } | null> {
   try {
-    console.log('[Music] 📡 Chargement des préférences depuis l\'API...');
     const response = await fetch('/api/users/preferences/music', {
       method: 'GET',
       credentials: 'include',
     });
 
     if (!response.ok) {
-      console.warn(`[Music] ⚠️ Impossible de charger les préférences: ${response.status}`);
       if (response.status === 401) {
-        console.log('[Music] 🔒 Non authentifié - utilisation des valeurs par défaut');
       }
       return null;
     }
 
     const prefs = await response.json();
-    console.log('[Music] ✅ Préférences chargées:', prefs);
     return prefs;
   } catch (error) {
-    console.error('[Music] ❌ Erreur chargement préférences:', error);
     return null;
   }
 }
@@ -47,7 +42,6 @@ async function saveMusicPreferences(volume?: number, enabled?: number): Promise<
       body: JSON.stringify(body),
     });
   } catch (error) {
-    console.error('[Music] Erreur sauvegarde préférences:', error);
   }
 }
 
@@ -59,49 +53,40 @@ export async function initMusicSystem(all_DO: DOMElements) {
   const iconSound = all_DO.icons.sound;
   const iconSoundImg = all_DO.media.image.sound;
 
-  console.log('[Music] 🎵 Initialisation du système musical...');
 
   // CORRECTION GLITCH : Cacher la popup dès le début
   popup.style.display = 'none';
 
   // Vérifier si l'utilisateur est connecté
   const isLoggedIn = await AuthManager.verifyAuth();
-  console.log(`[Music] ${isLoggedIn ? '✅ Utilisateur connecté' : '❌ Utilisateur non connecté'}`);
 
   // Toujours essayer de charger les préférences (le cookie peut être valide)
   const prefs = await loadMusicPreferences();
 
   if (prefs) {
-    console.log(`[Music] 📋 Préférences trouvées: volume=${prefs.volume}%, enabled=${prefs.enabled}`);
     music.volume = prefs.volume / 100;
 
     // enabled: 0=popup, 1=oui, 2=non
     if (prefs.enabled === 1) {
       // Musique autorisée : essayer de démarrer automatiquement
-      console.log('[Music] ▶️ Tentative de démarrage automatique...');
 
       try {
         await music.play();
-        console.log('[Music] ✅ Musique démarrée avec succès');
         updateMusicUI(iconSoundImg, 'on');
       } catch (err) {
         // NAVIGATEUR BLOQUE L'AUTOPLAY : afficher la popup quand même
-        console.log('[Music] ⚠️ Autoplay bloqué par le navigateur - affichage du popup');
         popup.style.display = 'flex';
         updateMusicUI(iconSoundImg, 'off');
       }
     } else if (prefs.enabled === 2) {
       // Musique refusée : ne pas afficher popup
-      console.log('[Music] 🔇 Musique désactivée (préférence utilisateur)');
       updateMusicUI(iconSoundImg, 'off');
     } else {
       // Première visite (0) : afficher popup
-      console.log('[Music] ❓ Première visite - affichage du popup');
       popup.style.display = 'flex';
     }
   } else {
     // Pas de préférences : afficher popup
-    console.log('[Music] 📋 Aucune préférence - affichage du popup');
     popup.style.display = 'flex';
   }
 
@@ -123,10 +108,8 @@ async function handleStartMusic(music: HTMLAudioElement, iconSoundImg: HTMLImage
       // Sauvegarder la préférence : musique autorisée (1)
       if (isLoggedIn) {
         await saveMusicPreferences(undefined, 1);
-        console.log('[Music] ✅ Préférence musique sauvegardée : autorisée');
       }
     })
-    .catch(err => console.error("Erreur lecture musique :", err));
 }
 
 async function handleDontStartMusic(iconSoundImg: HTMLImageElement, popup: HTMLElement, isLoggedIn: boolean) {
@@ -135,7 +118,6 @@ async function handleDontStartMusic(iconSoundImg: HTMLImageElement, popup: HTMLE
   // Sauvegarder la préférence : musique refusée (2)
   if (isLoggedIn) {
     await saveMusicPreferences(undefined, 2);
-    console.log('[Music] ✅ Préférence musique sauvegardée : refusée');
   }
 }
 
@@ -147,17 +129,14 @@ async function toggleMusic(music: HTMLAudioElement, iconSoundImg: HTMLImageEleme
         // Sauvegarder enabled=1 uniquement si connecté
         if (isLoggedIn) {
           await saveMusicPreferences(undefined, 1);
-          console.log('[Music] ✅ Préférence musique sauvegardée : autorisée');
         }
       })
-      .catch(err => console.error("Erreur lecture musique :", err));
   } else {
     music.pause();
     updateMusicUI(iconSoundImg, 'off');
     // Sauvegarder enabled=2 uniquement si connecté
     if (isLoggedIn) {
       await saveMusicPreferences(undefined, 2);
-      console.log('[Music] ✅ Préférence musique sauvegardée : refusée');
     }
   }
 }
@@ -205,7 +184,6 @@ export async function initVolumeControl(all_DO: DOMElements) {
       }
       volumeSaveTimeout = window.setTimeout(async () => {
         await saveMusicPreferences(value, undefined);
-        console.log(`[Music] ✅ Volume sauvegardé : ${value}%`);
       }, 500);
     }
   });

@@ -62,18 +62,9 @@ export const signupSchema = {
   }
 } as const;
 
-/**
- * Handler: POST /api/auth/signup
- * Crée un nouveau compte utilisateur et retourne un JWT
- *
- * @param body - Données du compte (username, email, password)
- * @returns 201 - Compte créé + JWT token
- * @returns 409 - Username ou email déjà utilisé
- */
 export async function signup(request: FastifyRequest<{ Body: SignupBody }>, reply: FastifyReply): Promise<SignupResponse> {
   const { username, email, password } = request.body;
 
-  // Vérifier si le username existe déjà
   const existingUserByUsername = userRepo.getUserByUsername(username);
   if (existingUserByUsername) {
     return reply.code(StatusCodes.CONFLICT).send({
@@ -82,7 +73,6 @@ export async function signup(request: FastifyRequest<{ Body: SignupBody }>, repl
     });
   }
 
-  // Vérifier que l'email est fourni (requis depuis Google OAuth)
   if (!email || email.trim() === '') {
     return reply.code(StatusCodes.BAD_REQUEST).send({
       success: false,
@@ -90,7 +80,6 @@ export async function signup(request: FastifyRequest<{ Body: SignupBody }>, repl
     });
   }
 
-  // Vérifier si l'email existe déjà
   const existingUserByEmail = userRepo.getUserByEmail(email);
   if (existingUserByEmail) {
     return reply.code(StatusCodes.CONFLICT).send({
@@ -99,35 +88,29 @@ export async function signup(request: FastifyRequest<{ Body: SignupBody }>, repl
     });
   }
 
-  // Hasher le mot de passe
   const password_hash = await AuthService.hashPassword(password);
 
-  // Créer l'utilisateur
   const user = userRepo.createUser({
     username,
     email,
     password_hash
   });
 
-  // Générer le JWT
   const token = AuthService.generateToken({
     userId: user.id,
     username: user.username
   });
 
-  // Envoyer le JWT dans un cookie HTTP-only sécurisé
   reply.setCookie('auth_token', token, {
-    httpOnly: true,  // Pas accessible via JavaScript (sécurité XSS)
-    secure: process.env.NODE_ENV === 'production', // HTTPS uniquement en production
-    sameSite: 'strict', // Protection CSRF
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
     path: '/',
-    maxAge: 24 * 60 * 60 // 24 heures en secondes
+    maxAge: 24 * 60 * 60
   });
 
-  // Marquer l'utilisateur comme en ligne
   userRepo.setOnline(user.id, true);
 
-  // Retourner l'utilisateur (sans password_hash ni token dans le JSON)
   const { password_hash: _, ...safeUser } = user;
   return reply.code(StatusCodes.CREATED).send({
     success: true,

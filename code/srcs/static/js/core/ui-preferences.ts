@@ -62,7 +62,6 @@ class UIPreferences {
    */
   setMusicPlaying(playing: boolean): void {
     this.isPlaying = playing;
-    console.log(`🎵 [UIPreferences] Musique: ${playing ? 'EN MARCHE' : 'ARRÊTÉE'}`);
   }
 
   /**
@@ -77,12 +76,10 @@ class UIPreferences {
    */
   setMusicVolume(volume: number): void {
     if (volume < 0 || volume > 100) {
-      console.warn(`⚠️ [UIPreferences] Volume invalide: ${volume}, utilisation de 50`);
       this.musicVolume = 50;
       return;
     }
     this.musicVolume = volume;
-    console.log(`🔊 [UIPreferences] Volume: ${volume}%`);
   }
 
   /**
@@ -101,7 +98,6 @@ class UIPreferences {
    */
   setControls(controls: PlayerControls): void {
     this.controls = { ...controls };
-    // console.log(`🎮 [UIPreferences] Contrôles mis à jour:`, this.controls);
   }
 
   /**
@@ -131,7 +127,6 @@ class UIPreferences {
       rightLeft: 'ArrowLeft',
       rightRight: 'ArrowRight'
     };
-    console.log('🔄 [UIPreferences] Préférences réinitialisées');
   }
 }
 

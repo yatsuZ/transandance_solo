@@ -5,11 +5,11 @@ export interface Match {
   id: number;
   player_left_id: number | null;
   player_left_name: string;
-  is_bot_left: number;  // 0 ou 1 (SQLite boolean)
+  is_bot_left: number;
   score_left: number;
   player_right_id: number | null;
   player_right_name: string;
-  is_bot_right: number; // 0 ou 1 (SQLite boolean)
+  is_bot_right: number;
   score_right: number;
   winner_id: number | null;
   winner_name: string | null;
@@ -22,10 +22,10 @@ export interface Match {
 export interface CreateMatchData {
   player_left_id: number | null;
   player_left_name: string;
-  is_bot_left?: number;  // 0 ou 1 (défaut 0)
+  is_bot_left?: number;
   player_right_id: number | null;
   player_right_name: string;
-  is_bot_right?: number; // 0 ou 1 (défaut 0)
+  is_bot_right?: number;
   game_type?: string;
 }
 
@@ -34,9 +34,6 @@ export interface UpdateMatchScoreData {
   score_right: number;
 }
 
-/**
- * Repository pour gérer les opérations CRUD sur la table matches
- */
 export class MatchRepository {
   private db: Database.Database;
 
@@ -44,9 +41,6 @@ export class MatchRepository {
     this.db = database || db.getConnection();
   }
 
-  /**
-   * Crée un nouveau match (statut 'in_progress' par défaut)
-   */
   createMatch(data: CreateMatchData): Match {
     const stmt = this.db.prepare(`
       INSERT INTO matches (
@@ -70,18 +64,12 @@ export class MatchRepository {
     return this.getMatchById(result.lastInsertRowid as number)!;
   }
 
-  /**
-   * Récupère un match par son ID
-   */
   getMatchById(id: number): Match | null {
     const stmt = this.db.prepare('SELECT * FROM matches WHERE id = ?');
     const result = stmt.get(id) as Match | undefined;
     return result || null;
   }
 
-  /**
-   * Récupère tous les matches d'un utilisateur
-   */
   getMatchesByUser(userId: number): Match[] {
     const stmt = this.db.prepare(`
       SELECT * FROM matches
@@ -91,9 +79,6 @@ export class MatchRepository {
     return stmt.all(userId, userId) as Match[];
   }
 
-  /**
-   * Récupère tous les matches
-   */
   getAllMatches(limit?: number): Match[] {
     const query = limit
       ? 'SELECT * FROM matches ORDER BY start_at DESC LIMIT ?'
@@ -103,9 +88,6 @@ export class MatchRepository {
     return (limit ? stmt.all(limit) : stmt.all()) as Match[];
   }
 
-  /**
-   * Récupère les matches en cours
-   */
   getInProgressMatches(): Match[] {
     const stmt = this.db.prepare(`
       SELECT * FROM matches
@@ -115,9 +97,6 @@ export class MatchRepository {
     return stmt.all() as Match[];
   }
 
-  /**
-   * Récupère les matches complétés
-   */
   getCompletedMatches(limit?: number): Match[] {
     const query = limit
       ? `SELECT * FROM matches WHERE status = 'completed' ORDER BY end_at DESC LIMIT ?`
@@ -127,9 +106,6 @@ export class MatchRepository {
     return (limit ? stmt.all(limit) : stmt.all()) as Match[];
   }
 
-  /**
-   * Met à jour les scores pendant un match
-   */
   updateMatchScore(id: number, data: UpdateMatchScoreData): Match | null {
     const stmt = this.db.prepare(`
       UPDATE matches
@@ -141,9 +117,6 @@ export class MatchRepository {
     return this.getMatchById(id);
   }
 
-  /**
-   * Termine un match avec un vainqueur
-   */
   endMatch(
     id: number,
     winnerId: number | null,
@@ -164,25 +137,16 @@ export class MatchRepository {
     return this.getMatchById(id);
   }
 
-  /**
-   * Marque un match comme abandonné (leave)
-   */
   markMatchAsLeave(id: number): Match | null {
     return this.endMatch(id, null, null, 'leave');
   }
 
-  /**
-   * Supprime un match
-   */
   deleteMatch(id: number): boolean {
     const stmt = this.db.prepare('DELETE FROM matches WHERE id = ?');
     const result = stmt.run(id);
     return result.changes > 0;
   }
 
-  /**
-   * Récupère les statistiques d'un match pour un joueur
-   */
   getMatchStatsForPlayer(matchId: number, playerId: number): {
     goals_scored: number;
     goals_conceded: number;
@@ -204,5 +168,4 @@ export class MatchRepository {
   }
 }
 
-// Export de l'instance unique
 export const matchRepo = new MatchRepository();

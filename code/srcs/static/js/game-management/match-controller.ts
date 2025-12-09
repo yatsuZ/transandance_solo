@@ -52,7 +52,6 @@ export class MatchController {
    */
   public initMatchOnStartup(getCurrentPage: () => HTMLElement | null): void {
     if (getCurrentPage()?.id === "pagesMatch" && !this.pongGameSingleMatch) {
-      console.log("[MATCH CONTROLLER] Démarrage sur page match → initialisation du match");
       this.initGame();
     }
   }
@@ -149,7 +148,6 @@ export class MatchController {
     updateUrl(matchPage, '/match/pong');
 
     // Créer le jeu avec la config personnalisée
-    console.log("[MATCH CONTROLLER] Création du match avec config:", config);
     this.pongGameSingleMatch = new PongGame(this._DO, config, false, () => this.onMatchEnd());
 
     // Envoyer POST /api/matches pour créer le match en BDD
@@ -184,7 +182,6 @@ export class MatchController {
 
     this.pongGameSingleMatch = null;
     this.currentMatchId = null;
-    console.log("[MATCH CONTROLLER (call back)] Single match terminé, attribut remis à null");
   }
 
   /**
@@ -322,7 +319,6 @@ export class MatchController {
   private startTronMatch(): void {
     // Arrêter un éventuel match Tron en cours avant d'en créer un nouveau
     if (this.tronGameSingleMatch) {
-      console.log('[MATCH CONTROLLER] Arrêt du match Tron existant avant création d\'un nouveau');
       this.tronGameSingleMatch.stop('Nouveau match démarré');
       this.tronGameSingleMatch = null;
     }
@@ -398,7 +394,6 @@ export class MatchController {
     updateUrl(tronPage, '/match/tron');
 
     // Créer le jeu Tron avec la config complète
-    console.log("[MATCH CONTROLLER] Création du match Tron avec config:", config);
     this.tronGameSingleMatch = new TronGame(
       this._DO,
       config,
@@ -427,7 +422,6 @@ export class MatchController {
    * Callback appelé quand un match Tron se termine
    */
   private onTronMatchEnd(): void {
-    console.log("[MATCH CONTROLLER] Match Tron terminé");
 
     // Envoyer la fin du match à la BDD
     if (this.currentMatchId && this.tronGameSingleMatch) {

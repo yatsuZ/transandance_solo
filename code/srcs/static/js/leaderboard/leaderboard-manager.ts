@@ -1,10 +1,6 @@
 import { DOMElements } from '../core/dom-elements.js';
 import { userSession } from '../auth/user-session.js';
 
-/**
- * LeaderboardManager
- * Gère l'affichage du classement arcade avec système d'amis
- */
 export class LeaderboardManager {
   private _DO: DOMElements;
   private currentUserId: number | null = null;
@@ -14,25 +10,18 @@ export class LeaderboardManager {
     this._DO = dO;
   }
 
-  /**
-   * Charge et affiche le leaderboard
-   */
   public async loadLeaderboard(): Promise<void> {
-    // CORRECTION GLITCH : Cacher tout dès le début, on affichera après le chargement
     this._DO.leaderboard.podiumSection.style.display = 'none';
     this._DO.leaderboard.rankingSection.style.display = 'none';
     this._DO.leaderboard.noMatchSection.style.display = 'none';
 
     try {
-      // Récupérer l'utilisateur connecté depuis UserSession
       this.currentUserId = userSession.getUserId();
 
       if (this.currentUserId) {
-        // Charger la liste d'amis
         await this.loadFriendsList();
       }
 
-      // Charger le classement
       const response = await fetch('/api/users/leaderboard/top?limit=20', {
         method: 'GET',
         credentials: 'include'
@@ -50,20 +39,15 @@ export class LeaderboardManager {
         return;
       }
 
-      // Réafficher les sections (au cas où elles étaient cachées)
       this.showSections();
 
       this.displayPodium(players.slice(0, 3));
       this.displayRankingTable(players);
     } catch (error) {
-      console.error('❌ Erreur lors du chargement du leaderboard:', error);
       this.showEmptyState();
     }
   }
 
-  /**
-   * Charge la liste des amis de l'utilisateur
-   */
   private async loadFriendsList(): Promise<void> {
     if (!this.currentUserId) return;
 
@@ -79,20 +63,14 @@ export class LeaderboardManager {
         this.friendsList = new Set(friends.map((f: any) => f.id));
       }
     } catch (error) {
-      console.error('❌ Erreur lors du chargement des amis:', error);
     }
   }
 
-  /**
-   * Affiche le podium (Top 3) avec boutons d'ajout d'ami
-   */
   private displayPodium(topPlayers: any[]): void {
-    console.log(`[DEBUG] displayPodium - Current User ID: ${this.currentUserId}, Friends list size: ${this.friendsList.size}`);
     for (let i = 0; i < 3; i++) {
       const rank = i + 1;
       const player = topPlayers[i];
 
-      // Éléments DOM
       const podiumPlace = document.getElementById(`podium-${rank}`);
       const avatar = document.getElementById(`leaderboard-avatar-${rank}`) as HTMLImageElement;
       const username = document.getElementById(`leaderboard-username-${rank}`);
@@ -103,15 +81,12 @@ export class LeaderboardManager {
       const addFriendBtn = podiumPlace?.querySelector('.btn-add-friend') as HTMLButtonElement;
 
       if (!player) {
-        // Pas de joueur pour cette place - cacher complètement le podium
         if (podiumPlace) podiumPlace.style.display = 'none';
         continue;
       }
 
-      // Afficher le podium s'il était caché
       if (podiumPlace) podiumPlace.style.display = 'flex';
 
-      // Afficher les données du joueur
       if (avatar) avatar.src = player.avatar_url || '/static/util/icon/profile.png';
       if (username) username.textContent = player.username;
       if (matches) matches.textContent = player.total_matches?.toString() || '0';
@@ -119,45 +94,32 @@ export class LeaderboardManager {
       if (goalsConceded) goalsConceded.textContent = player.total_goals_conceded?.toString() || '0';
       if (friends) friends.textContent = player.friend_count?.toString() || '0';
 
-      // Gérer le bouton "Ajouter ami"
-      console.log(`[DEBUG] Podium ${rank} - Player ID: ${player.id}, Current User ID: ${this.currentUserId}, Button exists: ${!!addFriendBtn}`);
-
       if (addFriendBtn && this.currentUserId) {
         const isCurrentUser = player.id === this.currentUserId;
         const isFriend = this.friendsList.has(player.id);
 
-        console.log(`[DEBUG] Podium ${rank} - Is current user: ${isCurrentUser}, Is friend: ${isFriend}`);
-
         if (isCurrentUser) {
-          // C'est nous-même
           addFriendBtn.style.display = 'none';
         } else if (isFriend) {
-          // Déjà ami
           addFriendBtn.style.display = 'block';
           addFriendBtn.textContent = '✓ AMI';
           addFriendBtn.classList.add('already-friend');
           addFriendBtn.disabled = true;
         } else {
-          // Peut être ajouté
           addFriendBtn.style.display = 'block';
           addFriendBtn.textContent = '+ AJOUTER AMI';
           addFriendBtn.classList.remove('already-friend');
           addFriendBtn.disabled = false;
           addFriendBtn.dataset.userId = player.id.toString();
 
-          // Event listener
           addFriendBtn.onclick = () => this.addFriend(player.id, player.username, addFriendBtn);
         }
       } else if (addFriendBtn) {
-        // Non connecté
         addFriendBtn.style.display = 'none';
       }
     }
   }
 
-  /**
-   * Affiche le tableau de classement (1-20, incluant le Top 3)
-   */
   private displayRankingTable(players: any[]): void {
     const tableBody = document.getElementById('ranking-table-body');
     if (!tableBody) return;
@@ -180,7 +142,6 @@ export class LeaderboardManager {
       const goalsDiff = player.total_goals_scored - player.total_goals_conceded;
       const goalsClass = goalsDiff > 0 ? 'stat-positive' : goalsDiff < 0 ? 'stat-negative' : '';
 
-      // Classe spéciale pour les Top 3
       const isTop3 = rank <= 3;
       const top3Class = isTop3 ? 'top3-row' : '';
       const rankColor = rank === 1 ? 'rank-gold' : rank === 2 ? 'rank-silver' : rank === 3 ? 'rank-bronze' : '';
@@ -204,16 +165,12 @@ export class LeaderboardManager {
     });
   }
 
-  /**
-   * Ajoute un ami
-   */
   private async addFriend(friendId: number, friendUsername: string, button: HTMLButtonElement): Promise<void> {
     if (!this.currentUserId) {
       alert('Vous devez être connecté pour ajouter des amis');
       return;
     }
 
-    // Désactiver le bouton pendant la requête
     button.disabled = true;
     button.textContent = '...';
 
@@ -230,38 +187,29 @@ export class LeaderboardManager {
       const result = await response.json();
 
       if (response.ok) {
-        // Succès
         button.textContent = '✓ AMI';
         button.classList.add('already-friend');
         this.friendsList.add(friendId);
 
         alert(`Vous êtes maintenant ami avec ${friendUsername} !`);
       } else {
-        // Erreur
         alert(result.error || 'Erreur lors de l\'ajout de l\'ami');
         button.disabled = false;
         button.textContent = '+ AJOUTER AMI';
       }
     } catch (error) {
-      console.error('❌ Erreur lors de l\'ajout de l\'ami:', error);
       alert('Erreur lors de l\'ajout de l\'ami');
       button.disabled = false;
       button.textContent = '+ AJOUTER AMI';
     }
   }
 
-  /**
-   * Affiche les sections du leaderboard
-   */
   private showSections(): void {
     this._DO.leaderboard.noMatchSection.style.display = 'none';
     this._DO.leaderboard.podiumSection.style.display = 'block';
     this._DO.leaderboard.rankingSection.style.display = 'block';
   }
 
-  /**
-   * Affiche l'état vide si aucun joueur
-   */
   private showEmptyState(): void {
     this._DO.leaderboard.noMatchSection.style.display = 'flex';
     this._DO.leaderboard.podiumSection.style.display = 'none';

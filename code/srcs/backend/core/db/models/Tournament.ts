@@ -49,9 +49,6 @@ export interface AddMatchData {
   round: string;
 }
 
-/**
- * Convertit les booleans SQLite (0/1) en vrais booleans JavaScript
- */
 function convertSQLiteBooleans(obj: any): any {
   if (!obj) return obj;
   const converted = { ...obj };
@@ -64,9 +61,6 @@ function convertSQLiteBooleans(obj: any): any {
   return converted;
 }
 
-/**
- * Repository pour gérer les opérations CRUD sur les tournois
- */
 export class TournamentRepository {
   private db: Database.Database;
 
@@ -74,13 +68,6 @@ export class TournamentRepository {
     this.db = database || db.getConnection();
   }
 
-  // ========================================
-  // CRUD Tournaments
-  // ========================================
-
-  /**
-   * Crée un nouveau tournoi
-   */
   createTournament(data: CreateTournamentData): Tournament {
     const nbrMatches = data.nbr_of_matches || 3;
 
@@ -93,17 +80,11 @@ export class TournamentRepository {
     return this.getTournamentById(result.lastInsertRowid as number)!;
   }
 
-  /**
-   * Récupère un tournoi par son ID
-   */
   getTournamentById(id: number): Tournament | null {
     const stmt = this.db.prepare('SELECT * FROM tournaments WHERE id = ?');
     return stmt.get(id) as Tournament | null;
   }
 
-  /**
-   * Récupère tous les tournois
-   */
   getAllTournaments(limit?: number): Tournament[] {
     const query = limit
       ? 'SELECT * FROM tournaments ORDER BY created_at DESC LIMIT ?'
@@ -113,9 +94,6 @@ export class TournamentRepository {
     return (limit ? stmt.all(limit) : stmt.all()) as Tournament[];
   }
 
-  /**
-   * Récupère les tournois d'un manager
-   */
   getTournamentsByManager(managerId: number): Tournament[] {
     const stmt = this.db.prepare(`
       SELECT * FROM tournaments
@@ -125,9 +103,6 @@ export class TournamentRepository {
     return stmt.all(managerId) as Tournament[];
   }
 
-  /**
-   * Récupère les tournois en cours
-   */
   getInProgressTournaments(): Tournament[] {
     const stmt = this.db.prepare(`
       SELECT * FROM tournaments
@@ -137,9 +112,6 @@ export class TournamentRepository {
     return stmt.all() as Tournament[];
   }
 
-  /**
-   * Décrémente le nombre de matches restants
-   */
   decrementMatchesRemaining(id: number): Tournament | null {
     const stmt = this.db.prepare(`
       UPDATE tournaments
@@ -151,9 +123,6 @@ export class TournamentRepository {
     return this.getTournamentById(id);
   }
 
-  /**
-   * Termine un tournoi avec un vainqueur
-   */
   endTournament(id: number, winnerParticipantId: number | null, status: 'completed' | 'leave' = 'completed'): Tournament | null {
     const stmt = this.db.prepare(`
       UPDATE tournaments
@@ -169,29 +138,16 @@ export class TournamentRepository {
     return this.getTournamentById(id);
   }
 
-  /**
-   * Marque un tournoi comme abandonné
-   */
   markTournamentAsLeave(id: number): Tournament | null {
     return this.endTournament(id, null, 'leave');
   }
 
-  /**
-   * Supprime un tournoi (CASCADE: participants et matches aussi)
-   */
   deleteTournament(id: number): boolean {
     const stmt = this.db.prepare('DELETE FROM tournaments WHERE id = ?');
     const result = stmt.run(id);
     return result.changes > 0;
   }
 
-  // ========================================
-  // CRUD Tournament Participants
-  // ========================================
-
-  /**
-   * Ajoute un participant à un tournoi
-   */
   addParticipant(data: CreateParticipantData): TournamentParticipant {
     const stmt = this.db.prepare(`
       INSERT INTO tournament_participants (tournament_id, user_id, display_name, is_bot)
@@ -208,18 +164,12 @@ export class TournamentRepository {
     return this.getParticipantById(result.lastInsertRowid as number)!;
   }
 
-  /**
-   * Récupère un participant par son ID
-   */
   getParticipantById(id: number): TournamentParticipant | null {
     const stmt = this.db.prepare('SELECT * FROM tournament_participants WHERE id = ?');
     const result = stmt.get(id) as TournamentParticipant | undefined;
     return convertSQLiteBooleans(result) || null;
   }
 
-  /**
-   * Récupère tous les participants d'un tournoi
-   */
   getParticipants(tournamentId: number): TournamentParticipant[] {
     const stmt = this.db.prepare(`
       SELECT * FROM tournament_participants
@@ -230,9 +180,6 @@ export class TournamentRepository {
     return results.map(convertSQLiteBooleans);
   }
 
-  /**
-   * Récupère les participants encore en lice
-   */
   getActiveParticipants(tournamentId: number): TournamentParticipant[] {
     const stmt = this.db.prepare(`
       SELECT * FROM tournament_participants
@@ -243,9 +190,6 @@ export class TournamentRepository {
     return results.map(convertSQLiteBooleans);
   }
 
-  /**
-   * Élimine un participant
-   */
   eliminateParticipant(id: number): TournamentParticipant | null {
     const stmt = this.db.prepare(`
       UPDATE tournament_participants
@@ -257,9 +201,6 @@ export class TournamentRepository {
     return this.getParticipantById(id);
   }
 
-  /**
-   * Définit le placement final d'un participant
-   */
   setPlacement(id: number, placement: number): TournamentParticipant | null {
     const stmt = this.db.prepare(`
       UPDATE tournament_participants
@@ -271,13 +212,6 @@ export class TournamentRepository {
     return this.getParticipantById(id);
   }
 
-  // ========================================
-  // CRUD Tournament Matches
-  // ========================================
-
-  /**
-   * Ajoute un match à un tournoi
-   */
   addMatchToTournament(data: AddMatchData): TournamentMatch {
     const stmt = this.db.prepare(`
       INSERT INTO tournament_matches (tournament_id, match_id, match_index, round)
@@ -294,17 +228,11 @@ export class TournamentRepository {
     return this.getTournamentMatchById(result.lastInsertRowid as number)!;
   }
 
-  /**
-   * Récupère un tournament_match par son ID
-   */
   getTournamentMatchById(id: number): TournamentMatch | null {
     const stmt = this.db.prepare('SELECT * FROM tournament_matches WHERE id = ?');
     return stmt.get(id) as TournamentMatch | null;
   }
 
-  /**
-   * Récupère tous les matches d'un tournoi
-   */
   getMatches(tournamentId: number): TournamentMatch[] {
     const stmt = this.db.prepare(`
       SELECT * FROM tournament_matches
@@ -314,9 +242,6 @@ export class TournamentRepository {
     return stmt.all(tournamentId) as TournamentMatch[];
   }
 
-  /**
-   * Récupère le prochain match à jouer (match_index le plus élevé)
-   */
   getNextMatch(tournamentId: number): TournamentMatch | null {
     const stmt = this.db.prepare(`
       SELECT * FROM tournament_matches
@@ -328,5 +253,4 @@ export class TournamentRepository {
   }
 }
 
-// Export de l'instance unique
 export const tournamentRepo = new TournamentRepository();

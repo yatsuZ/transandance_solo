@@ -154,7 +154,6 @@ export class AuthEvents {
         submitBtn.textContent = 'Se connecter';
       }
     } catch (error) {
-      console.error('[AuthEvents] Erreur lors de la connexion:', error);
       this.showError(errorDiv, 'Erreur de connexion');
       submitBtn.disabled = false;
       submitBtn.textContent = 'Se connecter';
@@ -208,7 +207,6 @@ export class AuthEvents {
         this._DO.auth.twofaCodeInput.focus();
       }
     } catch (error) {
-      console.error('[AuthEvents] Erreur vérification 2FA:', error);
       this.showError(errorDiv, 'Erreur lors de la vérification');
     }
   }
@@ -291,7 +289,6 @@ export class AuthEvents {
         submitBtn.textContent = 'Créer mon compte';
       }
     } catch (error) {
-      console.error('[AuthEvents] Erreur lors de l\'inscription:', error);
       this.showError(errorDiv, 'Erreur d\'inscription');
       submitBtn.disabled = false;
       submitBtn.textContent = 'Créer mon compte';

@@ -22,7 +22,6 @@ export class TwoFAManager {
       this.updateUI(enabled);
       this.attachEvents();
     } catch (error) {
-      console.error('[TwoFAManager] Erreur lors de l\'initialisation:', error);
     }
   }
 
@@ -35,7 +34,6 @@ export class TwoFAManager {
     });
 
     if (!response.ok) {
-      console.error('[TwoFAManager] Erreur lors de la vérification du statut');
       return false;
     }
 
@@ -71,7 +69,6 @@ export class TwoFAManager {
         throw new Error(result.error || 'Erreur inconnue');
       }
     } catch (error) {
-      console.error('[TwoFAManager] Erreur setup:', error);
       this.showError(this._DO.parametreElement.twofaSetupError, 'Erreur lors de la configuration');
     }
   }
@@ -102,7 +99,6 @@ export class TwoFAManager {
         this.showError(this._DO.parametreElement.twofaSetupError, result.error || 'Code invalide');
       }
     } catch (error) {
-      console.error('[TwoFAManager] Erreur verification:', error);
       this.showError(this._DO.parametreElement.twofaSetupError, 'Erreur lors de la vérification');
     }
   }
@@ -134,7 +130,6 @@ export class TwoFAManager {
         this.showError(this._DO.parametreElement.twofaDisableError, result.error || 'Code invalide');
       }
     } catch (error) {
-      console.error('[TwoFAManager] Erreur désactivation:', error);
       this.showError(this._DO.parametreElement.twofaDisableError, 'Erreur lors de la désactivation');
     }
   }

@@ -44,9 +44,7 @@ export class TournamentController {
    */
   private initTournamentManagement() {
     Tournament.checkPlayerForTournament(this._DO, this.tournamentForm, (players, authenticatedPlayerIndex) => {
-      if (!players) {
-        return console.error("❌ Le tournoi n'est pas prêt.");
-      }
+      if (!players) return;
       this.tournament = new Tournament(
         this._DO,
         players,
@@ -54,10 +52,8 @@ export class TournamentController {
         () => {
           // Callback appelé quand le tournoi se termine naturellement
           this.tournament = null;
-          console.log("[TOURNAMENT] Tournoi terminé (fin naturelle avec vainqueur), attribut remis à null");
         }
       );
-      console.log("✅ Tournoi créé :", this.tournament);
     });
   }
 
@@ -72,10 +68,8 @@ export class TournamentController {
     activeAnotherPage(do_p_accueil);
     updateUrl(do_p_accueil);
 
-    console.log(`Tournament Finito pipo (1) :`, this);
     this.tournament?.ft_stopTournament();
     this.tournament = null;
-    console.log("[TOURNAMENT] Tournoi terminé (abandon via bouton), attribut remis à null");
   }
 
   /**
@@ -92,11 +86,9 @@ export class TournamentController {
     if (!activePage || !this.tournament) return;
 
     if (!allowedPages.includes(activePage.id)) {
-      console.log(`Tournament Finito pipo (2) :`, this);
 
       this.tournament?.ft_stopTournament();
       this.tournament = null;
-      console.log("[TOURNAMENT] Tournoi terminé (navigation hors pages tournoi), attribut remis à null");
     }
   }
 
@@ -126,10 +118,8 @@ export class TournamentController {
    */
   public stopTournament(reason: string): void {
     if (this.tournament) {
-      console.log(`🛑 [TOURNOI] ${reason}`);
       this.tournament.ft_stopTournament();
       this.tournament = null;
-      console.log("[TOURNAMENT] Tournoi terminé, attribut remis à null");
     }
   }
 

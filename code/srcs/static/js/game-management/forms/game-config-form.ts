@@ -49,7 +49,6 @@ export class GameConfigForm {
     this.playerRightDifficultySelect = dO.gameConfigElement.playerRightDifficultySelect;
 
     if (!this.playerLeftInput || !this.playerRightInput || !this.playerLeftIsMeCheckbox || !this.playerRightIsMeCheckbox) {
-      console.error('⚠️ Éléments du formulaire game-config introuvables');
       return;
     }
 

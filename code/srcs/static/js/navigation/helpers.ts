@@ -93,10 +93,7 @@ export function findPage(allPages: DOMElements["pages"], targetId: string): HTML
   let targetPage = Object.values(allPages).find(p => p?.id === targetId);
 
   if (!targetPage) {
-    console.warn(`[SPA] Page "${targetId}" introuvable dans DOMElements, tentative de récupération via document.getElementById...`);
     const tmpTargetPage = document.getElementById(targetId) as HTMLElement | null;
-    if (tmpTargetPage) console.log(`[SPA] Page "${tmpTargetPage}" récupérée avec succès via document.getElementById.`);
-    else console.error(`[SPA] Impossible de récupérer la page "${tmpTargetPage}" depuis le DOM.`);
     return tmpTargetPage;
   }
   return targetPage;
@@ -195,10 +192,8 @@ export class NavigationHelpers {
     const is404 = errorCodeText.includes("404");
 
     if (!is404) {
-      console.log("🔄 Réinitialisation de la page error (code 0)");
       resetErrorPage(0, this._DO);
-    } else
-      console.log("📌 Page error 404 conservée pour navigation back/forward");
+    }
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -222,10 +217,8 @@ export class NavigationHelpers {
    */
   resolveRootPage(isLoggedIn: boolean): HTMLElement {
     if (isLoggedIn) {
-      console.log("🏠 Route racine → Accueil (connecté)");
       return this._DO.pages.accueil;
     } else {
-      console.log("🔒 Route racine → Login (non connecté)");
       return this._DO.pages.login;
     }
   }
@@ -268,7 +261,6 @@ export class NavigationHelpers {
 
     // Route error
     if (path === "/error") {
-      console.log("🔄 Navigation vers /error → Affichage code 0");
       resetErrorPage(0, this._DO);
       activeAnotherPage(this._DO.pages.error);
       this.setIconsVisibility(PAGE_IDS.ERROR, isLoggedIn);
@@ -307,7 +299,6 @@ export class NavigationHelpers {
       targetPage.id === PAGE_IDS.MATCH &&
       path === "/match/pong"
     ) {
-      console.log("🚫 [MATCH PONG] Accès interdit : Aucun match Pong actif");
       this.redirectToErrorWithIcons(403, isLoggedIn);
       return true;
     }
@@ -319,7 +310,6 @@ export class NavigationHelpers {
       targetPage.id === PAGE_IDS.TRON &&
       path === "/match/tron"
     ) {
-      console.log("🚫 [MATCH TRON] Accès interdit : Aucun match Tron actif");
       this.redirectToErrorWithIcons(403, isLoggedIn);
       return true;
     }
@@ -332,14 +322,12 @@ export class NavigationHelpers {
       targetPage.id === PAGE_IDS.RESULT &&
       path === "/match/result"
     ) {
-      console.log("🚫 [MATCH RESULT] Accès interdit : Aucun match actif");
       this.redirectToErrorWithIcons(403, isLoggedIn);
       return true;
     }
 
     // BLOCAGE 2 : Tournoi sans contexte
     if (!hasActiveTournament() && allowedTournamentPages.includes(targetPage.id)) {
-      console.log("🚫 [TOURNOI] Accès interdit : Aucun tournoi actif");
       this.redirectToErrorWithIcons(403, isLoggedIn);
       return true;
     }
@@ -369,7 +357,6 @@ export class NavigationHelpers {
 
     // BLOCAGE STRICT : Empêcher TOUT accès à match/pong via back/forward (même depuis un match actif)
     if (currentPage?.id === PAGE_IDS.MATCH && targetPage.id !== PAGE_IDS.MATCH) {
-      console.log("🚫 [SÉCURITÉ] Backward depuis /match/pong → Arrêt et redirection immédiate vers accueil");
       if (hasActiveMatch()) {
         stopMatch("Navigation back/forward bloquée depuis match Pong");
       }
@@ -384,7 +371,6 @@ export class NavigationHelpers {
 
     // BLOCAGE STRICT : Empêcher TOUT accès à match/tron via back/forward (même depuis un match actif)
     if (currentPage?.id === PAGE_IDS.TRON && targetPage.id !== PAGE_IDS.TRON) {
-      console.log("🚫 [SÉCURITÉ] Backward depuis /match/tron → Arrêt et redirection immédiate vers accueil");
       if (hasActiveTronMatch()) {
         stopTronMatch("Navigation back/forward bloquée depuis match Tron");
       }
@@ -399,7 +385,6 @@ export class NavigationHelpers {
 
     // Backward depuis tournoi → Arrêt et redirection accueil
     if (hasActiveTournament() && allowedTournamentPages.includes(currentPage?.id ?? "")) {
-      console.log("🛑 [TOURNOI] Backward depuis tournoi → Arrêt du tournoi et redirection accueil");
       stopTournament("Backward depuis tournoi → Arrêt du tournoi et redirection accueil");
       activeAnotherPage(this._DO.pages.accueil);
       this.setIconsVisibility(PAGE_IDS.ACCUEIL, true);
@@ -413,7 +398,6 @@ export class NavigationHelpers {
       hasActiveMatch() &&
       targetPage.id !== PAGE_IDS.MATCH
     ) {
-      console.log("🛑 [MATCH SOLO] Backward depuis match Pong → Arrêt du match");
       stopMatch("Navigation back/forward du navigateur");
     }
 
@@ -423,7 +407,6 @@ export class NavigationHelpers {
       hasActiveTronMatch() &&
       targetPage.id !== PAGE_IDS.TRON
     ) {
-      console.log("🛑 [TRON SOLO] Backward depuis match Tron → Arrêt du match");
       stopTronMatch("Navigation back/forward du navigateur");
     }
 
@@ -441,14 +424,12 @@ export class NavigationHelpers {
   handlePopstateAuthChecks(path: string, isLoggedIn: boolean): boolean {
     // 🔒 Non connecté et pas sur login/signup → Redirect login
     if (!isLoggedIn && path !== '/login' && path !== '/signup') {
-      console.log('🔒 [POPSTATE] Non authentifié, redirection vers login');
       this.redirectToLoginPage();
       return true;
     }
 
     // ✅ Connecté et sur login/signup → Redirect accueil
     if (isLoggedIn && (path === '/login' || path === '/signup')) {
-      console.log('✅ [POPSTATE] Déjà authentifié, redirection vers accueil');
       activeAnotherPage(this._DO.pages.accueil);
       this.setIconsVisibility(PAGE_IDS.ACCUEIL, true);
       window.history.replaceState({ page: 'accueil' }, "", "/accueil");

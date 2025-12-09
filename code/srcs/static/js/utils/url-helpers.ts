@@ -29,7 +29,6 @@ export function findPageFromUrl(url: string, allPages: DOMElements["pages"]): HT
 
   // BLOCAGE : /match seul n'est plus accessible (seulement /match/pong ou /match/tron)
   if (url === '/match') {
-    console.warn('[findPageFromUrl] Route /match bloquée - utilisez /match/pong ou /match/tron');
     return null;
   }
 
@@ -40,7 +39,6 @@ export function findPageFromUrl(url: string, allPages: DOMElements["pages"]): HT
 
   // BLOCAGE : /custom seul n'est plus accessible (seulement /custom/pong ou /custom/tron)
   if (url === '/custom') {
-    console.warn('[findPageFromUrl] Route /custom bloquée - utilisez /custom/pong ou /custom/tron');
     return null;
   }
 
@@ -63,7 +61,6 @@ export function findPageFromUrl(url: string, allPages: DOMElements["pages"]): HT
   const targetPage = Object.values(allPages).find(p => p?.id === targetId);
 
   if (!targetPage) {
-    console.warn(`[findPageFromUrl] Page "${targetId}" introuvable pour l'URL "${url}"`);
     return null; // Retourner null pour gérer l'erreur 404
   }
 

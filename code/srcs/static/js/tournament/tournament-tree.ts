@@ -88,6 +88,5 @@ export class TournamentTree {
    */
   public cleanup(): void {
     window.removeEventListener("resize", this.resizeHandler);
-    console.log("🧹 Listener resize supprimé du tournoi");
   }
 }

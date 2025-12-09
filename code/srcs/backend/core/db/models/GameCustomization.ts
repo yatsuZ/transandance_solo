@@ -1,14 +1,9 @@
 import Database from 'better-sqlite3';
 import { db } from '../config.js';
 
-/**
- * Interface complète de la table game_customization
- * Une seule ligne par utilisateur contenant TOUS les champs (Pong + Tron)
- */
 export interface GameCustomization {
   user_id: number;
 
-  // Couleurs PONG (format hex #RRGGBB)
   pong_paddle_color_left: string | null;
   pong_paddle_color_right: string | null;
   pong_ball_color: string | null;
@@ -17,7 +12,6 @@ export interface GameCustomization {
   pong_border_color: string | null;
   pong_card_border_color: string | null;
 
-  // Couleurs TRON (format hex #RRGGBB)
   tron_vehicle_color_left: string | null;
   tron_vehicle_color_right: string | null;
   tron_trail_color_left: string | null;
@@ -27,56 +21,42 @@ export interface GameCustomization {
   tron_border_color: string | null;
   tron_card_border_color: string | null;
 
-  // Gameplay PONG
   pong_winning_score: number | null;
-  pong_powerups_enabled: number; // 0 = désactivés, 1 = activés
+  pong_powerups_enabled: number;
   pong_countdown_delay: number;
-  pong_initial_speed: number;    // Pourcentage (50-150, default 100)
-  pong_max_speed: number;        // Pourcentage (100-600, default 500)
+  pong_initial_speed: number;
+  pong_max_speed: number;
 
-  // Gameplay TRON
   tron_winning_score: number | null;
   tron_powerups_enabled: number;
   tron_countdown_delay: number;
 
-  // Meta
   created_at: string;
   updated_at: string;
 }
 
-/**
- * Données de customization spécifiques à un jeu (Pong OU Tron)
- * Utilisé pour les GET/PUT par jeu
- */
 export interface GameSpecificCustomization {
-  // Couleurs Pong
   paddle_color_left?: string | null;
   paddle_color_right?: string | null;
   ball_color?: string | null;
 
-  // Couleurs Tron
   vehicle_color_left?: string | null;
   vehicle_color_right?: string | null;
   trail_color_left?: string | null;
   trail_color_right?: string | null;
 
-  // Couleurs communes
   field_color?: string | null;
   text_color?: string | null;
   border_color?: string | null;
   card_border_color?: string | null;
 
-  // Gameplay
   winning_score?: number | null;
   powerups_enabled?: number;
   countdown_delay?: number;
-  initial_speed?: number;   // Pong only: pourcentage vitesse initiale
-  max_speed?: number;       // Pong only: pourcentage vitesse max
+  initial_speed?: number;
+  max_speed?: number;
 }
 
-/**
- * Repository pour gérer les opérations CRUD sur la table game_customization
- */
 export class GameCustomizationRepository {
   private db: Database.Database;
 
@@ -84,21 +64,12 @@ export class GameCustomizationRepository {
     this.db = database || db.getConnection();
   }
 
-  /**
-   * Récupère la config complète d'un utilisateur
-   * @returns GameCustomization ou null si pas de config
-   */
   getFullCustomization(userId: number): GameCustomization | null {
     const stmt = this.db.prepare('SELECT * FROM game_customization WHERE user_id = ?');
     const result = stmt.get(userId) as GameCustomization | undefined;
     return result || null;
   }
 
-  /**
-   * Récupère la config d'un jeu spécifique pour un utilisateur
-   * Extrait seulement les champs pong_* ou tron_* selon le gameType
-   * @returns GameSpecificCustomization ou null si pas de config
-   */
   getCustomization(userId: number, gameType: 'pong' | 'tron'): GameSpecificCustomization | null {
     const fullConfig = this.getFullCustomization(userId);
     if (!fullConfig) return null;
@@ -135,10 +106,6 @@ export class GameCustomizationRepository {
     }
   }
 
-  /**
-   * Crée ou met à jour la config d'un jeu pour un utilisateur
-   * Met à jour seulement les champs du jeu concerné (pong_* ou tron_*)
-   */
   upsertCustomization(
     userId: number,
     gameType: 'pong' | 'tron',
@@ -147,10 +114,8 @@ export class GameCustomizationRepository {
     const existing = this.getFullCustomization(userId);
 
     if (existing) {
-      // Mettre à jour seulement les champs du jeu concerné
       return this.updateCustomization(userId, gameType, data);
     } else {
-      // Créer une nouvelle ligne avec seulement les colonnes du jeu concerné
       if (gameType === 'pong') {
         const stmt = this.db.prepare(`
           INSERT INTO game_customization (
@@ -208,10 +173,6 @@ export class GameCustomizationRepository {
     }
   }
 
-  /**
-   * Met à jour partiellement la config d'un jeu pour un utilisateur
-   * Met à jour seulement les champs pong_* ou tron_* selon le gameType
-   */
   updateCustomization(
     userId: number,
     gameType: 'pong' | 'tron',
@@ -221,7 +182,6 @@ export class GameCustomizationRepository {
     const fields: string[] = [];
     const values: any[] = [];
 
-    // Map les champs génériques vers les colonnes préfixées
     const fieldMap: { [key: string]: string } = {
       paddle_color_left: `${prefix}_paddle_color_left`,
       paddle_color_right: `${prefix}_paddle_color_right`,
@@ -241,7 +201,6 @@ export class GameCustomizationRepository {
       max_speed: `${prefix}_max_speed`
     };
 
-    // Construction dynamique de la requête UPDATE
     Object.entries(data).forEach(([key, value]) => {
       if (value !== undefined && fieldMap[key]) {
         fields.push(`${fieldMap[key]} = ?`);
@@ -263,28 +222,18 @@ export class GameCustomizationRepository {
     return this.getCustomization(userId, gameType)!;
   }
 
-  /**
-   * Réinitialise la config d'un jeu pour un utilisateur (met à NULL les champs du jeu)
-   * Ne supprime PAS la ligne, juste les valeurs du jeu concerné
-   * @returns true si une config a été supprimée, false si aucune config n'existait
-   */
   deleteCustomization(userId: number, gameType: 'pong' | 'tron'): boolean {
-    // Vérifier si une config existe pour ce jeu
     const config = this.getCustomization(userId, gameType);
 
-    // Si aucune config (null) ou si tous les champs sont déjà NULL, rien à supprimer
     if (!config) return false;
 
-    // Vérifier si au moins un champ non-NULL existe
     const hasNonNullFields = Object.entries(config).some(([key, value]) => {
-      // Ignorer countdown_delay, powerups_enabled, initial_speed, max_speed car ils ont toujours une valeur par défaut
       if (key === 'countdown_delay' || key === 'powerups_enabled' || key === 'initial_speed' || key === 'max_speed') return false;
       return value !== null;
     });
 
     if (!hasNonNullFields) return false;
 
-    // Il y a des valeurs à supprimer, procéder à l'UPDATE
     if (gameType === 'pong') {
       const stmt = this.db.prepare(`
         UPDATE game_customization
@@ -332,5 +281,4 @@ export class GameCustomizationRepository {
   }
 }
 
-// Export d'une instance unique du repository
 export const gameCustomizationRepo = new GameCustomizationRepository();
