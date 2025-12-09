@@ -13,6 +13,7 @@ import authRoutes from './routes/auth/index.js';
 import twofaRoutes from './routes/auth/twofa.routes.js';
 import tournamentRoutes from './routes/tournaments/index.js';
 import friendshipRoutes from './routes/friendships/index.js';
+import { customizationRoutes } from './routes/customization/index.js';
 import path from 'path';
 import { mkdirSync, existsSync } from 'fs';
 
@@ -76,6 +77,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await fastify.register(matchRoutes, { prefix: '/api/matches' });
   await fastify.register(tournamentRoutes, { prefix: '/api/tournaments' });
   await fastify.register(friendshipRoutes, { prefix: '/api/friendships' });
+  await fastify.register(customizationRoutes, { prefix: '/api/customization' });
 
   // Routes frontend
   fastify.setNotFoundHandler(async (request, reply) => {

@@ -212,3 +212,50 @@ CREATE TABLE IF NOT EXISTS friendships (
 -- ========================================
 CREATE INDEX IF NOT EXISTS idx_friendships_user_id ON friendships(user_id);
 CREATE INDEX IF NOT EXISTS idx_friendships_friend_id ON friendships(friend_id);
+
+-- ========================================
+-- TABLE: game_customization
+-- ========================================
+-- Stocke les préférences de personnalisation des jeux (Pong & Tron)
+-- Un utilisateur peut avoir une config différente pour chaque jeu
+-- Les couleurs sont stockées au format hexadécimal (#RRGGBB)
+
+CREATE TABLE IF NOT EXISTS game_customization (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  game_type TEXT NOT NULL CHECK(game_type IN ('pong', 'tron')),
+
+  -- Couleurs PONG (format hex #RRGGBB)
+  paddle_color_left TEXT,              -- Couleur paddle gauche
+  paddle_color_right TEXT,             -- Couleur paddle droit
+  ball_color TEXT,                     -- Couleur balle
+
+  -- Couleurs TRON (format hex #RRGGBB)
+  vehicle_color_left TEXT,             -- Couleur véhicule gauche
+  vehicle_color_right TEXT,            -- Couleur véhicule droit
+  trail_color_left TEXT,               -- Couleur traînée gauche
+  trail_color_right TEXT,              -- Couleur traînée droite
+
+  -- Couleurs COMMUNES (format hex #RRGGBB)
+  field_color TEXT,                    -- Couleur terrain
+  text_color TEXT,                     -- Couleur texte/score
+
+  -- Gameplay
+  winning_score INTEGER DEFAULT NULL,  -- Score gagnant (NULL = valeur par défaut du jeu)
+  powerups_enabled INTEGER DEFAULT 0,  -- 0=désactivés, 1=activés
+  countdown_delay INTEGER DEFAULT 3,   -- Délai après chaque point (secondes, 1-5)
+
+  -- Meta
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+  -- Contraintes
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  UNIQUE(user_id, game_type)  -- Un seul config par jeu par utilisateur
+);
+
+-- ========================================
+-- INDEX: Optimiser les recherches de customization
+-- ========================================
+CREATE INDEX IF NOT EXISTS idx_game_customization_user_id ON game_customization(user_id);
+CREATE INDEX IF NOT EXISTS idx_game_customization_game_type ON game_customization(game_type);

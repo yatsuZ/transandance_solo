@@ -1,0 +1,158 @@
+<div class="container">
+  <header class="arcade-header">
+    <h1 class="arcade-title"><%= title %></h1>
+    <p class="arcade-subtitle">Personnalisez vos jeux</p>
+  </header>
+
+  <!-- Onglets Pong / Tron -->
+  <div class="custom-tabs">
+    <button id="tab-pong" class="custom-tab active" data-game="pong">🏓 PONG</button>
+    <button id="tab-tron" class="custom-tab" data-game="tron">🏍️ TRON</button>
+  </div>
+
+  <!-- Contenu Pong -->
+  <div id="custom-pong" class="custom-content active">
+    <div class="custom-wrapper">
+
+      <!-- Apparence Pong -->
+      <section class="custom-section">
+        <h2 class="custom-section-title">🎨 APPARENCE</h2>
+
+        <div class="custom-grid">
+          <div class="custom-item">
+            <label for="pong-paddle-left-color">Paddle Gauche</label>
+            <input type="color" id="pong-paddle-left-color" class="color-picker" value="#FFFFFF">
+          </div>
+
+          <div class="custom-item">
+            <label for="pong-paddle-right-color">Paddle Droit</label>
+            <input type="color" id="pong-paddle-right-color" class="color-picker" value="#FFFFFF">
+          </div>
+
+          <div class="custom-item">
+            <label for="pong-ball-color">Balle</label>
+            <input type="color" id="pong-ball-color" class="color-picker" value="#FFFFFF">
+          </div>
+
+          <div class="custom-item">
+            <label for="pong-field-color">Terrain</label>
+            <input type="color" id="pong-field-color" class="color-picker" value="#000000">
+          </div>
+
+          <div class="custom-item">
+            <label for="pong-text-color">Score/Texte</label>
+            <input type="color" id="pong-text-color" class="color-picker" value="#00FF00">
+          </div>
+        </div>
+      </section>
+
+      <!-- Gameplay Pong -->
+      <section class="custom-section">
+        <h2 class="custom-section-title">⚙️ GAMEPLAY</h2>
+
+        <div class="custom-grid">
+          <div class="custom-item full-width">
+            <label for="pong-winning-score">Score pour gagner: <span id="pong-score-value">11</span></label>
+            <input type="range" id="pong-winning-score" min="5" max="21" step="2" value="11" class="slider">
+          </div>
+
+          <div class="custom-item full-width">
+            <label for="pong-countdown-delay">Délai après point (secondes): <span id="pong-countdown-value">3</span>s</label>
+            <input type="range" id="pong-countdown-delay" min="1" max="5" step="1" value="3" class="slider">
+          </div>
+
+          <div class="custom-item full-width">
+            <label class="checkbox-label">
+              <input type="checkbox" id="pong-powerups">
+              <span>Activer Power-ups (Dash)</span>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- Boutons Pong -->
+      <div class="custom-buttons">
+        <button id="pong-btn-default" class="btn btn-secondary">RESET</button>
+        <button id="pong-btn-save" class="btn btn-success">SAUVEGARDER</button>
+        <button id="pong-btn-preview" class="btn btn-primary">APERÇU</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenu Tron -->
+  <div id="custom-tron" class="custom-content">
+    <div class="custom-wrapper">
+
+      <!-- Apparence Tron -->
+      <section class="custom-section">
+        <h2 class="custom-section-title">🎨 APPARENCE</h2>
+
+        <div class="custom-grid">
+          <div class="custom-item">
+            <label for="tron-vehicle-left-color">Véhicule Gauche</label>
+            <input type="color" id="tron-vehicle-left-color" class="color-picker" value="#00FF00">
+          </div>
+
+          <div class="custom-item">
+            <label for="tron-vehicle-right-color">Véhicule Droit</label>
+            <input type="color" id="tron-vehicle-right-color" class="color-picker" value="#FF0000">
+          </div>
+
+          <div class="custom-item">
+            <label for="tron-trail-left-color">Traînée Gauche</label>
+            <input type="color" id="tron-trail-left-color" class="color-picker" value="#00FF00">
+          </div>
+
+          <div class="custom-item">
+            <label for="tron-trail-right-color">Traînée Droite</label>
+            <input type="color" id="tron-trail-right-color" class="color-picker" value="#FF0000">
+          </div>
+
+          <div class="custom-item">
+            <label for="tron-field-color">Terrain</label>
+            <input type="color" id="tron-field-color" class="color-picker" value="#000000">
+          </div>
+
+          <div class="custom-item">
+            <label for="tron-text-color">Score/Texte</label>
+            <input type="color" id="tron-text-color" class="color-picker" value="#FFFFFF">
+          </div>
+        </div>
+      </section>
+
+      <!-- Gameplay Tron -->
+      <section class="custom-section">
+        <h2 class="custom-section-title">⚙️ GAMEPLAY</h2>
+
+        <div class="custom-grid">
+          <div class="custom-item full-width">
+            <label for="tron-winning-score">Rounds pour gagner: <span id="tron-score-value">5</span></label>
+            <input type="range" id="tron-winning-score" min="3" max="11" step="2" value="5" class="slider">
+          </div>
+
+          <div class="custom-item full-width">
+            <label for="tron-countdown-delay">Délai après round (secondes): <span id="tron-countdown-value">3</span>s</label>
+            <input type="range" id="tron-countdown-delay" min="1" max="5" step="1" value="3" class="slider">
+          </div>
+
+          <div class="custom-item full-width">
+            <label class="checkbox-label">
+              <input type="checkbox" id="tron-powerups">
+              <span>Activer Power-ups (Boost)</span>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- Boutons Tron -->
+      <div class="custom-buttons">
+        <button id="tron-btn-default" class="btn btn-secondary">RESET</button>
+        <button id="tron-btn-save" class="btn btn-success">SAUVEGARDER</button>
+        <button id="tron-btn-preview" class="btn btn-primary">APERÇU</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Message de feedback -->
+  <div id="custom-message" class="custom-message" style="display: none;"></div>
+</div>
