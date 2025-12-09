@@ -14,6 +14,11 @@ type ControlKeys = {
   right: string;
 };
 
+// Configuration du Boost (exportées pour l'UI et l'IA)
+export const BOOST_DURATION = 300; // ms de durée du boost
+export const BOOST_COOLDOWN = 2000; // ms avant de pouvoir re-boost
+export const BOOST_DOUBLE_TAP_DELAY = 300; // ms max entre 2 appuis pour déclencher le boost
+
 /**
  * Classe de base pour les joueurs Tron
  */
@@ -86,9 +91,25 @@ export class TronPlayerHuman extends TronPlayerBase {
   private keydownHandler: (e: KeyboardEvent) => void;
   private keys: ControlKeys;
 
-  constructor(side: PlayerSide, playerCards: { playerCardL: HTMLElement, playerCardR: HTMLElement }, name: string, data: TronPlayer, avatarUrl: string | null = null) {
+  // Boost state (double-tap sur même direction)
+  private isBoosting: boolean = false;
+  private boostCooldown: boolean = false;
+  private boostCooldownStartTime: number = 0;
+  private powerupsEnabled: boolean = false;
+
+  // Double-tap detection
+  private lastKeyPressed: string | null = null;
+  private lastKeyTime: number = 0;
+
+  // Callbacks pour notifier l'UI
+  public onBoostStart?: () => void;
+  public onBoostEnd?: () => void;
+  public onCooldownEnd?: () => void;
+
+  constructor(side: PlayerSide, playerCards: { playerCardL: HTMLElement, playerCardR: HTMLElement }, name: string, data: TronPlayer, avatarUrl: string | null = null, powerupsEnabled: boolean = false) {
     super(side, playerCards, name, "HUMAN", data);
     this.avatarUrl = avatarUrl;
+    this.powerupsEnabled = powerupsEnabled;
 
     // Charger les contrôles depuis uiPreferences
     this.keys = this.getCustomKeysOrDefault(side);
@@ -108,6 +129,8 @@ export class TronPlayerHuman extends TronPlayerBase {
         this.controlsElement.innerHTML = `<span class="tron-controls-orange">${displayKeys.left} ${displayKeys.up} ${displayKeys.right} ${displayKeys.down}</span>`;
       }
     }
+
+    console.log(`[TRON] TronPlayerHuman créé pour ${side} - powerups: ${powerupsEnabled ? 'ACTIVÉS' : 'désactivés'} (double-tap pour boost)`);
   }
 
   /**
@@ -153,16 +176,108 @@ export class TronPlayerHuman extends TronPlayerBase {
   }
 
   private handleKeydown(e: KeyboardEvent): void {
-    // Utiliser les touches personnalisées
-    if (e.key === this.keys.up && this.data.direction !== 'down') {
+    const now = Date.now();
+    let pressedDirection: 'up' | 'down' | 'left' | 'right' | null = null;
+
+    // Identifier la direction pressée
+    if (e.key === this.keys.up) {
+      pressedDirection = 'up';
+    } else if (e.key === this.keys.down) {
+      pressedDirection = 'down';
+    } else if (e.key === this.keys.left) {
+      pressedDirection = 'left';
+    } else if (e.key === this.keys.right) {
+      pressedDirection = 'right';
+    }
+
+    if (!pressedDirection) return;
+
+    // Vérifier si c'est un double-tap (même touche dans le délai)
+    const isDoubleTap = this.powerupsEnabled &&
+                        this.lastKeyPressed === e.key &&
+                        (now - this.lastKeyTime) <= BOOST_DOUBLE_TAP_DELAY;
+
+    // Mettre à jour le tracking pour le prochain appui
+    this.lastKeyPressed = e.key;
+    this.lastKeyTime = now;
+
+    // Si double-tap détecté, déclencher le boost
+    if (isDoubleTap) {
+      this.triggerBoost();
+      // Reset pour éviter triple-tap
+      this.lastKeyPressed = null;
+      this.lastKeyTime = 0;
+      return; // Ne pas changer la direction sur le double-tap
+    }
+
+    // Changer la direction (pas de demi-tour)
+    if (pressedDirection === 'up' && this.data.direction !== 'down') {
       this.data.direction = 'up';
-    } else if (e.key === this.keys.down && this.data.direction !== 'up') {
+    } else if (pressedDirection === 'down' && this.data.direction !== 'up') {
       this.data.direction = 'down';
-    } else if (e.key === this.keys.left && this.data.direction !== 'right') {
+    } else if (pressedDirection === 'left' && this.data.direction !== 'right') {
       this.data.direction = 'left';
-    } else if (e.key === this.keys.right && this.data.direction !== 'left') {
+    } else if (pressedDirection === 'right' && this.data.direction !== 'left') {
       this.data.direction = 'right';
     }
+  }
+
+  /**
+   * Déclenche un boost de vitesse
+   */
+  public triggerBoost(): void {
+    if (this.isBoosting || this.boostCooldown) return;
+
+    console.log(`[TRON BOOST] Boost déclenché !`);
+
+    this.isBoosting = true;
+    this.boostCooldown = true;
+    this.boostCooldownStartTime = Date.now();
+
+    // Notifier l'UI
+    this.onBoostStart?.();
+
+    // Fin du boost après BOOST_DURATION
+    setTimeout(() => {
+      this.isBoosting = false;
+      this.onBoostEnd?.();
+    }, BOOST_DURATION);
+
+    // Cooldown avant de pouvoir re-boost
+    setTimeout(() => {
+      this.boostCooldown = false;
+      this.onCooldownEnd?.();
+    }, BOOST_COOLDOWN);
+  }
+
+  /**
+   * Retourne true si le joueur est en boost
+   */
+  public getIsBoosting(): boolean {
+    return this.isBoosting;
+  }
+
+  /**
+   * Retourne le pourcentage de cooldown restant (0 = prêt, 1 = vient de boost)
+   */
+  public getCooldownProgress(): number {
+    if (!this.boostCooldown) return 0;
+    const elapsed = Date.now() - this.boostCooldownStartTime;
+    return Math.max(0, 1 - elapsed / BOOST_COOLDOWN);
+  }
+
+  /**
+   * Retourne true si le boost est en cooldown
+   */
+  public isOnCooldown(): boolean {
+    return this.boostCooldown;
+  }
+
+  /**
+   * Retourne true si les powerups sont activés
+   */
+  public arePowerupsEnabled(): boolean {
+    return this.powerupsEnabled;
   }
 
   update(gridState: boolean[][], opponent: TronPlayer): void {
@@ -185,6 +300,17 @@ export class TronPlayerAI extends TronPlayerBase {
   private aggressiveness: number;
   private lastUpdate: number = 0;
 
+  // Boost (Power-up) pour l'IA
+  private powerupsEnabled: boolean = false;
+  private isBoosting: boolean = false;
+  private boostCooldown: boolean = false;
+  private boostCooldownStartTime: number = 0;
+
+  // Callbacks pour notifier l'UI (comme TronPlayerHuman)
+  public onBoostStart?: () => void;
+  public onBoostEnd?: () => void;
+  public onCooldownEnd?: () => void;
+
   private static botCounters: Record<string, number> = {
     EASY: 0,
     MEDIUM: 0,
@@ -192,12 +318,13 @@ export class TronPlayerAI extends TronPlayerBase {
     EXPERT: 0
   };
 
-  constructor(side: PlayerSide, playerCards: { playerCardL: HTMLElement, playerCardR: HTMLElement }, name: string | undefined, data: TronPlayer, difficulty: AIDifficultyLevel = 'MEDIUM') {
+  constructor(side: PlayerSide, playerCards: { playerCardL: HTMLElement, playerCardR: HTMLElement }, name: string | undefined, data: TronPlayer, difficulty: AIDifficultyLevel = 'MEDIUM', powerupsEnabled: boolean = false) {
     // Générer le nom du bot si non fourni
     const botName = name || TronPlayerAI.generateBotName(difficulty);
 
     super(side, playerCards, botName, "IA", data);
     this.difficulty = difficulty;
+    this.powerupsEnabled = powerupsEnabled;
 
     const config = AI_DIFFICULTY[this.difficulty];
     this.lookAhead = config.lookAhead;
@@ -211,6 +338,8 @@ export class TronPlayerAI extends TronPlayerBase {
     if (this.controlsElement) {
       this.controlsElement.innerHTML = `🤖 ${config.label}`;
     }
+
+    console.log(`[TRON AI] Bot créé - difficulté: ${difficulty}, powerups: ${powerupsEnabled ? 'ACTIVÉS' : 'désactivés'}`);
   }
 
   private static generateBotName(difficulty: AIDifficultyLevel): string {
@@ -252,6 +381,119 @@ export class TronPlayerAI extends TronPlayerBase {
 
     // Sinon, analyser et choisir la meilleure direction
     this.makeSmartDecision(gridState, opponent);
+
+    // Décider si on utilise le boost (si powerups activés)
+    if (this.powerupsEnabled && !this.boostCooldown) {
+      this.decideBoost(gridState, opponent);
+    }
+  }
+
+  /**
+   * L'IA décide si elle doit utiliser le boost
+   * Stratégie basée sur la difficulté et la situation
+   */
+  private decideBoost(gridState: boolean[][], opponent: TronPlayer): void {
+    // Probabilité de boost selon la difficulté
+    const boostProbability: Record<AIDifficultyLevel, number> = {
+      EASY: 0.05,      // 5% de chance
+      MEDIUM: 0.10,    // 10% de chance
+      HARD: 0.20,      // 20% de chance
+      EXPERT: 0.30     // 30% de chance
+    };
+
+    // Distance à l'adversaire
+    const distToOpponent = Math.abs(this.data.x - opponent.x) + Math.abs(this.data.y - opponent.y);
+
+    // Boost plus probable si proche de l'adversaire (stratégie offensive)
+    const proximityBonus = distToOpponent < 10 ? 0.1 : 0;
+
+    // Espace libre devant
+    const freeSpaceAhead = this.countFreeSpaceInDirection(this.data.direction, gridState);
+
+    // Boost plus probable si beaucoup d'espace devant (safe)
+    const safetyBonus = freeSpaceAhead > 5 ? 0.1 : 0;
+
+    const totalProbability = boostProbability[this.difficulty] + proximityBonus + safetyBonus;
+
+    if (Math.random() < totalProbability) {
+      this.triggerBoost();
+    }
+  }
+
+  /**
+   * Compte l'espace libre dans une direction donnée
+   */
+  private countFreeSpaceInDirection(direction: 'up' | 'down' | 'left' | 'right', gridState: boolean[][]): number {
+    let x = this.data.x;
+    let y = this.data.y;
+    let count = 0;
+
+    for (let i = 0; i < 10; i++) {
+      switch (direction) {
+        case 'up': y--; break;
+        case 'down': y++; break;
+        case 'left': x--; break;
+        case 'right': x++; break;
+      }
+
+      if (!this.isValidPosition(x, y, gridState)) {
+        break;
+      }
+      count++;
+    }
+
+    return count;
+  }
+
+  /**
+   * Déclenche un boost pour l'IA
+   */
+  private triggerBoost(): void {
+    if (this.isBoosting || this.boostCooldown) return;
+
+    console.log(`[TRON AI BOOST] Bot ${this.name} boost !`);
+
+    this.isBoosting = true;
+    this.boostCooldown = true;
+    this.boostCooldownStartTime = Date.now();
+
+    // Notifier l'UI
+    this.onBoostStart?.();
+
+    // Fin du boost après BOOST_DURATION
+    setTimeout(() => {
+      this.isBoosting = false;
+      this.onBoostEnd?.();
+    }, BOOST_DURATION);
+
+    // Cooldown avant de pouvoir re-boost
+    setTimeout(() => {
+      this.boostCooldown = false;
+      this.onCooldownEnd?.();
+    }, BOOST_COOLDOWN);
+  }
+
+  /**
+   * Retourne le pourcentage de cooldown restant (0 = prêt, 1 = vient de boost)
+   */
+  public getCooldownProgress(): number {
+    if (!this.boostCooldown) return 0;
+    const elapsed = Date.now() - this.boostCooldownStartTime;
+    return Math.max(0, 1 - elapsed / BOOST_COOLDOWN);
+  }
+
+  /**
+   * Retourne true si le boost est en cooldown
+   */
+  public isOnCooldown(): boolean {
+    return this.boostCooldown;
+  }
+
+  /**
+   * Retourne true si l'IA est en boost
+   */
+  public getIsBoosting(): boolean {
+    return this.isBoosting;
   }
 
   private makeRandomDecision(gridState: boolean[][]): void {

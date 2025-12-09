@@ -1,5 +1,5 @@
 import { initMusicSystem, initVolumeControl } from './ui/music-manager.js';
-import { update_description_de_page } from './ui/description-manager.js';
+import { update_description_de_page, loadWinningScores } from './ui/description-manager.js';
 import { activeOrHiden } from './navigation/page-manager.js';
 import { MatchController } from './game-management/match-controller.js';
 import { TournamentController } from './game-management/tournament-controller.js';
@@ -70,6 +70,9 @@ export class SiteManagement {
     // Initialiser les systèmes de base
     await initMusicSystem(this._DO);
     await initVolumeControl(this._DO);
+
+    // Charger les configurations de winning_score avant d'afficher les descriptions
+    await loadWinningScores();
     update_description_de_page(this._DO);
     this.initLogoutButton();
 

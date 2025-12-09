@@ -31,6 +31,8 @@ export interface GameCustomization {
   pong_winning_score: number | null;
   pong_powerups_enabled: number; // 0 = désactivés, 1 = activés
   pong_countdown_delay: number;
+  pong_initial_speed: number;    // Pourcentage (50-150, default 100)
+  pong_max_speed: number;        // Pourcentage (100-600, default 500)
 
   // Gameplay TRON
   tron_winning_score: number | null;
@@ -68,6 +70,8 @@ export interface GameSpecificCustomization {
   winning_score?: number | null;
   powerups_enabled?: number;
   countdown_delay?: number;
+  initial_speed?: number;   // Pong only: pourcentage vitesse initiale
+  max_speed?: number;       // Pong only: pourcentage vitesse max
 }
 
 /**
@@ -110,7 +114,9 @@ export class GameCustomizationRepository {
         card_border_color: fullConfig.pong_card_border_color,
         winning_score: fullConfig.pong_winning_score,
         powerups_enabled: fullConfig.pong_powerups_enabled,
-        countdown_delay: fullConfig.pong_countdown_delay
+        countdown_delay: fullConfig.pong_countdown_delay,
+        initial_speed: fullConfig.pong_initial_speed,
+        max_speed: fullConfig.pong_max_speed
       };
     } else {
       return {
@@ -151,8 +157,9 @@ export class GameCustomizationRepository {
             user_id,
             pong_paddle_color_left, pong_paddle_color_right, pong_ball_color,
             pong_field_color, pong_text_color, pong_border_color, pong_card_border_color,
-            pong_winning_score, pong_powerups_enabled, pong_countdown_delay
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            pong_winning_score, pong_powerups_enabled, pong_countdown_delay,
+            pong_initial_speed, pong_max_speed
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `);
 
         stmt.run(
@@ -166,7 +173,9 @@ export class GameCustomizationRepository {
           data.card_border_color || null,
           data.winning_score || null,
           data.powerups_enabled !== undefined ? data.powerups_enabled : 0,
-          data.countdown_delay !== undefined ? data.countdown_delay : 3
+          data.countdown_delay !== undefined ? data.countdown_delay : 1,
+          data.initial_speed !== undefined ? data.initial_speed : 100,
+          data.max_speed !== undefined ? data.max_speed : 500
         );
       } else {
         const stmt = this.db.prepare(`
@@ -227,7 +236,9 @@ export class GameCustomizationRepository {
       card_border_color: `${prefix}_card_border_color`,
       winning_score: `${prefix}_winning_score`,
       powerups_enabled: `${prefix}_powerups_enabled`,
-      countdown_delay: `${prefix}_countdown_delay`
+      countdown_delay: `${prefix}_countdown_delay`,
+      initial_speed: `${prefix}_initial_speed`,
+      max_speed: `${prefix}_max_speed`
     };
 
     // Construction dynamique de la requête UPDATE
@@ -266,8 +277,8 @@ export class GameCustomizationRepository {
 
     // Vérifier si au moins un champ non-NULL existe
     const hasNonNullFields = Object.entries(config).some(([key, value]) => {
-      // Ignorer countdown_delay et powerups_enabled car ils ont toujours une valeur par défaut
-      if (key === 'countdown_delay' || key === 'powerups_enabled') return false;
+      // Ignorer countdown_delay, powerups_enabled, initial_speed, max_speed car ils ont toujours une valeur par défaut
+      if (key === 'countdown_delay' || key === 'powerups_enabled' || key === 'initial_speed' || key === 'max_speed') return false;
       return value !== null;
     });
 
@@ -287,7 +298,9 @@ export class GameCustomizationRepository {
           pong_card_border_color = NULL,
           pong_winning_score = NULL,
           pong_powerups_enabled = 0,
-          pong_countdown_delay = 3,
+          pong_countdown_delay = 1,
+          pong_initial_speed = 100,
+          pong_max_speed = 500,
           updated_at = CURRENT_TIMESTAMP
         WHERE user_id = ?
       `);

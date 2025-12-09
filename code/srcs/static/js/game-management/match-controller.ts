@@ -320,6 +320,13 @@ export class MatchController {
    * Démarre un match Tron
    */
   private startTronMatch(): void {
+    // Arrêter un éventuel match Tron en cours avant d'en créer un nouveau
+    if (this.tronGameSingleMatch) {
+      console.log('[MATCH CONTROLLER] Arrêt du match Tron existant avant création d\'un nouveau');
+      this.tronGameSingleMatch.stop('Nouveau match démarré');
+      this.tronGameSingleMatch = null;
+    }
+
     const tronPage = this._DO.pages.tron;
     const iconAccueil = this._DO.icons.accueil;
 

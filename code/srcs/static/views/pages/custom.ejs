@@ -119,13 +119,27 @@
 
         <div class="custom-grid">
           <div class="custom-item full-width">
-            <label for="pong-winning-score">Score pour gagner: <span id="pong-score-value">11</span></label>
-            <input type="range" id="pong-winning-score" min="5" max="21" step="2" value="11" class="slider">
+            <label for="pong-winning-score">Score pour gagner: <span id="pong-score-value">3</span></label>
+            <input type="range" id="pong-winning-score" min="1" max="20" step="1" value="3" class="slider">
+            <p class="custom-hint">Nombre de points nécessaires pour remporter la partie.</p>
           </div>
 
           <div class="custom-item full-width">
-            <label for="pong-countdown-delay">Délai après point (secondes): <span id="pong-countdown-value">3</span>s</label>
-            <input type="range" id="pong-countdown-delay" min="1" max="5" step="1" value="3" class="slider">
+            <label for="pong-countdown-delay">Délai après point (secondes): <span id="pong-countdown-value">1</span>s</label>
+            <input type="range" id="pong-countdown-delay" min="0" max="5" step="1" value="1" class="slider">
+            <p class="custom-hint">Temps de pause avant que la balle ne reparte après chaque point marqué.</p>
+          </div>
+
+          <div class="custom-item full-width">
+            <label for="pong-initial-speed">Vitesse initiale balle: <span id="pong-speed-value">100</span>%</label>
+            <input type="range" id="pong-initial-speed" min="50" max="300" step="10" value="100" class="slider">
+            <p class="custom-hint">Vitesse de départ de la balle. 100% = vitesse normale (~5 pixels/frame).</p>
+          </div>
+
+          <div class="custom-item full-width">
+            <label for="pong-max-speed">Vitesse max balle: <span id="pong-max-speed-value">500</span>%</label>
+            <input type="range" id="pong-max-speed" min="100" max="600" step="10" value="500" class="slider">
+            <p class="custom-hint">Vitesse maximale que la balle peut atteindre après plusieurs rebonds.</p>
           </div>
 
           <div class="custom-item full-width">
@@ -133,6 +147,7 @@
               <input type="checkbox" id="pong-powerups">
               <span>Activer Power-ups (Dash)</span>
             </label>
+            <p class="custom-hint">Permet d'effectuer un dash rapide. Appuyez sur votre touche vers l'extérieur (Gauche pour J1, Droite pour J2) + direction (haut/bas).</p>
           </div>
         </div>
       </section>
@@ -141,7 +156,7 @@
       <div class="custom-buttons">
         <button id="pong-btn-default" class="btn btn-secondary">RESET</button>
         <button id="pong-btn-save" class="btn btn-success">SAUVEGARDER</button>
-        <button id="pong-btn-preview" class="btn btn-primary">APERÇU</button>
+        <!-- <button id="pong-btn-preview" class="btn btn-primary">APERÇU</button> -->
       </div>
     </div>
   </div>
@@ -267,13 +282,15 @@
 
         <div class="custom-grid">
           <div class="custom-item full-width">
-            <label for="tron-winning-score">Rounds pour gagner: <span id="tron-score-value">5</span></label>
-            <input type="range" id="tron-winning-score" min="3" max="11" step="2" value="5" class="slider">
+            <label for="tron-winning-score">Rounds pour gagner: <span id="tron-score-value">3</span></label>
+            <input type="range" id="tron-winning-score" min="1" max="20" step="1" value="3" class="slider">
+            <p class="custom-hint">Nombre de rounds nécessaires pour remporter la partie.</p>
           </div>
 
           <div class="custom-item full-width">
-            <label for="tron-countdown-delay">Délai après round (secondes): <span id="tron-countdown-value">3</span>s</label>
-            <input type="range" id="tron-countdown-delay" min="1" max="5" step="1" value="3" class="slider">
+            <label for="tron-countdown-delay">Délai après round (secondes): <span id="tron-countdown-value">2</span>s</label>
+            <input type="range" id="tron-countdown-delay" min="0" max="5" step="1" value="2" class="slider">
+            <p class="custom-hint">Temps de pause avant le début du prochain round.</p>
           </div>
 
           <div class="custom-item full-width">
@@ -281,6 +298,7 @@
               <input type="checkbox" id="tron-powerups">
               <span>Activer Power-ups (Boost)</span>
             </label>
+            <p class="custom-hint">Permet d'effectuer un boost de vitesse temporaire. Double-tap sur une touche de direction pour activer (ex: ↑↑ rapidement). Avance de 2 cases au lieu d'1.</p>
           </div>
         </div>
       </section>
@@ -289,7 +307,7 @@
       <div class="custom-buttons">
         <button id="tron-btn-default" class="btn btn-secondary">RESET</button>
         <button id="tron-btn-save" class="btn btn-success">SAUVEGARDER</button>
-        <button id="tron-btn-preview" class="btn btn-primary">APERÇU</button>
+        <!-- <button id="tron-btn-preview" class="btn btn-primary">APERÇU</button> -->
       </div>
     </div>
   </div>

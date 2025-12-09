@@ -174,3 +174,104 @@
     letter-spacing: 0.3rem;
   }
 }
+
+/* ========================================
+   BOOST INDICATOR
+   ======================================== */
+
+.boost-indicator {
+  margin: 0.8rem 0;
+  padding: 0.5rem;
+  border-radius: 8px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.boost-indicator-cyan {
+  border: 1px solid #00FFFF;
+  background: rgba(0, 255, 255, 0.1);
+}
+
+.boost-indicator-orange {
+  border: 1px solid #FF6600;
+  background: rgba(255, 102, 0, 0.1);
+}
+
+.boost-label {
+  display: block;
+  font-weight: bold;
+  font-size: 0.9rem;
+  margin-bottom: 0.3rem;
+}
+
+.boost-indicator-cyan .boost-label {
+  color: #00FFFF;
+  text-shadow: 0 0 5px #00FFFF;
+}
+
+.boost-indicator-orange .boost-label {
+  color: #FF6600;
+  text-shadow: 0 0 5px #FF6600;
+}
+
+.boost-cooldown-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 0.3rem;
+}
+
+.boost-cooldown-fill {
+  height: 100%;
+  width: 100%;
+  transition: width 0.1s linear;
+  border-radius: 3px;
+}
+
+.boost-indicator-cyan .boost-cooldown-fill {
+  background: linear-gradient(90deg, #00FFFF, #00AAFF);
+  box-shadow: 0 0 5px #00FFFF;
+}
+
+.boost-indicator-orange .boost-cooldown-fill {
+  background: linear-gradient(90deg, #FF6600, #FF9933);
+  box-shadow: 0 0 5px #FF6600;
+}
+
+.boost-hint {
+  display: block;
+  font-size: 0.7rem;
+  color: #888;
+  font-style: italic;
+}
+
+/* État actif du boost */
+.boost-indicator.boosting {
+  animation: boostActive 0.3s ease infinite;
+}
+
+.boost-indicator-cyan.boosting {
+  background: rgba(0, 255, 255, 0.3);
+  box-shadow: 0 0 15px #00FFFF;
+}
+
+.boost-indicator-orange.boosting {
+  background: rgba(255, 102, 0, 0.3);
+  box-shadow: 0 0 15px #FF6600;
+}
+
+@keyframes boostActive {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* État cooldown */
+.boost-indicator.cooldown .boost-label {
+  opacity: 0.5;
+}

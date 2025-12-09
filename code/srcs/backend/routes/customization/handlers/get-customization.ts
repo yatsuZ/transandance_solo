@@ -43,7 +43,9 @@ export const getCustomizationSchema = {
             card_border_color: { type: ['string', 'null'] },
             winning_score: { type: ['integer', 'null'] },
             powerups_enabled: { type: 'boolean' },
-            countdown_delay: { type: 'integer' }
+            countdown_delay: { type: 'integer' },
+            initial_speed: { type: 'integer' },
+            max_speed: { type: 'integer' }
           }
         }
       }
@@ -96,7 +98,9 @@ export async function getCustomization(
         card_border_color: customization.card_border_color,
         winning_score: customization.winning_score,
         powerups_enabled: customization.powerups_enabled === 1,
-        countdown_delay: customization.countdown_delay
+        countdown_delay: customization.countdown_delay,
+        initial_speed: customization.initial_speed ?? 100,
+        max_speed: customization.max_speed ?? 500
       }
     });
   } else {
@@ -117,7 +121,9 @@ export async function getCustomization(
         card_border_color: null,
         winning_score: null,
         powerups_enabled: false,
-        countdown_delay: 3
+        countdown_delay: 3,
+        initial_speed: 100,
+        max_speed: 500
       }
     });
   }

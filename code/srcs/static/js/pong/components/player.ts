@@ -1,5 +1,5 @@
 import { Ball, Paddle, Point } from "./geometry.js";
-import { InputHandler } from "./input.js";
+import { InputHandler, DASH_COOLDOWN, DASH_DURATION, DASH_SPEED_MULTIPLIER } from "./input.js";
 import { PADDLE_OFFSET, AI_DIFFICULTY, type AIDifficultyLevel } from "../game-config.js";
 
 export type PlayerSide = "L" | "R";
@@ -117,12 +117,12 @@ export class PlayerHuman extends Player {
   private input: InputHandler;
   private avatarUrl: string | null;
 
-  constructor(side: "L" | "R", playerCards:{playerCardL: HTMLElement,playerCardR: HTMLElement}, canvasDimension: {height: number, width: number}, speed: number, name: string, avatarUrl: string | null = null)
+  constructor(side: "L" | "R", playerCards:{playerCardL: HTMLElement,playerCardR: HTMLElement}, canvasDimension: {height: number, width: number}, speed: number, name: string, avatarUrl: string | null = null, powerupsEnabled: boolean = false)
   {
     super(side, playerCards, canvasDimension, speed, name);
     this.typePlayer = "HUMAN";
     this.avatarUrl = avatarUrl;
-    this.input = new InputHandler(side);
+    this.input = new InputHandler(side, powerupsEnabled);
     this.add_to_update();
 
     // Mise à jour des touches de contrôle (utilise l'élément déjà récupéré)
@@ -135,8 +135,51 @@ export class PlayerHuman extends Player {
   }
 
   update() {
-    if (this.input.upPressed) this.paddle.moveUp();
-    if (this.input.downPressed) this.paddle.moveDown();
+    const speedMultiplier = this.input.getSpeedMultiplier();
+    if (this.input.upPressed) this.paddle.moveUp(speedMultiplier);
+    if (this.input.downPressed) this.paddle.moveDown(speedMultiplier);
+  }
+
+  /**
+   * Retourne true si le joueur est en train de dasher
+   */
+  public getIsDashing(): boolean {
+    return this.input.getIsDashing();
+  }
+
+  /**
+   * Retourne le pourcentage de cooldown (0 = prêt, 1 = vient de dash)
+   */
+  public getCooldownProgress(): number {
+    return this.input.getCooldownProgress();
+  }
+
+  /**
+   * Retourne true si en cooldown
+   */
+  public isOnCooldown(): boolean {
+    return this.input.isOnCooldown();
+  }
+
+  /**
+   * Retourne true si les powerups sont activés
+   */
+  public arePowerupsEnabled(): boolean {
+    return this.input.arePowerupsEnabled();
+  }
+
+  /**
+   * Accès à l'InputHandler pour les callbacks
+   */
+  public getInputHandler(): InputHandler {
+    return this.input;
+  }
+
+  /**
+   * Retourne la touche de dash pour l'affichage
+   */
+  public getDashKey(): string {
+    return this.input.getDashKey();
   }
 
   /**
@@ -176,6 +219,14 @@ export class PlayerAI extends Player {
   private isReacting: boolean = true;
   private fieldHeight: number = 0;
 
+  // ========================================
+  // DASH (Power-up)
+  // ========================================
+  private powerupsEnabled: boolean = false;
+  private isDashing: boolean = false;
+  private dashCooldown: boolean = false;
+  private dashCooldownStartTime: number = 0;
+
   // Compteur statique pour numéroter les bots de même difficulté
   private static botCounters: Record<string, number> = {
     EASY: 0,
@@ -190,7 +241,8 @@ export class PlayerAI extends Player {
     canvasDimension: {height: number, width: number},
     speed: number,
     name?: string,
-    difficulty: AIDifficultyLevel = 'MEDIUM'
+    difficulty: AIDifficultyLevel = 'MEDIUM',
+    powerupsEnabled: boolean = false
   ) {
     // Générer le nom du bot si non fourni
     const botName = name || PlayerAI.generateBotName(difficulty);
@@ -199,6 +251,7 @@ export class PlayerAI extends Player {
     this.typePlayer = "IA";
     this.difficulty = difficulty;
     this.fieldHeight = canvasDimension.height;
+    this.powerupsEnabled = powerupsEnabled;
 
     // Appliquer la configuration de difficulté
     this.applyDifficulty();
@@ -405,12 +458,121 @@ export class PlayerAI extends Player {
       return;
     }
 
+    // Vérifier si l'IA devrait utiliser le dash
+    const speedMultiplier = this.shouldDash(diff) ? DASH_SPEED_MULTIPLIER : 1;
+
     // Déplacer vers haut ou bas
     if (diff > 0) {
-      this.paddle.moveDown();
+      this.paddle.moveDown(speedMultiplier);
     } else {
-      this.paddle.moveUp();
+      this.paddle.moveUp(speedMultiplier);
     }
+  }
+
+  /**
+   * Décide si l'IA devrait utiliser le dash
+   * Stratégie basée sur la difficulté et la distance à parcourir
+   */
+  private shouldDash(distanceToTarget: number): boolean {
+    if (!this.powerupsEnabled || this.dashCooldown || this.isDashing) {
+      return false;
+    }
+
+    const absDistance = Math.abs(distanceToTarget);
+
+    // Seuil de distance pour déclencher le dash (selon difficulté)
+    let dashThreshold: number;
+    let dashProbability: number;
+
+    switch (this.difficulty) {
+      case 'EASY':
+        // IA facile : dash rare, seuil élevé
+        dashThreshold = this.fieldHeight * 0.5;
+        dashProbability = 0.2;
+        break;
+      case 'MEDIUM':
+        // IA moyenne : dash occasionnel
+        dashThreshold = this.fieldHeight * 0.35;
+        dashProbability = 0.4;
+        break;
+      case 'HARD':
+        // IA difficile : dash fréquent
+        dashThreshold = this.fieldHeight * 0.25;
+        dashProbability = 0.6;
+        break;
+      case 'EXPERT':
+        // IA expert : dash stratégique et fréquent
+        dashThreshold = this.fieldHeight * 0.2;
+        dashProbability = 0.8;
+        break;
+      default:
+        dashThreshold = this.fieldHeight * 0.35;
+        dashProbability = 0.4;
+    }
+
+    // Si pas en retour au centre et distance suffisante
+    if (!this.isReturningToCenter && absDistance > dashThreshold) {
+      // Probabilité de dash pour rendre l'IA moins prévisible
+      if (Math.random() < dashProbability) {
+        this.triggerDash();
+        return true;
+      }
+    }
+
+    return this.isDashing;
+  }
+
+  /**
+   * Déclenche un dash pour l'IA
+   */
+  private triggerDash(): void {
+    if (this.isDashing || this.dashCooldown) return;
+
+    console.log(`[IA DASH] ${this.name} utilise le dash !`);
+
+    this.isDashing = true;
+    this.dashCooldown = true;
+    this.dashCooldownStartTime = Date.now();
+
+    // Fin du dash
+    setTimeout(() => {
+      this.isDashing = false;
+    }, DASH_DURATION);
+
+    // Cooldown
+    setTimeout(() => {
+      this.dashCooldown = false;
+    }, DASH_COOLDOWN);
+  }
+
+  /**
+   * Retourne true si l'IA est en train de dasher
+   */
+  public getIsDashing(): boolean {
+    return this.isDashing;
+  }
+
+  /**
+   * Retourne le pourcentage de cooldown (0 = prêt, 1 = vient de dash)
+   */
+  public getCooldownProgress(): number {
+    if (!this.dashCooldown) return 0;
+    const elapsed = Date.now() - this.dashCooldownStartTime;
+    return Math.max(0, 1 - elapsed / DASH_COOLDOWN);
+  }
+
+  /**
+   * Retourne true si en cooldown
+   */
+  public isOnCooldown(): boolean {
+    return this.dashCooldown;
+  }
+
+  /**
+   * Retourne true si les powerups sont activés
+   */
+  public arePowerupsEnabled(): boolean {
+    return this.powerupsEnabled;
   }
 
   /**

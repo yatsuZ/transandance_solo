@@ -263,6 +263,15 @@
   font-family: 'Joystix Mono', monospace;
 }
 
+/* Texte explicatif sous les options */
+.custom-hint {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-style: italic;
+  margin-top: 0.25rem;
+  line-height: 1.4;
+}
+
 /* Boutons */
 .custom-buttons {
   display: flex;

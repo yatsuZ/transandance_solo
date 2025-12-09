@@ -22,6 +22,8 @@ interface UpdateCustomizationBody {
   winning_score?: number;
   powerups_enabled?: boolean;
   countdown_delay?: number;
+  initial_speed?: number;  // Pong only: 50-150%
+  max_speed?: number;      // Pong only: 100-250%
 }
 
 type UpdateCustomizationResponse =
@@ -52,9 +54,11 @@ export const updateCustomizationSchema = {
       text_color: { type: 'string' },
       border_color: { type: 'string' },
       card_border_color: { type: 'string' },
-      winning_score: { type: 'integer', minimum: 3, maximum: 21 },
+      winning_score: { type: 'integer', minimum: 1, maximum: 20 },
       powerups_enabled: { type: 'boolean' },
-      countdown_delay: { type: 'integer', minimum: 1, maximum: 5 }
+      countdown_delay: { type: 'integer', minimum: 0, maximum: 5 },
+      initial_speed: { type: 'integer', minimum: 50, maximum: 300 },
+      max_speed: { type: 'integer', minimum: 100, maximum: 600 }
     }
   },
   response: {
@@ -80,7 +84,9 @@ export const updateCustomizationSchema = {
             card_border_color: { type: ['string', 'null'] },
             winning_score: { type: ['integer', 'null'] },
             powerups_enabled: { type: 'boolean' },
-            countdown_delay: { type: 'integer' }
+            countdown_delay: { type: 'integer' },
+            initial_speed: { type: 'integer' },
+            max_speed: { type: 'integer' }
           }
         }
       }
@@ -140,6 +146,16 @@ export async function updateCustomization(
     }
   }
 
+  // Validation: vitesse initiale ne peut pas dépasser vitesse max
+  if (data.initial_speed !== undefined && data.max_speed !== undefined) {
+    if (data.initial_speed > data.max_speed) {
+      return reply.code(StatusCodes.BAD_REQUEST).send({
+        success: false,
+        error: 'La vitesse initiale ne peut pas dépasser la vitesse maximale'
+      });
+    }
+  }
+
   // Convertir powerups_enabled de boolean à 0/1 pour la BDD
   const dbData: GameSpecificCustomization = {
     ...data,
@@ -166,7 +182,9 @@ export async function updateCustomization(
       card_border_color: customization.card_border_color,
       winning_score: customization.winning_score,
       powerups_enabled: customization.powerups_enabled === 1,
-      countdown_delay: customization.countdown_delay
+      countdown_delay: customization.countdown_delay,
+      initial_speed: customization.initial_speed ?? 100,
+      max_speed: customization.max_speed ?? 500
     }
   });
 }

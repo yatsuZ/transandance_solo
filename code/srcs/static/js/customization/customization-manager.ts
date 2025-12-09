@@ -3,6 +3,7 @@
  */
 
 import { CustomizationAPI, CustomizationConfig } from './customization-api.js';
+import { loadWinningScores } from '../ui/description-manager.js';
 
 export class CustomizationManager {
   private currentGame: 'pong' | 'tron' = 'pong';
@@ -18,9 +19,11 @@ export class CustomizationManager {
     text_color: '#00FF00',           // Vert néon
     border_color: '#FFFFFF',         // Blanc (bordure terrain)
     card_border_color: '#FFFFFF',    // Blanc (bordure cartes)
-    winning_score: 11,
+    winning_score: 3,
     powerups_enabled: false,
-    countdown_delay: 3
+    countdown_delay: 1,
+    initial_speed: 100,
+    max_speed: 500
   };
 
   private readonly DEFAULT_TRON: Partial<CustomizationConfig> = {
@@ -32,9 +35,9 @@ export class CustomizationManager {
     text_color: '#FFFFFF',           // Blanc
     border_color: '#111111',         // Gris très sombre (grille)
     card_border_color: '#FFFFFF',    // Blanc (bordure cartes)
-    winning_score: 5,
+    winning_score: 3,
     powerups_enabled: false,
-    countdown_delay: 3
+    countdown_delay: 2
   };
 
   constructor() {
@@ -99,6 +102,11 @@ export class CustomizationManager {
     // Sliders Pong
     this.attachSliderListener('pong-winning-score', 'pong-score-value');
     this.attachSliderListener('pong-countdown-delay', 'pong-countdown-value');
+    this.attachSliderListener('pong-initial-speed', 'pong-speed-value');
+    this.attachSliderListener('pong-max-speed', 'pong-max-speed-value');
+
+    // Contrainte: vitesse initiale <= vitesse max
+    this.attachSpeedConstraintListeners();
 
     // Sliders Tron
     this.attachSliderListener('tron-winning-score', 'tron-score-value');
@@ -124,6 +132,42 @@ export class CustomizationManager {
         valueDisplay.textContent = slider.value;
       });
     }
+  }
+
+  /**
+   * Attache les listeners pour la contrainte vitesse initiale <= vitesse max
+   */
+  private attachSpeedConstraintListeners() {
+    const initialSpeedSlider = document.getElementById('pong-initial-speed') as HTMLInputElement;
+    const maxSpeedSlider = document.getElementById('pong-max-speed') as HTMLInputElement;
+    const initialSpeedValue = document.getElementById('pong-speed-value');
+    const maxSpeedValue = document.getElementById('pong-max-speed-value');
+
+    if (!initialSpeedSlider || !maxSpeedSlider) return;
+
+    // Quand on change la vitesse initiale, s'assurer qu'elle ne dépasse pas la vitesse max
+    initialSpeedSlider.addEventListener('input', () => {
+      const initialSpeed = parseInt(initialSpeedSlider.value);
+      const maxSpeed = parseInt(maxSpeedSlider.value);
+
+      if (initialSpeed > maxSpeed) {
+        // Augmenter la vitesse max pour qu'elle soit égale à la vitesse initiale
+        maxSpeedSlider.value = initialSpeed.toString();
+        if (maxSpeedValue) maxSpeedValue.textContent = initialSpeed.toString();
+      }
+    });
+
+    // Quand on change la vitesse max, s'assurer qu'elle n'est pas inférieure à la vitesse initiale
+    maxSpeedSlider.addEventListener('input', () => {
+      const initialSpeed = parseInt(initialSpeedSlider.value);
+      const maxSpeed = parseInt(maxSpeedSlider.value);
+
+      if (maxSpeed < initialSpeed) {
+        // Réduire la vitesse initiale pour qu'elle soit égale à la vitesse max
+        initialSpeedSlider.value = maxSpeed.toString();
+        if (initialSpeedValue) initialSpeedValue.textContent = maxSpeed.toString();
+      }
+    });
   }
 
   /**
@@ -248,13 +292,19 @@ export class CustomizationManager {
       this.selectColorInPalette('pong-card-border-color', config.card_border_color || '#FFFFFF');
 
       // Sliders et valeurs
-      this.setInputValue('pong-winning-score', (config.winning_score || 11).toString());
+      this.setInputValue('pong-winning-score', (config.winning_score || 3).toString());
       this.setInputValue('pong-countdown-delay', config.countdown_delay.toString());
       (document.getElementById('pong-powerups') as HTMLInputElement).checked = config.powerups_enabled;
 
+      // Sliders vitesse (Pong only)
+      this.setInputValue('pong-initial-speed', (config.initial_speed || 100).toString());
+      this.setInputValue('pong-max-speed', (config.max_speed || 500).toString());
+
       // Mettre à jour les affichages de valeurs
-      document.getElementById('pong-score-value')!.textContent = (config.winning_score || 11).toString();
+      document.getElementById('pong-score-value')!.textContent = (config.winning_score || 3).toString();
       document.getElementById('pong-countdown-value')!.textContent = config.countdown_delay.toString();
+      document.getElementById('pong-speed-value')!.textContent = (config.initial_speed || 100).toString();
+      document.getElementById('pong-max-speed-value')!.textContent = (config.max_speed || 500).toString();
     } else {
       // Appliquer les couleurs (hidden inputs + sélection visuelle)
       this.selectColorInPalette('tron-vehicle-left-color', config.vehicle_color_left || '#00FFFF');
@@ -267,12 +317,12 @@ export class CustomizationManager {
       this.selectColorInPalette('tron-card-border-color', config.card_border_color || '#FFFFFF');
 
       // Sliders et valeurs
-      this.setInputValue('tron-winning-score', (config.winning_score || 5).toString());
+      this.setInputValue('tron-winning-score', (config.winning_score || 3).toString());
       this.setInputValue('tron-countdown-delay', config.countdown_delay.toString());
       (document.getElementById('tron-powerups') as HTMLInputElement).checked = config.powerups_enabled;
 
       // Mettre à jour les affichages de valeurs
-      document.getElementById('tron-score-value')!.textContent = (config.winning_score || 5).toString();
+      document.getElementById('tron-score-value')!.textContent = (config.winning_score || 3).toString();
       document.getElementById('tron-countdown-value')!.textContent = config.countdown_delay.toString();
     }
   }
@@ -350,7 +400,9 @@ export class CustomizationManager {
           card_border_color: this.getInputValue('pong-card-border-color'),
           winning_score: parseInt(this.getInputValue('pong-winning-score')),
           countdown_delay: parseInt(this.getInputValue('pong-countdown-delay')),
-          powerups_enabled: (document.getElementById('pong-powerups') as HTMLInputElement).checked
+          powerups_enabled: (document.getElementById('pong-powerups') as HTMLInputElement).checked,
+          initial_speed: parseInt(this.getInputValue('pong-initial-speed')),
+          max_speed: parseInt(this.getInputValue('pong-max-speed'))
         };
       } else {
         config = {
@@ -381,6 +433,9 @@ export class CustomizationManager {
       } else {
         this.tronConfig = savedConfig;
       }
+
+      // Rafraîchir le cache des winning_scores pour les descriptions dynamiques
+      await loadWinningScores();
 
       this.showMessage('✅ Configuration sauvegardée', 'success');
     } catch (error) {

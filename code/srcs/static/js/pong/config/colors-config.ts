@@ -11,7 +11,8 @@ const DEFAULT_COLORS = {
   PADDLE_LEFT: "#0000FF",
   PADDLE_RIGHT: "#FF0000",
   TEXT: "#00FF00",
-  CARD_BORDER: "white"
+  CARD_BORDER: "white",
+  DASH_GLOW: "#FFFF00"  // Couleur jaune vif pour l'effet de dash
 } as const;
 
 // Couleurs actives (mutables - peuvent être changées par customization)
@@ -23,6 +24,7 @@ export const COLORS: {
   PADDLE_RIGHT: string;
   TEXT: string;
   CARD_BORDER: string;
+  DASH_GLOW: string;
 } = {
   FIELD_BACKGROUND: DEFAULT_COLORS.FIELD_BACKGROUND,
   FIELD_BORDER: DEFAULT_COLORS.FIELD_BORDER,
@@ -30,7 +32,8 @@ export const COLORS: {
   PADDLE_LEFT: DEFAULT_COLORS.PADDLE_LEFT,
   PADDLE_RIGHT: DEFAULT_COLORS.PADDLE_RIGHT,
   TEXT: DEFAULT_COLORS.TEXT,
-  CARD_BORDER: DEFAULT_COLORS.CARD_BORDER
+  CARD_BORDER: DEFAULT_COLORS.CARD_BORDER,
+  DASH_GLOW: DEFAULT_COLORS.DASH_GLOW
 };
 
 /**

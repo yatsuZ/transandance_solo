@@ -5,8 +5,9 @@ import { updateUrl } from '../utils/url-helpers.js';
 import { activeAnotherPage } from '../navigation/page-manager.js';
 import { SiteManagement } from '../SiteManagement.js';
 import { DOMElements } from '../core/dom-elements.js';
-import { PADDLE_SPEED_RATIO, WINNING_SCORE, BALL_RESET_DELAY, type AIDifficultyLevel } from './game-config.js';
+import { PADDLE_SPEED_RATIO, GAMEPLAY, type AIDifficultyLevel } from './game-config.js';
 import { applyCustomization, COLORS } from './config/colors-config.js';
+import { applyGameplayCustomization } from './config/gameplay-config.js';
 
 export type ConfigMatch = {
   mode: "PvP" | "PvIA" | "IAvP" | "IAvIA";
@@ -28,15 +29,23 @@ export class PongGame {
   // -------------------------
   private _DO: DOMElements;
   private field: Field;
-  private ball: Ball;
-  private playerLeft: Player;
-  private playerRight: Player;
+  private ball!: Ball;  // Initialisé dans initializeGame() après chargement de la customization
+  private playerLeft: Player = null!;
+  private playerRight: Player = null!;
   private animationId: number | null = null;
   private shouldStop: boolean = false;
   private inTournament: boolean;
   private onMatchEndCallback?: () => void;
   private isBallPaused: boolean = false;  // Pour pause temporaire après un point
   private ballResetTimer: number | null = null;  // Timer pour le délai de reset
+  private config: ConfigMatch;
+  private powerupsEnabled: boolean = false;
+
+  // Éléments UI pour les indicateurs de dash
+  private dashIndicatorLeft: HTMLElement | null = null;
+  private dashIndicatorRight: HTMLElement | null = null;
+  private dashRingLeft: SVGCircleElement | null = null;
+  private dashRingRight: SVGCircleElement | null = null;
 
   // -------------------------
   // Constructeur
@@ -44,6 +53,7 @@ export class PongGame {
   constructor(DO_of_SiteManagement: DOMElements, config: ConfigMatch, inTournament: boolean = false, onMatchEnd?: () => void) {
     this.inTournament = inTournament;
     this.onMatchEndCallback = onMatchEnd;
+    this.config = config;
     console.log("[MATCH] Une nouvelle partie est créée.");
 
     this._DO = DO_of_SiteManagement;
@@ -51,57 +61,244 @@ export class PongGame {
     // Réinitialiser les compteurs de bots pour avoir des noms cohérents
     PlayerAI.resetBotCounters();
 
-    // Initialisation du terrain et des joueurs
+    // Initialisation du terrain
     this.field = new Field(this._DO.canva);
-    const dim = this.field.getDimensions();
-
-    // Calculer la vitesse des paddles proportionnellement à la hauteur du terrain
-    const paddleSpeed = dim.height / PADDLE_SPEED_RATIO;
-
-    // Récupérer les difficultés de l'IA
-    // Si config.difficulty existe (tournoi), utiliser les difficultés individuelles
-    // Sinon, utiliser aiDifficulty (match simple) avec MEDIUM par défaut
-    const difficultyLeft = (config.difficulty?.[0] as AIDifficultyLevel) || config.aiDifficulty || 'MEDIUM';
-    const difficultyRight = (config.difficulty?.[1] as AIDifficultyLevel) || config.aiDifficulty || 'MEDIUM';
-
-    // Récupérer les avatars (si fournis)
-    const avatarLeft = config.avatarUrls?.[0] || null;
-    const avatarRight = config.avatarUrls?.[1] || null;
-
-    switch (config.mode) {
-      case "PvIA":
-        this.playerLeft = new PlayerHuman("L", this._DO.matchElement, dim, paddleSpeed, config.name[0], avatarLeft);
-        this.playerRight = new PlayerAI("R", this._DO.matchElement, dim, paddleSpeed, config.name[1], difficultyRight);
-        break;
-      case "IAvP":
-        this.playerLeft = new PlayerAI("L", this._DO.matchElement, dim, paddleSpeed, config.name[0], difficultyLeft);
-        this.playerRight = new PlayerHuman("R", this._DO.matchElement, dim, paddleSpeed, config.name[1], avatarRight);
-        break;
-      case "IAvIA":
-        this.playerLeft = new PlayerAI("L", this._DO.matchElement, dim, paddleSpeed, config.name[0], difficultyLeft);
-        this.playerRight = new PlayerAI("R", this._DO.matchElement, dim, paddleSpeed, config.name[1], difficultyRight);
-        break;
-      default: // PvP
-        this.playerLeft = new PlayerHuman("L", this._DO.matchElement, dim, paddleSpeed, config.name[0], avatarLeft);
-        this.playerRight = new PlayerHuman("R", this._DO.matchElement, dim, paddleSpeed, config.name[1], avatarRight);
-    }
-
-    // Initialisation de la balle
-    this.ball = new Ball(dim);
 
     // Gestion du resize
     window.addEventListener("resize", this.resizeHandler);
 
-    // Charger la customization PUIS démarrer le jeu
-    this.loadAndApplyCustomization().then(() => {
+    // Charger la customization PUIS créer la balle, les joueurs et démarrer le jeu
+    this.initializeGame();
+  }
+
+  /**
+   * Initialise le jeu de manière asynchrone
+   * Charge d'abord la customization pour appliquer les vitesses et powerups
+   */
+  private async initializeGame() {
+    const customData = await this.loadAndApplyCustomization();
+    this.powerupsEnabled = customData?.powerups_enabled ?? false;
+
+    console.log(`[PONG] Customization chargée - powerups_enabled: ${this.powerupsEnabled}, initial_speed: ${GAMEPLAY.INITIAL_SPEED}%, max_speed: ${GAMEPLAY.MAX_SPEED}%`);
+
+    // Créer la balle APRÈS avoir chargé la customization (pour appliquer initial_speed)
+    const dim = this.field.getDimensions();
+    this.ball = new Ball(dim);
+
+    this.createPlayers(this.powerupsEnabled);
+    this.initDashIndicators();
+
+    // Afficher le countdown avant de démarrer
+    this.showCountdown(3, () => {
       this.loop();
     });
+  }
+
+  /**
+   * Affiche un compte à rebours avant le début du jeu
+   */
+  private showCountdown(count: number, onComplete: () => void): void {
+    const ctx = this._DO.ctx;
+    const canvas = this._DO.canva;
+
+    // Dessiner le terrain
+    ctx.clearRect(0, 0, this.field.width, this.field.height);
+    this.field.draw(ctx);
+    this.playerLeft.paddle.draw(ctx, false);
+    this.playerRight.paddle.draw(ctx, false);
+    this.ball.draw(ctx);
+
+    // Overlay semi-transparent
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Texte du countdown
+    ctx.fillStyle = COLORS.TEXT;
+    ctx.font = 'bold 120px Orbitron, monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.shadowBlur = 30;
+    ctx.shadowColor = COLORS.TEXT;
+
+    const text = count > 0 ? count.toString() : 'GO!';
+    ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+
+    ctx.shadowBlur = 0;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
+
+    if (count > 0) {
+      setTimeout(() => this.showCountdown(count - 1, onComplete), 1000);
+    } else {
+      setTimeout(onComplete, 500);
+    }
+  }
+
+  /**
+   * Initialise les indicateurs de dash dans l'UI
+   */
+  private initDashIndicators() {
+    // Récupérer les éléments DOM
+    this.dashIndicatorLeft = document.getElementById('dash-indicator-left');
+    this.dashIndicatorRight = document.getElementById('dash-indicator-right');
+
+    if (this.dashIndicatorLeft) {
+      this.dashRingLeft = this.dashIndicatorLeft.querySelector('.dash-ring-progress');
+    }
+    if (this.dashIndicatorRight) {
+      this.dashRingRight = this.dashIndicatorRight.querySelector('.dash-ring-progress');
+    }
+
+    // Afficher les indicateurs si powerups activés (pour humains et IA)
+    if (this.powerupsEnabled) {
+      if (this.dashIndicatorLeft) {
+        this.dashIndicatorLeft.style.display = 'flex';
+        this.dashRingLeft?.classList.add('ready');
+        // Texte différent pour IA vs Humain
+        const hintLeft = this.dashIndicatorLeft.querySelector('.dash-hint');
+        if (hintLeft) {
+          if (this.playerLeft.typePlayer === "IA") {
+            hintLeft.textContent = "Dash auto";
+          } else {
+            const dashKey = (this.playerLeft as PlayerHuman).getDashKey();
+            hintLeft.textContent = `${dashKey} + direction`;
+          }
+        }
+      }
+      if (this.dashIndicatorRight) {
+        this.dashIndicatorRight.style.display = 'flex';
+        this.dashRingRight?.classList.add('ready');
+        // Texte différent pour IA vs Humain
+        const hintRight = this.dashIndicatorRight.querySelector('.dash-hint');
+        if (hintRight) {
+          if (this.playerRight.typePlayer === "IA") {
+            hintRight.textContent = "Dash auto";
+          } else {
+            const dashKey = (this.playerRight as PlayerHuman).getDashKey();
+            hintRight.textContent = `${dashKey} + direction`;
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Met à jour l'UI des indicateurs de dash
+   */
+  private updateDashIndicators() {
+    if (!this.powerupsEnabled) return;
+
+    // Joueur gauche (humain ou IA)
+    if (this.playerLeft.typePlayer === "HUMAN") {
+      const player = this.playerLeft as PlayerHuman;
+      this.updateDashRingHuman(this.dashRingLeft, this.dashIndicatorLeft, player);
+    } else {
+      const player = this.playerLeft as PlayerAI;
+      this.updateDashRingAI(this.dashRingLeft, this.dashIndicatorLeft, player);
+    }
+
+    // Joueur droite (humain ou IA)
+    if (this.playerRight.typePlayer === "HUMAN") {
+      const player = this.playerRight as PlayerHuman;
+      this.updateDashRingHuman(this.dashRingRight, this.dashIndicatorRight, player);
+    } else {
+      const player = this.playerRight as PlayerAI;
+      this.updateDashRingAI(this.dashRingRight, this.dashIndicatorRight, player);
+    }
+  }
+
+  /**
+   * Met à jour un cercle de cooldown pour un joueur humain
+   */
+  private updateDashRingHuman(ring: SVGCircleElement | null, indicator: HTMLElement | null, player: PlayerHuman) {
+    if (!ring || !indicator) return;
+
+    const circumference = 2 * Math.PI * 16; // r=16
+    const progress = player.getCooldownProgress();
+    const offset = progress * circumference;
+
+    ring.style.strokeDashoffset = offset.toString();
+
+    // Gestion des classes CSS
+    if (player.getIsDashing()) {
+      indicator.classList.add('dashing');
+      ring.classList.remove('ready', 'on-cooldown');
+    } else if (player.isOnCooldown()) {
+      indicator.classList.remove('dashing');
+      ring.classList.add('on-cooldown');
+      ring.classList.remove('ready');
+    } else {
+      indicator.classList.remove('dashing');
+      ring.classList.remove('on-cooldown');
+      ring.classList.add('ready');
+    }
+  }
+
+  /**
+   * Met à jour un cercle de cooldown pour une IA
+   */
+  private updateDashRingAI(ring: SVGCircleElement | null, indicator: HTMLElement | null, player: PlayerAI) {
+    if (!ring || !indicator) return;
+
+    const circumference = 2 * Math.PI * 16; // r=16
+    const progress = player.getCooldownProgress();
+    const offset = progress * circumference;
+
+    ring.style.strokeDashoffset = offset.toString();
+
+    // Gestion des classes CSS
+    if (player.getIsDashing()) {
+      indicator.classList.add('dashing');
+      ring.classList.remove('ready', 'on-cooldown');
+    } else if (player.isOnCooldown()) {
+      indicator.classList.remove('dashing');
+      ring.classList.add('on-cooldown');
+      ring.classList.remove('ready');
+    } else {
+      indicator.classList.remove('dashing');
+      ring.classList.remove('on-cooldown');
+      ring.classList.add('ready');
+    }
+  }
+
+  /**
+   * Crée les joueurs selon le mode de jeu
+   */
+  private createPlayers(powerupsEnabled: boolean) {
+    const dim = this.field.getDimensions();
+    const paddleSpeed = dim.height / PADDLE_SPEED_RATIO;
+
+    // Récupérer les difficultés de l'IA
+    const difficultyLeft = (this.config.difficulty?.[0] as AIDifficultyLevel) || this.config.aiDifficulty || 'MEDIUM';
+    const difficultyRight = (this.config.difficulty?.[1] as AIDifficultyLevel) || this.config.aiDifficulty || 'MEDIUM';
+
+    // Récupérer les avatars (si fournis)
+    const avatarLeft = this.config.avatarUrls?.[0] || null;
+    const avatarRight = this.config.avatarUrls?.[1] || null;
+
+    switch (this.config.mode) {
+      case "PvIA":
+        this.playerLeft = new PlayerHuman("L", this._DO.matchElement, dim, paddleSpeed, this.config.name[0], avatarLeft, powerupsEnabled);
+        this.playerRight = new PlayerAI("R", this._DO.matchElement, dim, paddleSpeed, this.config.name[1], difficultyRight, powerupsEnabled);
+        break;
+      case "IAvP":
+        this.playerLeft = new PlayerAI("L", this._DO.matchElement, dim, paddleSpeed, this.config.name[0], difficultyLeft, powerupsEnabled);
+        this.playerRight = new PlayerHuman("R", this._DO.matchElement, dim, paddleSpeed, this.config.name[1], avatarRight, powerupsEnabled);
+        break;
+      case "IAvIA":
+        this.playerLeft = new PlayerAI("L", this._DO.matchElement, dim, paddleSpeed, this.config.name[0], difficultyLeft, powerupsEnabled);
+        this.playerRight = new PlayerAI("R", this._DO.matchElement, dim, paddleSpeed, this.config.name[1], difficultyRight, powerupsEnabled);
+        break;
+      default: // PvP
+        this.playerLeft = new PlayerHuman("L", this._DO.matchElement, dim, paddleSpeed, this.config.name[0], avatarLeft, powerupsEnabled);
+        this.playerRight = new PlayerHuman("R", this._DO.matchElement, dim, paddleSpeed, this.config.name[1], avatarRight, powerupsEnabled);
+    }
   }
 
   // -------------------------
   // Chargement de la customization
   // -------------------------
-  private async loadAndApplyCustomization() {
+  private async loadAndApplyCustomization(): Promise<{ powerups_enabled?: boolean } | null> {
     try {
       const response = await fetch('/api/customization/pong', {
         method: 'GET',
@@ -112,18 +309,26 @@ export class PongGame {
         const data = await response.json();
         if (data.success && data.data) {
           applyCustomization(data.data);
+          applyGameplayCustomization(data.data);
           this.applyBorderStyles();
+          return data.data;
         } else {
           applyCustomization(null);
+          applyGameplayCustomization(null);
           this.applyBorderStyles();
+          return null;
         }
       } else {
         applyCustomization(null);
+        applyGameplayCustomization(null);
         this.applyBorderStyles();
+        return null;
       }
     } catch (error) {
       applyCustomization(null);
+      applyGameplayCustomization(null);
       this.applyBorderStyles();
+      return null;
     }
   }
 
@@ -213,7 +418,7 @@ export class PongGame {
       this.ball.reset(this.field.width, this.field.height);
       this.isBallPaused = false;
       this.ballResetTimer = null;
-    }, BALL_RESET_DELAY);
+    }, GAMEPLAY.BALL_RESET_DELAY);
   }
 
   private draw() {
@@ -222,8 +427,17 @@ export class PongGame {
 
     this.field.draw(ctx);
     this.ball.draw(ctx);
-    this.playerLeft.paddle.draw(ctx);
-    this.playerRight.paddle.draw(ctx);
+
+    // Dessiner les paddles avec effet de dash si applicable (humain ou IA)
+    const leftIsDashing = this.playerLeft.typePlayer === "HUMAN"
+      ? (this.playerLeft as PlayerHuman).getIsDashing()
+      : (this.playerLeft as PlayerAI).getIsDashing();
+    const rightIsDashing = this.playerRight.typePlayer === "HUMAN"
+      ? (this.playerRight as PlayerHuman).getIsDashing()
+      : (this.playerRight as PlayerAI).getIsDashing();
+
+    this.playerLeft.paddle.draw(ctx, leftIsDashing);
+    this.playerRight.paddle.draw(ctx, rightIsDashing);
 
     const baseFontSize = this.field.height / 14.8;
     ctx.font = `${baseFontSize}px Joystix Mono`;
@@ -233,11 +447,11 @@ export class PongGame {
     ctx.fillText(`${this.playerLeft.get_score()} - ${this.playerRight.get_score()}`, this.field.width / 2, 30);
 
     // Afficher la vitesse de la balle en bas du terrain
-    const ballSpeed = this.ball.getSpeed();
+    // Vitesse actuelle = INITIAL_SPEED * speedMultiplier, plafonnée à MAX_SPEED
     const speedMultiplier = this.ball.getSpeedMultiplier();
-    const speedPercentage = Math.round(speedMultiplier * 100);
+    const currentSpeed = Math.round(GAMEPLAY.INITIAL_SPEED * speedMultiplier);
     ctx.textBaseline = 'bottom';
-    ctx.fillText(`Vitesse: ${speedPercentage}%`, this.field.width / 2, this.field.height - 15);
+    ctx.fillText(`${currentSpeed}%`, this.field.width / 2, this.field.height - 15);
   }
 
   // -------------------------
@@ -246,9 +460,10 @@ export class PongGame {
   private loop() {
     this.update();
     this.draw();
+    this.updateDashIndicators();
 
     // Vérifier si le match est terminé
-    if (this.playerLeft.get_score() >= WINNING_SCORE || this.playerRight.get_score() >= WINNING_SCORE) {
+    if (this.playerLeft.get_score() >= GAMEPLAY.WINNING_SCORE || this.playerRight.get_score() >= GAMEPLAY.WINNING_SCORE) {
       this.stop("Le match est terminé normalement.");
       this.goToResult();
     }

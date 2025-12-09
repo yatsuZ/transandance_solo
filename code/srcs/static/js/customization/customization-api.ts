@@ -17,6 +17,8 @@ export interface CustomizationConfig {
   winning_score: number | null;
   powerups_enabled: boolean;
   countdown_delay: number;
+  initial_speed: number;   // Pong only: 50-150%
+  max_speed: number;       // Pong only: 100-250%
 }
 
 export interface CustomizationResponse {

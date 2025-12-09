@@ -7,10 +7,11 @@ import {
   BALL_SPEED_X_RATIO,
   BALL_SPEED_Y_RATIO,
   BALL_ACCELERATION_FACTOR,
-  BALL_MAX_SPEED_MULTIPLIER,
   BALL_ANGLE_VARIATION_INTENSITY,
   COLORS
 } from "../game-config.js";
+import { COLORS as CUSTOM_COLORS } from "../config/colors-config.js";
+import { GAMEPLAY } from "../config/gameplay-config.js";
 
 export class Point {
   public x: number;
@@ -95,21 +96,30 @@ export class Paddle {
     this.position = new Point(x, y);
   }
 
-  moveUp() {
-    const newY = this.position.y - this.speed;
+  moveUp(speedMultiplier: number = 1) {
+    const newY = this.position.y - this.speed * speedMultiplier;
     // Bloquer au bord supérieur (y = 0)
     this.position.setY(Math.max(0, newY));
   }
 
-  moveDown() {
-    const newY = this.position.y + this.speed;
+  moveDown(speedMultiplier: number = 1) {
+    const newY = this.position.y + this.speed * speedMultiplier;
     // Bloquer au bord inférieur (y + height = fieldHeight)
     this.position.setY(Math.min(this.fieldHeight - this.height, newY));
   }
 
-  draw(ctx: CanvasRenderingContext2D) {
+  draw(ctx: CanvasRenderingContext2D, isDashing: boolean = false) {
     const { x, y } = this.position;
     const { width, height } = this;
+
+    // Effet de glow si dash actif
+    if (isDashing) {
+      ctx.save();
+      ctx.shadowColor = CUSTOM_COLORS.DASH_GLOW;
+      ctx.shadowBlur = 20;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 0;
+    }
 
     ctx.beginPath();
 
@@ -126,27 +136,22 @@ export class Paddle {
     ctx.lineTo(x, y + height);                    // coin bas gauche (descendu)
     ctx.lineTo(x + width, y + height * (1 - PADDLE_SLOPE)); // coin bas droit (remonté)
   }
-    // if (this.side === "L") {
-    //   // Trapèze pour le joueur de gauche
-    //   ctx.moveTo(x, y);                 // coin haut gauche
-    //   ctx.lineTo(x + width, y + height * slope);  // haut droit (légèrement descendu)
-    //   ctx.lineTo(x + width, y + height * (1 - slope));  // bas droit (légèrement remonté)
-    //   ctx.lineTo(x, y + height);        // coin bas gauche
-    // } else {
-    //   // Trapèze pour le joueur de droite (inversé)
-    //   ctx.moveTo(x + width, y);         // coin haut droit
-    //   ctx.lineTo(x, y + height * slope);  // haut gauche (descendu)
-    //   ctx.lineTo(x, y + height * (1 - slope));  // bas gauche (remonté)
-    //   ctx.lineTo(x + width, y + height); // coin bas droit
-    // }
 
     ctx.closePath();
-    if (this.side === "L")
+
+    // Couleur : jaune si dash, sinon couleur normale
+    if (isDashing) {
+      ctx.fillStyle = CUSTOM_COLORS.DASH_GLOW;
+    } else if (this.side === "L") {
       ctx.fillStyle = COLORS.PADDLE_LEFT;
-    else if (this.side === "R")
+    } else {
       ctx.fillStyle = COLORS.PADDLE_RIGHT;
+    }
     ctx.fill();
 
+    if (isDashing) {
+      ctx.restore();
+    }
   }
 
   getSpeed(): number {
@@ -203,9 +208,10 @@ export class Ball {
     this.y = canvasDimension.height / 2;
     this.radius = this.curentFieldDimension.height / BALL_RADIUS_RATIO;
 
-    // Initialiser les vitesses de base
-    this.baseSpeedX = this.curentFieldDimension.height / BALL_SPEED_X_RATIO;
-    this.baseSpeedY = this.curentFieldDimension.height / BALL_SPEED_Y_RATIO;
+    // Initialiser les vitesses de base avec le multiplicateur initial_speed (pourcentage)
+    const initialSpeedFactor = GAMEPLAY.INITIAL_SPEED / 100;
+    this.baseSpeedX = (this.curentFieldDimension.height / BALL_SPEED_X_RATIO) * initialSpeedFactor;
+    this.baseSpeedY = (this.curentFieldDimension.height / BALL_SPEED_Y_RATIO) * initialSpeedFactor;
 
     // Direction aléatoire au départ avec angle varié
     this.setRandomDirection();
@@ -275,10 +281,11 @@ export class Ball {
     this.x *= xRatio;
     this.y *= yRatio;
 
-    // 🔹 Recalculer les dimensions et vitesses de base
+    // 🔹 Recalculer les dimensions et vitesses de base avec le multiplicateur initial_speed
+    const initialSpeedFactor = GAMEPLAY.INITIAL_SPEED / 100;
     this.radius = this.curentFieldDimension.height / BALL_RADIUS_RATIO;
-    this.baseSpeedX = this.curentFieldDimension.height / BALL_SPEED_X_RATIO;
-    this.baseSpeedY = this.curentFieldDimension.height / BALL_SPEED_Y_RATIO;
+    this.baseSpeedX = (this.curentFieldDimension.height / BALL_SPEED_X_RATIO) * initialSpeedFactor;
+    this.baseSpeedY = (this.curentFieldDimension.height / BALL_SPEED_Y_RATIO) * initialSpeedFactor;
 
     // 🔹 Appliquer le multiplicateur actuel aux nouvelles vitesses de base
     const speedXSign = this.speedX > 0 ? 1 : -1;
@@ -356,9 +363,13 @@ export class Ball {
     const angleVariation = relativeImpact * BALL_ANGLE_VARIATION_INTENSITY;
     this.speedY = this.baseSpeedY * angleVariation * this.currentSpeedMultiplier;
 
-    // ⚡ Accélération progressive (max 150% de la vitesse initiale)
-    if (this.currentSpeedMultiplier < BALL_MAX_SPEED_MULTIPLIER) {
+    // ⚡ Accélération progressive (max = GAMEPLAY.MAX_SPEED / GAMEPLAY.INITIAL_SPEED)
+    // Ex: si initial = 100%, max = 150% → multiplicateur max = 1.5
+    const maxSpeedMultiplier = GAMEPLAY.MAX_SPEED / GAMEPLAY.INITIAL_SPEED;
+    if (this.currentSpeedMultiplier < maxSpeedMultiplier) {
       this.currentSpeedMultiplier *= BALL_ACCELERATION_FACTOR;
+      // Plafonner au max
+      this.currentSpeedMultiplier = Math.min(this.currentSpeedMultiplier, maxSpeedMultiplier);
 
       // Appliquer l'accélération
       const speedSign = this.speedX > 0 ? 1 : -1;

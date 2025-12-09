@@ -11,7 +11,17 @@
       <p class="player-type">Humain</p>
       <p class="player-controls">Commandes :<br><span id="cmd_Left_show">↑ / ↓</span></p>
       <p class="player-score">Score : <span id="score-j1">0</span></p>
-      <!-- <img src="/static/util/icon/power_up.png" alt="Power-up" class="player-powerup"> -->
+      <!-- Indicateur Dash Power-up -->
+      <div id="dash-indicator-left" class="dash-indicator" style="display: none;">
+        <div class="dash-cooldown-ring">
+          <svg viewBox="0 0 36 36">
+            <circle class="dash-ring-bg" cx="18" cy="18" r="16"></circle>
+            <circle class="dash-ring-progress" cx="18" cy="18" r="16"></circle>
+          </svg>
+          <span class="dash-icon">⚡</span>
+        </div>
+        <span class="dash-hint" id="dash-hint-left">Gauche + direction</span>
+      </div>
     </div>
 
     <!-- === Canvas du jeu === -->
@@ -25,7 +35,17 @@
       <p class="player-type">IA</p>
       <p class="player-controls">Commandes :<br><span id="cmd_Right_show">robot technique</span></p>
       <p class="player-score">Score : <span id="score-j2">0</span></p>
-      <!-- <img src="/static/util/icon/power_up.png" alt="Power-up" class="player-powerup"> -->
+      <!-- Indicateur Dash Power-up -->
+      <div id="dash-indicator-right" class="dash-indicator" style="display: none;">
+        <div class="dash-cooldown-ring">
+          <svg viewBox="0 0 36 36">
+            <circle class="dash-ring-bg" cx="18" cy="18" r="16"></circle>
+            <circle class="dash-ring-progress" cx="18" cy="18" r="16"></circle>
+          </svg>
+          <span class="dash-icon">⚡</span>
+        </div>
+        <span class="dash-hint" id="dash-hint-right">Droite + direction</span>
+      </div>
     </div>
   </div>
 </div>

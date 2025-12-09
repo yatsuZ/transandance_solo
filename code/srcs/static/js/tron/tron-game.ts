@@ -2,8 +2,9 @@ import { DOMElements } from '../core/dom-elements.js';
 import { activeAnotherPage } from '../navigation/page-manager.js';
 import { updateUrl } from '../utils/url-helpers.js';
 import { TronPlayerHuman, TronPlayerAI, TronPlayerBase, type AIDifficultyLevel } from './tron-player.js';
-import { WINNING_SCORE, GAME_SPEED, GRID_SIZE, ROUND_DELAY, SPEED_INCREASE_INTERVAL, SPEED_INCREASE_RATE, MIN_GAME_SPEED } from './tron-config.js';
+import { GAMEPLAY, GAME_SPEED, GRID_SIZE, SPEED_INCREASE_INTERVAL, SPEED_INCREASE_RATE, MIN_GAME_SPEED } from './tron-config.js';
 import { applyCustomization, COLORS } from './config/colors-config.js';
+import { applyGameplayCustomization } from './config/gameplay-config.js';
 
 export interface TronPlayer {
   id: number;
@@ -34,26 +35,31 @@ export class TronGame {
   private playerLeft: TronPlayer;
   private playerRight: TronPlayer;
 
-  private playerLeftInstance: TronPlayerBase;
-  private playerRightInstance: TronPlayerBase;
+  private playerLeftInstance!: TronPlayerBase;
+  private playerRightInstance!: TronPlayerBase;
 
   private gridSize: number = GRID_SIZE;
   private gameSpeed: number = GAME_SPEED;
   private gameLoop: number | null = null;
   private speedIncreaseTimer: number | null = null;
+  private roundResetTimeout: number | null = null;
+  private isStopped: boolean = false;
 
   private onGameEnd: () => void;
 
   private scoreLeftEl: HTMLElement | null;
   private scoreRightEl: HTMLElement | null;
 
-  private readonly winningScore = WINNING_SCORE;
   private gridWidth: number;
   private gridHeight: number;
+
+  private config: TronConfig;
+  private powerupsEnabled: boolean = false;
 
   constructor(dO: DOMElements, config: TronConfig, onGameEnd: () => void) {
     this._DO = dO;
     this.onGameEnd = onGameEnd;
+    this.config = config;
 
     console.log("[TRON] Création du jeu avec config:", config);
 
@@ -99,6 +105,17 @@ export class TronGame {
       score: 0
     };
 
+    // Charger la customization PUIS créer les joueurs et démarrer le jeu
+    this.loadAndApplyCustomization().then(() => {
+      this.createPlayers();
+      this.start();
+    });
+  }
+
+  /**
+   * Crée les instances de joueurs selon le mode de jeu
+   */
+  private createPlayers(): void {
     // Récupérer les cartes joueurs
     const playerCards = {
       playerCardL: document.getElementById('player-Left-Card-Tron')!,
@@ -106,36 +123,174 @@ export class TronGame {
     };
 
     // Récupérer les difficultés de l'IA
-    const difficultyLeft = (config.difficulty?.[0] as AIDifficultyLevel) || config.aiDifficulty || 'MEDIUM';
-    const difficultyRight = (config.difficulty?.[1] as AIDifficultyLevel) || config.aiDifficulty || 'MEDIUM';
+    const difficultyLeft = (this.config.difficulty?.[0] as AIDifficultyLevel) || this.config.aiDifficulty || 'MEDIUM';
+    const difficultyRight = (this.config.difficulty?.[1] as AIDifficultyLevel) || this.config.aiDifficulty || 'MEDIUM';
 
     // Récupérer les avatars
-    const avatarLeft = config.avatarUrls?.[0] || null;
-    const avatarRight = config.avatarUrls?.[1] || null;
+    const avatarLeft = this.config.avatarUrls?.[0] || null;
+    const avatarRight = this.config.avatarUrls?.[1] || null;
+
+    console.log(`[TRON] Création des joueurs - powerups: ${this.powerupsEnabled ? 'ACTIVÉS' : 'désactivés'}`);
 
     // Créer les instances de joueurs selon le mode
-    switch (config.mode) {
+    switch (this.config.mode) {
       case "PvIA":
-        this.playerLeftInstance = new TronPlayerHuman("L", playerCards, config.name[0], this.playerLeft, avatarLeft);
-        this.playerRightInstance = new TronPlayerAI("R", playerCards, config.name[1], this.playerRight, difficultyRight);
+        this.playerLeftInstance = new TronPlayerHuman("L", playerCards, this.config.name[0], this.playerLeft, avatarLeft, this.powerupsEnabled);
+        this.playerRightInstance = new TronPlayerAI("R", playerCards, this.config.name[1], this.playerRight, difficultyRight, this.powerupsEnabled);
         break;
       case "IAvP":
-        this.playerLeftInstance = new TronPlayerAI("L", playerCards, config.name[0], this.playerLeft, difficultyLeft);
-        this.playerRightInstance = new TronPlayerHuman("R", playerCards, config.name[1], this.playerRight, avatarRight);
+        this.playerLeftInstance = new TronPlayerAI("L", playerCards, this.config.name[0], this.playerLeft, difficultyLeft, this.powerupsEnabled);
+        this.playerRightInstance = new TronPlayerHuman("R", playerCards, this.config.name[1], this.playerRight, avatarRight, this.powerupsEnabled);
         break;
       case "IAvIA":
-        this.playerLeftInstance = new TronPlayerAI("L", playerCards, config.name[0], this.playerLeft, difficultyLeft);
-        this.playerRightInstance = new TronPlayerAI("R", playerCards, config.name[1], this.playerRight, difficultyRight);
+        this.playerLeftInstance = new TronPlayerAI("L", playerCards, this.config.name[0], this.playerLeft, difficultyLeft, this.powerupsEnabled);
+        this.playerRightInstance = new TronPlayerAI("R", playerCards, this.config.name[1], this.playerRight, difficultyRight, this.powerupsEnabled);
         break;
       default: // PvP
-        this.playerLeftInstance = new TronPlayerHuman("L", playerCards, config.name[0], this.playerLeft, avatarLeft);
-        this.playerRightInstance = new TronPlayerHuman("R", playerCards, config.name[1], this.playerRight, avatarRight);
+        this.playerLeftInstance = new TronPlayerHuman("L", playerCards, this.config.name[0], this.playerLeft, avatarLeft, this.powerupsEnabled);
+        this.playerRightInstance = new TronPlayerHuman("R", playerCards, this.config.name[1], this.playerRight, avatarRight, this.powerupsEnabled);
     }
 
-    // Charger la customization PUIS démarrer le jeu
-    this.loadAndApplyCustomization().then(() => {
-      this.start();
-    });
+    // Configurer les indicateurs de boost pour les joueurs humains
+    this.setupBoostIndicators();
+  }
+
+  /**
+   * Configure les indicateurs de boost dans l'UI
+   */
+  private setupBoostIndicators(): void {
+    const boostIndicatorLeft = document.getElementById('boost-indicator-left');
+    const boostIndicatorRight = document.getElementById('boost-indicator-right');
+
+    // Configurer indicateur gauche (Human ou AI)
+    if (this.powerupsEnabled && boostIndicatorLeft) {
+      boostIndicatorLeft.style.display = 'block';
+      const fillBar = boostIndicatorLeft.querySelector('.boost-cooldown-fill') as HTMLElement;
+      const hintEl = boostIndicatorLeft.querySelector('.boost-hint') as HTMLElement;
+
+      if (this.playerLeftInstance instanceof TronPlayerHuman) {
+        this.playerLeftInstance.onBoostStart = () => {
+          boostIndicatorLeft.classList.add('boosting');
+          boostIndicatorLeft.classList.remove('cooldown');
+        };
+
+        this.playerLeftInstance.onBoostEnd = () => {
+          boostIndicatorLeft.classList.remove('boosting');
+          boostIndicatorLeft.classList.add('cooldown');
+          this.animateCooldownHuman(fillBar, this.playerLeftInstance as TronPlayerHuman);
+        };
+
+        this.playerLeftInstance.onCooldownEnd = () => {
+          boostIndicatorLeft.classList.remove('cooldown');
+          if (fillBar) fillBar.style.width = '100%';
+        };
+      } else if (this.playerLeftInstance instanceof TronPlayerAI) {
+        // Changer le hint pour l'IA
+        if (hintEl) hintEl.textContent = 'IA - Auto';
+
+        this.playerLeftInstance.onBoostStart = () => {
+          boostIndicatorLeft.classList.add('boosting');
+          boostIndicatorLeft.classList.remove('cooldown');
+        };
+
+        this.playerLeftInstance.onBoostEnd = () => {
+          boostIndicatorLeft.classList.remove('boosting');
+          boostIndicatorLeft.classList.add('cooldown');
+          this.animateCooldownAI(fillBar, this.playerLeftInstance as TronPlayerAI);
+        };
+
+        this.playerLeftInstance.onCooldownEnd = () => {
+          boostIndicatorLeft.classList.remove('cooldown');
+          if (fillBar) fillBar.style.width = '100%';
+        };
+      }
+    }
+
+    // Configurer indicateur droit (Human ou AI)
+    if (this.powerupsEnabled && boostIndicatorRight) {
+      boostIndicatorRight.style.display = 'block';
+      const fillBar = boostIndicatorRight.querySelector('.boost-cooldown-fill') as HTMLElement;
+      const hintEl = boostIndicatorRight.querySelector('.boost-hint') as HTMLElement;
+
+      if (this.playerRightInstance instanceof TronPlayerHuman) {
+        this.playerRightInstance.onBoostStart = () => {
+          boostIndicatorRight.classList.add('boosting');
+          boostIndicatorRight.classList.remove('cooldown');
+        };
+
+        this.playerRightInstance.onBoostEnd = () => {
+          boostIndicatorRight.classList.remove('boosting');
+          boostIndicatorRight.classList.add('cooldown');
+          this.animateCooldownHuman(fillBar, this.playerRightInstance as TronPlayerHuman);
+        };
+
+        this.playerRightInstance.onCooldownEnd = () => {
+          boostIndicatorRight.classList.remove('cooldown');
+          if (fillBar) fillBar.style.width = '100%';
+        };
+      } else if (this.playerRightInstance instanceof TronPlayerAI) {
+        // Changer le hint pour l'IA
+        if (hintEl) hintEl.textContent = 'IA - Auto';
+
+        this.playerRightInstance.onBoostStart = () => {
+          boostIndicatorRight.classList.add('boosting');
+          boostIndicatorRight.classList.remove('cooldown');
+        };
+
+        this.playerRightInstance.onBoostEnd = () => {
+          boostIndicatorRight.classList.remove('boosting');
+          boostIndicatorRight.classList.add('cooldown');
+          this.animateCooldownAI(fillBar, this.playerRightInstance as TronPlayerAI);
+        };
+
+        this.playerRightInstance.onCooldownEnd = () => {
+          boostIndicatorRight.classList.remove('cooldown');
+          if (fillBar) fillBar.style.width = '100%';
+        };
+      }
+    }
+  }
+
+  /**
+   * Anime la barre de cooldown pour un joueur humain
+   */
+  private animateCooldownHuman(fillBar: HTMLElement, player: TronPlayerHuman): void {
+    if (!fillBar) return;
+
+    const updateBar = () => {
+      if (!player.isOnCooldown()) {
+        fillBar.style.width = '100%';
+        return;
+      }
+
+      const progress = player.getCooldownProgress();
+      fillBar.style.width = `${(1 - progress) * 100}%`;
+
+      requestAnimationFrame(updateBar);
+    };
+
+    updateBar();
+  }
+
+  /**
+   * Anime la barre de cooldown pour une IA
+   */
+  private animateCooldownAI(fillBar: HTMLElement, player: TronPlayerAI): void {
+    if (!fillBar) return;
+
+    const updateBar = () => {
+      if (!player.isOnCooldown()) {
+        fillBar.style.width = '100%';
+        return;
+      }
+
+      const progress = player.getCooldownProgress();
+      fillBar.style.width = `${(1 - progress) * 100}%`;
+
+      requestAnimationFrame(updateBar);
+    };
+
+    updateBar();
   }
 
 
@@ -153,17 +308,25 @@ export class TronGame {
         const data = await response.json();
         if (data.success && data.data) {
           applyCustomization(data.data);
+          applyGameplayCustomization(data.data);
+          this.powerupsEnabled = data.data.powerups_enabled ?? false;
           this.applyBorderStyles();
         } else {
           applyCustomization(null);
+          applyGameplayCustomization(null);
+          this.powerupsEnabled = false;
           this.applyBorderStyles();
         }
       } else {
         applyCustomization(null);
+        applyGameplayCustomization(null);
+        this.powerupsEnabled = false;
         this.applyBorderStyles();
       }
     } catch (error) {
       applyCustomization(null);
+      applyGameplayCustomization(null);
+      this.powerupsEnabled = false;
       this.applyBorderStyles();
     }
   }
@@ -185,14 +348,49 @@ export class TronGame {
   }
 
   private start(): void {
-    console.log('[TRON] Démarrage du jeu');
-    this.gameLoop = window.setInterval(() => {
-      this.update();
-      this.render();
-    }, this.gameSpeed);
+    console.log('[TRON] Démarrage du jeu avec countdown');
+    // Afficher le countdown avant de démarrer
+    this.showCountdown(3, () => {
+      this.gameLoop = window.setInterval(() => {
+        this.update();
+        this.render();
+      }, this.gameSpeed);
 
-    // Démarrer l'accélération progressive
-    this.startSpeedIncrease();
+      // Démarrer l'accélération progressive
+      this.startSpeedIncrease();
+    });
+  }
+
+  /**
+   * Affiche un compte à rebours avant le début du jeu
+   */
+  private showCountdown(count: number, onComplete: () => void): void {
+    // Dessiner le terrain vide avec les joueurs
+    this.render();
+
+    // Afficher le countdown
+    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+    this.ctx.fillStyle = COLORS.TEXT;
+    this.ctx.font = 'bold 120px Orbitron, monospace';
+    this.ctx.textAlign = 'center';
+    this.ctx.textBaseline = 'middle';
+    this.ctx.shadowBlur = 30;
+    this.ctx.shadowColor = COLORS.TEXT;
+
+    const text = count > 0 ? count.toString() : 'GO!';
+    this.ctx.fillText(text, this.canvas.width / 2, this.canvas.height / 2);
+
+    this.ctx.shadowBlur = 0;
+    this.ctx.textAlign = 'left';
+    this.ctx.textBaseline = 'alphabetic';
+
+    if (count > 0) {
+      setTimeout(() => this.showCountdown(count - 1, onComplete), 1000);
+    } else {
+      setTimeout(onComplete, 500);
+    }
   }
 
   /**
@@ -219,7 +417,18 @@ export class TronGame {
   }
 
   public stop(reason?: string): void {
+    // Éviter les arrêts multiples
+    if (this.isStopped) return;
+    this.isStopped = true;
+
     console.log(`[TRON] Arrêt du jeu: ${reason || 'fin normale'}`);
+
+    // Annuler le timeout de reset du round (évite de redémarrer le jeu après un stop)
+    if (this.roundResetTimeout) {
+      clearTimeout(this.roundResetTimeout);
+      this.roundResetTimeout = null;
+    }
+
     if (this.gameLoop) {
       clearInterval(this.gameLoop);
       this.gameLoop = null;
@@ -295,23 +504,31 @@ export class TronGame {
   private movePlayer(player: TronPlayer): void {
     if (!player.alive) return;
 
-    // Sauvegarder position actuelle dans la trace
-    player.trail.push({ x: player.x, y: player.y });
+    // Vérifier si le joueur est en boost (Human ou AI)
+    const playerInstance = player.id === 1 ? this.playerLeftInstance : this.playerRightInstance;
+    const isBoosting = (playerInstance instanceof TronPlayerHuman || playerInstance instanceof TronPlayerAI) && playerInstance.getIsBoosting();
+    const moveAmount = isBoosting ? 2 : 1;
 
-    // Déplacer
-    switch (player.direction) {
-      case 'up':
-        player.y -= 1;
-        break;
-      case 'down':
-        player.y += 1;
-        break;
-      case 'left':
-        player.x -= 1;
-        break;
-      case 'right':
-        player.x += 1;
-        break;
+    // Déplacer (avec boost = 2 cases)
+    for (let i = 0; i < moveAmount; i++) {
+      // Sauvegarder position actuelle dans la trace
+      player.trail.push({ x: player.x, y: player.y });
+
+      // Déplacer d'une case
+      switch (player.direction) {
+        case 'up':
+          player.y -= 1;
+          break;
+        case 'down':
+          player.y += 1;
+          break;
+        case 'left':
+          player.x -= 1;
+          break;
+        case 'right':
+          player.x += 1;
+          break;
+      }
     }
   }
 
@@ -331,18 +548,59 @@ export class TronGame {
       }
     }
 
+    // Vérifier croisement des traces (quand les joueurs passent l'un à travers l'autre)
+    if (this.playerLeft.alive && this.playerRight.alive && !leftCollided && !rightCollided) {
+      // Récupérer les dernières positions ajoutées ce tour (1 ou 2 selon boost)
+      const leftNewTrail = this.getNewTrailPositions(this.playerLeft);
+      const rightNewTrail = this.getNewTrailPositions(this.playerRight);
+
+      // Vérifier si les nouvelles traces se croisent
+      for (const leftPos of leftNewTrail) {
+        for (const rightPos of rightNewTrail) {
+          if (leftPos.x === rightPos.x && leftPos.y === rightPos.y) {
+            leftCollided = true;
+            rightCollided = true;
+            console.log('[TRON] Croisement détecté - les traces se touchent!');
+            break;
+          }
+        }
+        if (leftCollided) break;
+      }
+
+      // Vérifier si la tête de l'un passe sur la nouvelle trace de l'autre
+      if (!leftCollided) {
+        for (const rightPos of rightNewTrail) {
+          if (this.playerLeft.x === rightPos.x && this.playerLeft.y === rightPos.y) {
+            leftCollided = true;
+            console.log('[TRON] Joueur gauche touche nouvelle trace droite!');
+            break;
+          }
+        }
+      }
+
+      if (!rightCollided) {
+        for (const leftPos of leftNewTrail) {
+          if (this.playerRight.x === leftPos.x && this.playerRight.y === leftPos.y) {
+            rightCollided = true;
+            console.log('[TRON] Joueur droit touche nouvelle trace gauche!');
+            break;
+          }
+        }
+      }
+    }
+
     // Vérifier collisions pour joueur gauche
     if (this.playerLeft.alive && !leftCollided) {
       // Collision avec bords
       if (this.playerLeft.x < 0 || this.playerLeft.x >= maxX || this.playerLeft.y < 0 || this.playerLeft.y >= maxY) {
         leftCollided = true;
       }
-      // Collision avec sa propre trace (sauf la dernière position)
-      else if (this.checkTrailCollision(this.playerLeft, this.playerLeft.trail.slice(0, -1))) {
+      // Collision avec sa propre trace (sauf les 2 dernières positions pour éviter auto-collision en boost)
+      else if (this.checkTrailCollision(this.playerLeft, this.playerLeft.trail.slice(0, -2))) {
         leftCollided = true;
       }
-      // Collision avec trace adverse (sans la dernière position pour éviter faux positifs)
-      else if (this.checkTrailCollision(this.playerLeft, this.playerRight.trail.slice(0, -1))) {
+      // Collision avec trace adverse complète
+      else if (this.checkTrailCollision(this.playerLeft, this.playerRight.trail)) {
         leftCollided = true;
       }
     }
@@ -353,12 +611,12 @@ export class TronGame {
       if (this.playerRight.x < 0 || this.playerRight.x >= maxX || this.playerRight.y < 0 || this.playerRight.y >= maxY) {
         rightCollided = true;
       }
-      // Collision avec sa propre trace (sauf la dernière position)
-      else if (this.checkTrailCollision(this.playerRight, this.playerRight.trail.slice(0, -1))) {
+      // Collision avec sa propre trace (sauf les 2 dernières positions)
+      else if (this.checkTrailCollision(this.playerRight, this.playerRight.trail.slice(0, -2))) {
         rightCollided = true;
       }
-      // Collision avec trace adverse (sans la dernière position pour éviter faux positifs)
-      else if (this.checkTrailCollision(this.playerRight, this.playerLeft.trail.slice(0, -1))) {
+      // Collision avec trace adverse complète
+      else if (this.checkTrailCollision(this.playerRight, this.playerLeft.trail)) {
         rightCollided = true;
       }
     }
@@ -379,6 +637,18 @@ export class TronGame {
       this.playerRight.alive = false;
       console.log(`[TRON] ${this.playerRight.name} est mort`);
     }
+  }
+
+  /**
+   * Récupère les positions ajoutées lors du dernier mouvement (1 ou 2 selon boost)
+   */
+  private getNewTrailPositions(player: TronPlayer): { x: number; y: number }[] {
+    const playerInstance = player.id === 1 ? this.playerLeftInstance : this.playerRightInstance;
+    const isBoosting = (playerInstance instanceof TronPlayerHuman || playerInstance instanceof TronPlayerAI) && playerInstance.getIsBoosting();
+    const moveAmount = isBoosting ? 2 : 1;
+
+    // Retourner les dernières positions de la trace
+    return player.trail.slice(-moveAmount);
   }
 
   private checkTrailCollision(player: TronPlayer, trail: { x: number; y: number }[]): boolean {
@@ -503,13 +773,16 @@ export class TronGame {
     this.updateScoreDisplay();
 
     // Vérifier si le match est terminé (un joueur a atteint WINNING_SCORE)
-    if (this.playerLeft.score >= this.winningScore || this.playerRight.score >= this.winningScore) {
+    if (this.playerLeft.score >= GAMEPLAY.WINNING_SCORE || this.playerRight.score >= GAMEPLAY.WINNING_SCORE) {
       this.endMatch();
     } else {
       // Continuer avec un nouveau round après un délai
-      setTimeout(() => {
-        this.resetRound();
-      }, ROUND_DELAY);
+      this.roundResetTimeout = window.setTimeout(() => {
+        // Vérifier que le jeu n'a pas été arrêté entre temps
+        if (!this.isStopped) {
+          this.resetRound();
+        }
+      }, GAMEPLAY.ROUND_DELAY);
     }
   }
 

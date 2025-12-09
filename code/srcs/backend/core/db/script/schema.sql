@@ -245,7 +245,9 @@ CREATE TABLE IF NOT EXISTS game_customization (
   -- Gameplay PONG
   pong_winning_score INTEGER DEFAULT NULL,    -- Score gagnant Pong (NULL = 11 par défaut)
   pong_powerups_enabled INTEGER DEFAULT 0,    -- 0=désactivés, 1=activés
-  pong_countdown_delay INTEGER DEFAULT 3,     -- Délai après chaque point (secondes, 1-5)
+  pong_countdown_delay INTEGER DEFAULT 1,     -- Délai après chaque point (secondes, 0-5)
+  pong_initial_speed INTEGER DEFAULT 100,     -- Vitesse initiale en % (50-150)
+  pong_max_speed INTEGER DEFAULT 500,         -- Vitesse max en % (100-600)
 
   -- Gameplay TRON
   tron_winning_score INTEGER DEFAULT NULL,    -- Rounds gagnants Tron (NULL = 5 par défaut)
