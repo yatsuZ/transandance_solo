@@ -47,7 +47,7 @@ export class AuthManager {
    */
   static async verifyAuth(): Promise<boolean> {
     try {
-      console.log('🔍 [verifyAuth] Vérification du cookie JWT...');
+      // console.log('🔍 [verifyAuth] Vérification du cookie JWT...');
 
       // Appeler /api/auth/me pour vérifier le cookie et récupérer les données user
       const response = await fetch('/api/auth/me', {
@@ -59,7 +59,7 @@ export class AuthManager {
         const data = await response.json();
         if (data.success && data.data?.user) {
           const user = data.data.user;
-          console.log(`✅ [verifyAuth] Cookie JWT valide pour ${user.username}`);
+          // console.log(`✅ [verifyAuth] Cookie JWT valide pour ${user.username}`);
 
           // Mettre à jour la session en mémoire
           userSession.setUser(user);
@@ -69,7 +69,7 @@ export class AuthManager {
             try {
               const controls: PlayerControls = JSON.parse(user.controls);
               uiPreferences.setControls(controls);
-              console.log('🎮 [verifyAuth] Contrôles chargés depuis la BDD');
+              // console.log('🎮 [verifyAuth] Contrôles chargés depuis la BDD');
             } catch (error) {
               console.log('⚠️ [verifyAuth] Contrôles corrompus, utilisation des valeurs par défaut');
             }

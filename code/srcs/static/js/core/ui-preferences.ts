@@ -101,7 +101,7 @@ class UIPreferences {
    */
   setControls(controls: PlayerControls): void {
     this.controls = { ...controls };
-    console.log(`🎮 [UIPreferences] Contrôles mis à jour:`, this.controls);
+    // console.log(`🎮 [UIPreferences] Contrôles mis à jour:`, this.controls);
   }
 
   /**

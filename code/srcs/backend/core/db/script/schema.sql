@@ -217,45 +217,45 @@ CREATE INDEX IF NOT EXISTS idx_friendships_friend_id ON friendships(friend_id);
 -- TABLE: game_customization
 -- ========================================
 -- Stocke les préférences de personnalisation des jeux (Pong & Tron)
--- Un utilisateur peut avoir une config différente pour chaque jeu
+-- Un utilisateur a UNE SEULE ligne avec toutes ses customizations (Pong + Tron)
 -- Les couleurs sont stockées au format hexadécimal (#RRGGBB)
 
 CREATE TABLE IF NOT EXISTS game_customization (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  user_id INTEGER NOT NULL,
-  game_type TEXT NOT NULL CHECK(game_type IN ('pong', 'tron')),
+  user_id INTEGER PRIMARY KEY,
 
   -- Couleurs PONG (format hex #RRGGBB)
-  paddle_color_left TEXT,              -- Couleur paddle gauche
-  paddle_color_right TEXT,             -- Couleur paddle droit
-  ball_color TEXT,                     -- Couleur balle
+  pong_paddle_color_left TEXT,         -- Couleur paddle gauche
+  pong_paddle_color_right TEXT,        -- Couleur paddle droit
+  pong_ball_color TEXT,                -- Couleur balle
+  pong_field_color TEXT,               -- Couleur terrain Pong
+  pong_text_color TEXT,                -- Couleur texte/score Pong
+  pong_border_color TEXT,              -- Couleur bordure terrain Pong
+  pong_card_border_color TEXT,         -- Couleur bordure cartes joueurs Pong
 
   -- Couleurs TRON (format hex #RRGGBB)
-  vehicle_color_left TEXT,             -- Couleur véhicule gauche
-  vehicle_color_right TEXT,            -- Couleur véhicule droit
-  trail_color_left TEXT,               -- Couleur traînée gauche
-  trail_color_right TEXT,              -- Couleur traînée droite
+  tron_vehicle_color_left TEXT,        -- Couleur véhicule gauche
+  tron_vehicle_color_right TEXT,       -- Couleur véhicule droit
+  tron_trail_color_left TEXT,          -- Couleur traînée gauche
+  tron_trail_color_right TEXT,         -- Couleur traînée droite
+  tron_field_color TEXT,               -- Couleur terrain Tron
+  tron_text_color TEXT,                -- Couleur texte/score Tron
+  tron_border_color TEXT,              -- Couleur bordure terrain Tron (grille)
+  tron_card_border_color TEXT,         -- Couleur bordure cartes joueurs Tron
 
-  -- Couleurs COMMUNES (format hex #RRGGBB)
-  field_color TEXT,                    -- Couleur terrain
-  text_color TEXT,                     -- Couleur texte/score
+  -- Gameplay PONG
+  pong_winning_score INTEGER DEFAULT NULL,    -- Score gagnant Pong (NULL = 11 par défaut)
+  pong_powerups_enabled INTEGER DEFAULT 0,    -- 0=désactivés, 1=activés
+  pong_countdown_delay INTEGER DEFAULT 3,     -- Délai après chaque point (secondes, 1-5)
 
-  -- Gameplay
-  winning_score INTEGER DEFAULT NULL,  -- Score gagnant (NULL = valeur par défaut du jeu)
-  powerups_enabled INTEGER DEFAULT 0,  -- 0=désactivés, 1=activés
-  countdown_delay INTEGER DEFAULT 3,   -- Délai après chaque point (secondes, 1-5)
+  -- Gameplay TRON
+  tron_winning_score INTEGER DEFAULT NULL,    -- Rounds gagnants Tron (NULL = 5 par défaut)
+  tron_powerups_enabled INTEGER DEFAULT 0,    -- 0=désactivés, 1=activés
+  tron_countdown_delay INTEGER DEFAULT 3,     -- Délai après chaque round (secondes, 1-5)
 
   -- Meta
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 
   -- Contraintes
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-  UNIQUE(user_id, game_type)  -- Un seul config par jeu par utilisateur
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
-
--- ========================================
--- INDEX: Optimiser les recherches de customization
--- ========================================
-CREATE INDEX IF NOT EXISTS idx_game_customization_user_id ON game_customization(user_id);
-CREATE INDEX IF NOT EXISTS idx_game_customization_game_type ON game_customization(game_type);

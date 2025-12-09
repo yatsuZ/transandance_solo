@@ -130,7 +130,7 @@ export interface GameElements {
 // ========================================
 export interface UIElements {
   pages: Record<
-    "login" | "signup" | "accueil" | "profile" | "leaderboard" | "gameConfig" | "match" | "tron" | "result" | "beginTournament" | "treeTournament" | "parametre" | "error",
+    "login" | "signup" | "accueil" | "profile" | "leaderboard" | "gameConfig" | "match" | "tron" | "result" | "beginTournament" | "treeTournament" | "parametre" | "custom" | "error",
     HTMLElement
   >;
   errorElement: {

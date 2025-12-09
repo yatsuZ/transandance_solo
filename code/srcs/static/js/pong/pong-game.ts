@@ -6,6 +6,7 @@ import { activeAnotherPage } from '../navigation/page-manager.js';
 import { SiteManagement } from '../SiteManagement.js';
 import { DOMElements } from '../core/dom-elements.js';
 import { PADDLE_SPEED_RATIO, WINNING_SCORE, BALL_RESET_DELAY, type AIDifficultyLevel } from './game-config.js';
+import { applyCustomization, COLORS } from './config/colors-config.js';
 
 export type ConfigMatch = {
   mode: "PvP" | "PvIA" | "IAvP" | "IAvIA";
@@ -91,8 +92,56 @@ export class PongGame {
     // Gestion du resize
     window.addEventListener("resize", this.resizeHandler);
 
-    // Démarrage de la boucle
-    this.loop();
+    // Charger la customization PUIS démarrer le jeu
+    this.loadAndApplyCustomization().then(() => {
+      this.loop();
+    });
+  }
+
+  // -------------------------
+  // Chargement de la customization
+  // -------------------------
+  private async loadAndApplyCustomization() {
+    try {
+      const response = await fetch('/api/customization/pong', {
+        method: 'GET',
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data) {
+          applyCustomization(data.data);
+          this.applyBorderStyles();
+        } else {
+          applyCustomization(null);
+          this.applyBorderStyles();
+        }
+      } else {
+        applyCustomization(null);
+        this.applyBorderStyles();
+      }
+    } catch (error) {
+      applyCustomization(null);
+      this.applyBorderStyles();
+    }
+  }
+
+  /**
+   * Applique les couleurs de bordure aux éléments CSS
+   */
+  private applyBorderStyles() {
+    // Appliquer la bordure du terrain (canvas)
+    const canvas = this._DO.canva;
+    if (canvas) {
+      canvas.style.border = `3px solid ${COLORS.FIELD_BORDER}`;
+    }
+
+    // Appliquer les bordures des cartes joueurs
+    const playerCards = document.querySelectorAll('.player-card');
+    playerCards.forEach(card => {
+      (card as HTMLElement).style.border = `2px solid ${COLORS.CARD_BORDER}`;
+    });
   }
 
   // -------------------------
@@ -178,7 +227,7 @@ export class PongGame {
 
     const baseFontSize = this.field.height / 14.8;
     ctx.font = `${baseFontSize}px Joystix Mono`;
-    ctx.fillStyle = 'rgb(0,255,76)';
+    ctx.fillStyle = COLORS.TEXT;  // Utilise la couleur personnalisée
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
     ctx.fillText(`${this.playerLeft.get_score()} - ${this.playerRight.get_score()}`, this.field.width / 2, 30);

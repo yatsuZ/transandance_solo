@@ -4,9 +4,10 @@
     <p class="arcade-subtitle">Personnalisez vos jeux</p>
   </header>
 
-  <!-- Onglets Pong / Tron -->
-  <div class="custom-tabs">
-    <button id="tab-pong" class="custom-tab active" data-game="pong">🏓 PONG</button>
+  <div class="custom-scroll-wrapper">
+    <!-- Onglets Pong / Tron -->
+    <div class="custom-tabs">
+    <button id="tab-pong" class="custom-tab" data-game="pong">🏓 PONG</button>
     <button id="tab-tron" class="custom-tab" data-game="tron">🏍️ TRON</button>
   </div>
 
@@ -19,29 +20,95 @@
         <h2 class="custom-section-title">🎨 APPARENCE</h2>
 
         <div class="custom-grid">
+          <!-- Paddle Gauche (COULEURS FROIDES) -->
           <div class="custom-item">
-            <label for="pong-paddle-left-color">Paddle Gauche</label>
-            <input type="color" id="pong-paddle-left-color" class="color-picker" value="#FFFFFF">
+            <label>Paddle Gauche (Couleurs froides)</label>
+            <input type="hidden" id="pong-paddle-left-color" value="#0000FF">
+            <div class="color-palette">
+              <button class="color-btn" data-color="#0000FF" style="background-color: #0000FF;" title="Bleu"></button>
+              <button class="color-btn" data-color="#00FFFF" style="background-color: #00FFFF;" title="Cyan"></button>
+              <button class="color-btn" data-color="#8B00FF" style="background-color: #8B00FF;" title="Violet"></button>
+              <button class="color-btn" data-color="#008000" style="background-color: #008000;" title="Vert"></button>
+              <button class="color-btn" data-color="#ADD8E6" style="background-color: #ADD8E6;" title="Bleu clair"></button>
+            </div>
           </div>
 
+          <!-- Paddle Droit (COULEURS CHAUDES) -->
           <div class="custom-item">
-            <label for="pong-paddle-right-color">Paddle Droit</label>
-            <input type="color" id="pong-paddle-right-color" class="color-picker" value="#FFFFFF">
+            <label>Paddle Droit (Couleurs chaudes)</label>
+            <input type="hidden" id="pong-paddle-right-color" value="#FF0000">
+            <div class="color-palette">
+              <button class="color-btn" data-color="#FF0000" style="background-color: #FF0000;" title="Rouge"></button>
+              <button class="color-btn" data-color="#FFA500" style="background-color: #FFA500;" title="Orange"></button>
+              <button class="color-btn" data-color="#FFFF00" style="background-color: #FFFF00;" title="Jaune"></button>
+              <button class="color-btn" data-color="#FFC0CB" style="background-color: #FFC0CB;" title="Rose"></button>
+              <button class="color-btn" data-color="#FFA07A" style="background-color: #FFA07A;" title="Saumon"></button>
+            </div>
           </div>
 
+          <!-- Balle (COULEURS NEUTRES) -->
           <div class="custom-item">
-            <label for="pong-ball-color">Balle</label>
-            <input type="color" id="pong-ball-color" class="color-picker" value="#FFFFFF">
+            <label>Balle (Couleurs neutres)</label>
+            <input type="hidden" id="pong-ball-color" value="#FFFFFF">
+            <div class="color-palette">
+              <button class="color-btn" data-color="#FFFFFF" style="background-color: #FFFFFF; border: 1px solid #333;" title="Blanc"></button>
+              <button class="color-btn" data-color="#D3D3D3" style="background-color: #D3D3D3;" title="Gris clair"></button>
+              <button class="color-btn" data-color="#808080" style="background-color: #808080;" title="Gris"></button>
+              <button class="color-btn" data-color="#C0C0C0" style="background-color: #C0C0C0;" title="Argent"></button>
+              <button class="color-btn" data-color="#FFD700" style="background-color: #FFD700;" title="Or"></button>
+            </div>
           </div>
 
+          <!-- Terrain (COULEURS NEUTRES) -->
           <div class="custom-item">
-            <label for="pong-field-color">Terrain</label>
-            <input type="color" id="pong-field-color" class="color-picker" value="#000000">
+            <label>Terrain (Couleurs neutres)</label>
+            <input type="hidden" id="pong-field-color" value="#000000">
+            <div class="color-palette">
+              <button class="color-btn" data-color="#000000" style="background-color: #000000; border: 1px solid #00FF4C;" title="Noir"></button>
+              <button class="color-btn" data-color="#111111" style="background-color: #111111;" title="Très sombre"></button>
+              <button class="color-btn" data-color="#222222" style="background-color: #222222;" title="Sombre"></button>
+              <button class="color-btn" data-color="#A9A9A9" style="background-color: #A9A9A9;" title="Gris foncé"></button>
+              <button class="color-btn" data-color="#696969" style="background-color: #696969;" title="Gris moyen"></button>
+            </div>
           </div>
 
+          <!-- Texte/Score (COULEURS NEUTRES + VIVES) -->
           <div class="custom-item">
-            <label for="pong-text-color">Score/Texte</label>
-            <input type="color" id="pong-text-color" class="color-picker" value="#00FF00">
+            <label>Score/Texte</label>
+            <input type="hidden" id="pong-text-color" value="#00FF00">
+            <div class="color-palette">
+              <button class="color-btn" data-color="#00FF00" style="background-color: #00FF00;" title="Vert néon"></button>
+              <button class="color-btn" data-color="#FFFFFF" style="background-color: #FFFFFF; border: 1px solid #333;" title="Blanc"></button>
+              <button class="color-btn" data-color="#FFFF00" style="background-color: #FFFF00;" title="Jaune"></button>
+              <button class="color-btn" data-color="#00FFFF" style="background-color: #00FFFF;" title="Cyan"></button>
+              <button class="color-btn" data-color="#FFA500" style="background-color: #FFA500;" title="Orange"></button>
+            </div>
+          </div>
+
+          <!-- Bordure Terrain -->
+          <div class="custom-item">
+            <label>Bordure Terrain</label>
+            <input type="hidden" id="pong-border-color" value="#FFFFFF">
+            <div class="color-palette">
+              <button class="color-btn" data-color="#FFFFFF" style="background-color: #FFFFFF; border: 1px solid #333;" title="Blanc"></button>
+              <button class="color-btn" data-color="#00FF00" style="background-color: #00FF00;" title="Vert néon"></button>
+              <button class="color-btn" data-color="#00FFFF" style="background-color: #00FFFF;" title="Cyan"></button>
+              <button class="color-btn" data-color="#FFFF00" style="background-color: #FFFF00;" title="Jaune"></button>
+              <button class="color-btn" data-color="#FFA500" style="background-color: #FFA500;" title="Orange"></button>
+            </div>
+          </div>
+
+          <!-- Bordure Cartes Joueurs -->
+          <div class="custom-item">
+            <label>Bordure Cartes Joueurs</label>
+            <input type="hidden" id="pong-card-border-color" value="#FFFFFF">
+            <div class="color-palette">
+              <button class="color-btn" data-color="#FFFFFF" style="background-color: #FFFFFF; border: 1px solid #333;" title="Blanc"></button>
+              <button class="color-btn" data-color="#00FF00" style="background-color: #00FF00;" title="Vert néon"></button>
+              <button class="color-btn" data-color="#00FFFF" style="background-color: #00FFFF;" title="Cyan"></button>
+              <button class="color-btn" data-color="#FFFF00" style="background-color: #FFFF00;" title="Jaune"></button>
+              <button class="color-btn" data-color="#FFA500" style="background-color: #FFA500;" title="Orange"></button>
+            </div>
           </div>
         </div>
       </section>
@@ -88,34 +155,108 @@
         <h2 class="custom-section-title">🎨 APPARENCE</h2>
 
         <div class="custom-grid">
+          <!-- Véhicule Gauche (COULEURS FROIDES) -->
           <div class="custom-item">
-            <label for="tron-vehicle-left-color">Véhicule Gauche</label>
-            <input type="color" id="tron-vehicle-left-color" class="color-picker" value="#00FF00">
+            <label>Véhicule Gauche (Couleurs froides)</label>
+            <input type="hidden" id="tron-vehicle-left-color" value="#00FFFF">
+            <div class="color-palette">
+              <button class="color-btn" data-color="#00FFFF" style="background-color: #00FFFF;" title="Cyan néon"></button>
+              <button class="color-btn" data-color="#0000FF" style="background-color: #0000FF;" title="Bleu"></button>
+              <button class="color-btn" data-color="#8B00FF" style="background-color: #8B00FF;" title="Violet"></button>
+              <button class="color-btn" data-color="#008000" style="background-color: #008000;" title="Vert"></button>
+              <button class="color-btn" data-color="#ADD8E6" style="background-color: #ADD8E6;" title="Bleu clair"></button>
+            </div>
           </div>
 
+          <!-- Véhicule Droit (COULEURS CHAUDES) -->
           <div class="custom-item">
-            <label for="tron-vehicle-right-color">Véhicule Droit</label>
-            <input type="color" id="tron-vehicle-right-color" class="color-picker" value="#FF0000">
+            <label>Véhicule Droit (Couleurs chaudes)</label>
+            <input type="hidden" id="tron-vehicle-right-color" value="#FF6600">
+            <div class="color-palette">
+              <button class="color-btn" data-color="#FF6600" style="background-color: #FF6600;" title="Orange néon"></button>
+              <button class="color-btn" data-color="#FF0000" style="background-color: #FF0000;" title="Rouge"></button>
+              <button class="color-btn" data-color="#FFFF00" style="background-color: #FFFF00;" title="Jaune"></button>
+              <button class="color-btn" data-color="#FFC0CB" style="background-color: #FFC0CB;" title="Rose"></button>
+              <button class="color-btn" data-color="#FFA07A" style="background-color: #FFA07A;" title="Saumon"></button>
+            </div>
           </div>
 
+          <!-- Traînée Gauche (COULEURS FROIDES) -->
           <div class="custom-item">
-            <label for="tron-trail-left-color">Traînée Gauche</label>
-            <input type="color" id="tron-trail-left-color" class="color-picker" value="#00FF00">
+            <label>Traînée Gauche (Couleurs froides)</label>
+            <input type="hidden" id="tron-trail-left-color" value="#00FFFF">
+            <div class="color-palette">
+              <button class="color-btn" data-color="#00FFFF" style="background-color: #00FFFF;" title="Cyan néon"></button>
+              <button class="color-btn" data-color="#0000FF" style="background-color: #0000FF;" title="Bleu"></button>
+              <button class="color-btn" data-color="#8B00FF" style="background-color: #8B00FF;" title="Violet"></button>
+              <button class="color-btn" data-color="#008000" style="background-color: #008000;" title="Vert"></button>
+              <button class="color-btn" data-color="#ADD8E6" style="background-color: #ADD8E6;" title="Bleu clair"></button>
+            </div>
           </div>
 
+          <!-- Traînée Droite (COULEURS CHAUDES) -->
           <div class="custom-item">
-            <label for="tron-trail-right-color">Traînée Droite</label>
-            <input type="color" id="tron-trail-right-color" class="color-picker" value="#FF0000">
+            <label>Traînée Droite (Couleurs chaudes)</label>
+            <input type="hidden" id="tron-trail-right-color" value="#FF6600">
+            <div class="color-palette">
+              <button class="color-btn" data-color="#FF6600" style="background-color: #FF6600;" title="Orange néon"></button>
+              <button class="color-btn" data-color="#FF0000" style="background-color: #FF0000;" title="Rouge"></button>
+              <button class="color-btn" data-color="#FFFF00" style="background-color: #FFFF00;" title="Jaune"></button>
+              <button class="color-btn" data-color="#FFC0CB" style="background-color: #FFC0CB;" title="Rose"></button>
+              <button class="color-btn" data-color="#FFA07A" style="background-color: #FFA07A;" title="Saumon"></button>
+            </div>
           </div>
 
+          <!-- Terrain (COULEURS NEUTRES) -->
           <div class="custom-item">
-            <label for="tron-field-color">Terrain</label>
-            <input type="color" id="tron-field-color" class="color-picker" value="#000000">
+            <label>Terrain (Couleurs neutres)</label>
+            <input type="hidden" id="tron-field-color" value="#000000">
+            <div class="color-palette">
+              <button class="color-btn" data-color="#000000" style="background-color: #000000; border: 1px solid #00FF4C;" title="Noir"></button>
+              <button class="color-btn" data-color="#111111" style="background-color: #111111;" title="Très sombre"></button>
+              <button class="color-btn" data-color="#222222" style="background-color: #222222;" title="Sombre"></button>
+              <button class="color-btn" data-color="#A9A9A9" style="background-color: #A9A9A9;" title="Gris foncé"></button>
+              <button class="color-btn" data-color="#696969" style="background-color: #696969;" title="Gris moyen"></button>
+            </div>
           </div>
 
+          <!-- Texte/Score (COULEURS NEUTRES + VIVES) -->
           <div class="custom-item">
-            <label for="tron-text-color">Score/Texte</label>
-            <input type="color" id="tron-text-color" class="color-picker" value="#FFFFFF">
+            <label>Score/Texte</label>
+            <input type="hidden" id="tron-text-color" value="#FFFFFF">
+            <div class="color-palette">
+              <button class="color-btn" data-color="#FFFFFF" style="background-color: #FFFFFF; border: 1px solid #333;" title="Blanc"></button>
+              <button class="color-btn" data-color="#00FF00" style="background-color: #00FF00;" title="Vert néon"></button>
+              <button class="color-btn" data-color="#FFFF00" style="background-color: #FFFF00;" title="Jaune"></button>
+              <button class="color-btn" data-color="#00FFFF" style="background-color: #00FFFF;" title="Cyan"></button>
+              <button class="color-btn" data-color="#FFA500" style="background-color: #FFA500;" title="Orange"></button>
+            </div>
+          </div>
+
+          <!-- Bordure Terrain (Grille) -->
+          <div class="custom-item">
+            <label>Bordure Terrain (Grille)</label>
+            <input type="hidden" id="tron-border-color" value="#111111">
+            <div class="color-palette">
+              <button class="color-btn" data-color="#111111" style="background-color: #111111;" title="Gris très sombre"></button>
+              <button class="color-btn" data-color="#333333" style="background-color: #333333;" title="Gris sombre"></button>
+              <button class="color-btn" data-color="#00FF00" style="background-color: #00FF00;" title="Vert néon"></button>
+              <button class="color-btn" data-color="#00FFFF" style="background-color: #00FFFF;" title="Cyan"></button>
+              <button class="color-btn" data-color="#FFFFFF" style="background-color: #FFFFFF; border: 1px solid #333;" title="Blanc"></button>
+            </div>
+          </div>
+
+          <!-- Bordure Cartes Joueurs -->
+          <div class="custom-item">
+            <label>Bordure Cartes Joueurs</label>
+            <input type="hidden" id="tron-card-border-color" value="#FFFFFF">
+            <div class="color-palette">
+              <button class="color-btn" data-color="#FFFFFF" style="background-color: #FFFFFF; border: 1px solid #333;" title="Blanc"></button>
+              <button class="color-btn" data-color="#00FF00" style="background-color: #00FF00;" title="Vert néon"></button>
+              <button class="color-btn" data-color="#00FFFF" style="background-color: #00FFFF;" title="Cyan"></button>
+              <button class="color-btn" data-color="#FFFF00" style="background-color: #FFFF00;" title="Jaune"></button>
+              <button class="color-btn" data-color="#FFA500" style="background-color: #FFA500;" title="Orange"></button>
+            </div>
           </div>
         </div>
       </section>
@@ -153,6 +294,7 @@
     </div>
   </div>
 
-  <!-- Message de feedback -->
-  <div id="custom-message" class="custom-message" style="display: none;"></div>
+    <!-- Message de feedback -->
+    <div id="custom-message" class="custom-message" style="display: none;"></div>
+  </div>
 </div>

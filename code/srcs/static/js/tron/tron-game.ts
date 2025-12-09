@@ -2,7 +2,8 @@ import { DOMElements } from '../core/dom-elements.js';
 import { activeAnotherPage } from '../navigation/page-manager.js';
 import { updateUrl } from '../utils/url-helpers.js';
 import { TronPlayerHuman, TronPlayerAI, TronPlayerBase, type AIDifficultyLevel } from './tron-player.js';
-import { WINNING_SCORE, GAME_SPEED, GRID_SIZE, ROUND_DELAY, PLAYER_LEFT_COLOR, PLAYER_RIGHT_COLOR, PLAYER_LEFT_HEAD_COLOR, PLAYER_RIGHT_HEAD_COLOR, SPEED_INCREASE_INTERVAL, SPEED_INCREASE_RATE, MIN_GAME_SPEED } from './tron-config.js';
+import { WINNING_SCORE, GAME_SPEED, GRID_SIZE, ROUND_DELAY, SPEED_INCREASE_INTERVAL, SPEED_INCREASE_RATE, MIN_GAME_SPEED } from './tron-config.js';
+import { applyCustomization, COLORS } from './config/colors-config.js';
 
 export interface TronPlayer {
   id: number;
@@ -81,7 +82,7 @@ export class TronGame {
       y: Math.floor(this.gridHeight / 2),
       direction: 'right',
       trail: [],
-      color: PLAYER_LEFT_COLOR,
+      color: COLORS.TRAIL_LEFT,
       alive: true,
       score: 0
     };
@@ -93,7 +94,7 @@ export class TronGame {
       y: Math.floor(this.gridHeight / 2),
       direction: 'left',
       trail: [],
-      color: PLAYER_RIGHT_COLOR,
+      color: COLORS.TRAIL_RIGHT,
       alive: true,
       score: 0
     };
@@ -131,9 +132,57 @@ export class TronGame {
         this.playerRightInstance = new TronPlayerHuman("R", playerCards, config.name[1], this.playerRight, avatarRight);
     }
 
-    this.start();
+    // Charger la customization PUIS démarrer le jeu
+    this.loadAndApplyCustomization().then(() => {
+      this.start();
+    });
   }
 
+
+  // -------------------------
+  // Chargement de la customization
+  // -------------------------
+  private async loadAndApplyCustomization() {
+    try {
+      const response = await fetch('/api/customization/tron', {
+        method: 'GET',
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data) {
+          applyCustomization(data.data);
+          this.applyBorderStyles();
+        } else {
+          applyCustomization(null);
+          this.applyBorderStyles();
+        }
+      } else {
+        applyCustomization(null);
+        this.applyBorderStyles();
+      }
+    } catch (error) {
+      applyCustomization(null);
+      this.applyBorderStyles();
+    }
+  }
+
+  /**
+   * Applique les couleurs de bordure aux éléments CSS
+   */
+  private applyBorderStyles() {
+    // Appliquer la bordure du terrain (canvas)
+    if (this.canvas) {
+      this.canvas.style.border = `3px solid ${COLORS.GRID}`;
+    }
+
+    // Appliquer les bordures des cartes joueurs
+    const playerCards = document.querySelectorAll('.player-card');
+    playerCards.forEach(card => {
+      (card as HTMLElement).style.border = `2px solid ${COLORS.CARD_BORDER}`;
+    });
+  }
 
   private start(): void {
     console.log('[TRON] Démarrage du jeu');
@@ -338,7 +387,7 @@ export class TronGame {
 
   private render(): void {
     // Clear
-    this.ctx.fillStyle = '#000';
+    this.ctx.fillStyle = COLORS.FIELD;
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
     // Grille (optionnel)
@@ -357,7 +406,7 @@ export class TronGame {
   }
 
   private drawGrid(): void {
-    this.ctx.strokeStyle = '#111';
+    this.ctx.strokeStyle = COLORS.GRID;
     this.ctx.lineWidth = 1;
 
     for (let x = 0; x < this.canvas.width; x += this.gridSize) {
@@ -391,7 +440,7 @@ export class TronGame {
     if (!player.alive) return;
 
     // Utiliser une couleur différente pour la tête
-    const headColor = player.id === 1 ? PLAYER_LEFT_HEAD_COLOR : PLAYER_RIGHT_HEAD_COLOR;
+    const headColor = player.id === 1 ? COLORS.HEAD_LEFT : COLORS.HEAD_RIGHT;
 
     this.ctx.fillStyle = headColor;
     this.ctx.shadowBlur = 15;
@@ -406,7 +455,7 @@ export class TronGame {
   }
 
   private drawScores(): void {
-    this.ctx.fillStyle = '#FFF';
+    this.ctx.fillStyle = COLORS.TEXT;
     this.ctx.font = '24px Orbitron, monospace';
     this.ctx.fillText(
       `${this.playerLeft.name}`,

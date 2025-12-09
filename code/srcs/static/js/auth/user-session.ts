@@ -41,7 +41,7 @@ class UserSession {
    */
   setUser(user: UserData): void {
     this.currentUser = user;
-    console.log(`✅ [UserSession] Session créée pour ${user.username} (ID: ${user.id})`);
+    // console.log(`✅ [UserSession] Session créée pour ${user.username} (ID: ${user.id})`);
   }
 
   /**

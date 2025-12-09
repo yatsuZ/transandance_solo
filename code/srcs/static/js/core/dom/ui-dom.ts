@@ -53,6 +53,7 @@ export function getUIElements(): UIElements {
       beginTournament: get<HTMLElement>("pagesBegin_Tournament", "Pages"),
       treeTournament: get<HTMLElement>("pagesTree_Tournament", "Pages"),
       parametre: get<HTMLElement>("pagesParametre", "Pages"),
+      custom: get<HTMLElement>("pagesCustom", "Pages"),
       error: get<HTMLElement>("pagesError", "Pages"),
     },
     errorElement: {

@@ -29,6 +29,7 @@ export class SiteManagement {
   private navigationEvents: NavigationEvents | null = null;
   private authEvents: AuthEvents | null = null;
   private twofaManager: TwoFAManager | null = null;
+  private customizationManager: any = null;
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Constructeur et Initialisation
@@ -92,6 +93,9 @@ export class SiteManagement {
     // Initialiser le statut 2FA quand la page paramètres est active
     this.init2FAOnParametresPage();
 
+    // Initialiser CustomizationManager quand la page custom est active
+    this.initCustomizationOnCustomPage();
+
     // APRÈS l'initialisation de la navigation, vérifier si on doit démarrer un match au chargement
     this.matchController.initMatchOnStartup(() => SiteManagement.currentActivePage);
   }
@@ -117,6 +121,30 @@ export class SiteManagement {
 
     // Vérifier toutes les 500ms si on est sur la page paramètres
     setInterval(checkParametresPage, 500);
+  }
+
+  /**
+   * Initialise la customization quand la page custom devient active
+   */
+  private initCustomizationOnCustomPage() {
+    let customInitialized = false;
+
+    // Observer le changement de page
+    const checkCustomPage = () => {
+      if (SiteManagement.currentActivePage === this._DO.pages.custom) {
+        if (!customInitialized) {
+          import('./customization/customization-manager.js').then(({ CustomizationManager }) => {
+            this.customizationManager = new CustomizationManager();
+            customInitialized = true;
+          });
+        }
+      }
+      // NE PAS reset customInitialized pour éviter de créer plusieurs managers
+      // et d'ajouter plusieurs event listeners popstate
+    };
+
+    // Vérifier toutes les 500ms si on est sur la page custom
+    setInterval(checkCustomPage, 500);
   }
 
   /**

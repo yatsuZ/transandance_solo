@@ -39,6 +39,8 @@ export const getCustomizationSchema = {
             trail_color_right: { type: ['string', 'null'] },
             field_color: { type: ['string', 'null'] },
             text_color: { type: ['string', 'null'] },
+            border_color: { type: ['string', 'null'] },
+            card_border_color: { type: ['string', 'null'] },
             winning_score: { type: ['integer', 'null'] },
             powerups_enabled: { type: 'boolean' },
             countdown_delay: { type: 'integer' }
@@ -90,6 +92,8 @@ export async function getCustomization(
         trail_color_right: customization.trail_color_right,
         field_color: customization.field_color,
         text_color: customization.text_color,
+        border_color: customization.border_color,
+        card_border_color: customization.card_border_color,
         winning_score: customization.winning_score,
         powerups_enabled: customization.powerups_enabled === 1,
         countdown_delay: customization.countdown_delay
@@ -109,6 +113,8 @@ export async function getCustomization(
         trail_color_right: null,
         field_color: null,
         text_color: null,
+        border_color: null,
+        card_border_color: null,
         winning_score: null,
         powerups_enabled: false,
         countdown_delay: 3

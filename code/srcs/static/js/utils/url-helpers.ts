@@ -33,6 +33,17 @@ export function findPageFromUrl(url: string, allPages: DOMElements["pages"]): HT
     return null;
   }
 
+  // CAS SPÉCIAL : /custom/pong ou /custom/tron → pagesCustom
+  if (url.startsWith('/custom/pong') || url.startsWith('/custom/tron')) {
+    return allPages.custom;
+  }
+
+  // BLOCAGE : /custom seul n'est plus accessible (seulement /custom/pong ou /custom/tron)
+  if (url === '/custom') {
+    console.warn('[findPageFromUrl] Route /custom bloquée - utilisez /custom/pong ou /custom/tron');
+    return null;
+  }
+
   // Dernier segment = nom de la page
   const pageName = segments[segments.length - 1];
 
@@ -76,6 +87,11 @@ export function updateUrl(page: HTMLElement, urlOrPrefix: string = "") {
     // Sinon c'est un préfixe
     const pageName = page.id.slice("pages".length).toLowerCase();
     url = urlOrPrefix ? `${urlOrPrefix}/${pageName}` : `/${pageName}`;
+  }
+
+  // CAS SPÉCIAL : Si c'est la page custom, TOUJOURS utiliser /custom/pong par défaut
+  if (page.id === "pagesCustom" && url === "/custom") {
+    url = "/custom/pong";
   }
 
   window.history.pushState({ page: page.id }, "", url);

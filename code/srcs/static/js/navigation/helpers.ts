@@ -19,6 +19,7 @@ export const PAGE_IDS = {
   ERROR: "pagesError",
   PARAMETRE: "pagesParametre",
   TREE_TOURNAMENT: "pagesTree_Tournament",
+  CUSTOM: "pagesCustom",
 } as const;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -47,7 +48,9 @@ export const AUTH_PROTECTED_ROUTES = [
   '/leaderboard',
   '/game_config',
   '/begin_tournament',
-  '/parametre'
+  '/parametre',
+  '/custom/pong',
+  '/custom/tron'
 ] as const;
 
 /**

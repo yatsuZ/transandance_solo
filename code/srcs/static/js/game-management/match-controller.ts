@@ -189,18 +189,20 @@ export class MatchController {
 
   /**
    * Event handler : stop/start match quand on change de page
+   * Ce handler se déclenche AVANT le changement de page (via les boutons)
+   * Il vérifie si on est sur une page de jeu actif et qu'on va la quitter
    */
   private event_stop_Match(getCurrentPage: () => HTMLElement | null) {
     const activePage = getCurrentPage();
 
-    // Arrêter Pong si on quitte la page match
+    // Si on est sur la page match avec un jeu actif, on va le quitter → arrêter le jeu
     if (activePage?.id === "pagesMatch" && this.hasActiveMatch()) {
-      this.stopMatch("Quite la page match");
+      this.stopMatch("Navigation via bouton - quitte la page match");
     }
 
-    // Arrêter Tron si on quitte la page tron
+    // Si on est sur la page tron avec un jeu actif, on va le quitter → arrêter le jeu
     if (activePage?.id === "pagesTron" && this.hasActiveTronMatch()) {
-      this.stopTronMatch("Quite la page tron");
+      this.stopTronMatch("Navigation via bouton - quitte la page tron");
     }
   }
 

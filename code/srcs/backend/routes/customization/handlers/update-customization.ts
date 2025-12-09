@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { StatusCodes } from 'http-status-codes';
-import { gameCustomizationRepo, CreateGameCustomizationData } from '../../../core/db/models/GameCustomization.js';
+import { gameCustomizationRepo, GameSpecificCustomization } from '../../../core/db/models/GameCustomization.js';
 import { SuccessResponse, ErrorResponse, errorResponseSchema } from '../../types.js';
 
 interface UpdateCustomizationParams {
@@ -17,6 +17,8 @@ interface UpdateCustomizationBody {
   trail_color_right?: string;
   field_color?: string;
   text_color?: string;
+  border_color?: string;
+  card_border_color?: string;
   winning_score?: number;
   powerups_enabled?: boolean;
   countdown_delay?: number;
@@ -48,6 +50,8 @@ export const updateCustomizationSchema = {
       trail_color_right: { type: 'string' },
       field_color: { type: 'string' },
       text_color: { type: 'string' },
+      border_color: { type: 'string' },
+      card_border_color: { type: 'string' },
       winning_score: { type: 'integer', minimum: 3, maximum: 21 },
       powerups_enabled: { type: 'boolean' },
       countdown_delay: { type: 'integer', minimum: 1, maximum: 5 }
@@ -72,6 +76,8 @@ export const updateCustomizationSchema = {
             trail_color_right: { type: ['string', 'null'] },
             field_color: { type: ['string', 'null'] },
             text_color: { type: ['string', 'null'] },
+            border_color: { type: ['string', 'null'] },
+            card_border_color: { type: ['string', 'null'] },
             winning_score: { type: ['integer', 'null'] },
             powerups_enabled: { type: 'boolean' },
             countdown_delay: { type: 'integer' }
@@ -122,7 +128,7 @@ export async function updateCustomization(
     'paddle_color_left', 'paddle_color_right', 'ball_color',
     'vehicle_color_left', 'vehicle_color_right',
     'trail_color_left', 'trail_color_right',
-    'field_color', 'text_color'
+    'field_color', 'text_color', 'border_color', 'card_border_color'
   ] as const;
 
   for (const field of colorFields) {
@@ -135,15 +141,13 @@ export async function updateCustomization(
   }
 
   // Convertir powerups_enabled de boolean à 0/1 pour la BDD
-  const dbData: CreateGameCustomizationData = {
-    user_id: userId,
-    game_type,
+  const dbData: GameSpecificCustomization = {
     ...data,
     powerups_enabled: data.powerups_enabled !== undefined ? (data.powerups_enabled ? 1 : 0) : undefined
   };
 
   // Upsert (create or update)
-  const customization = gameCustomizationRepo.upsertCustomization(dbData);
+  const customization = gameCustomizationRepo.upsertCustomization(userId, game_type, dbData);
 
   return reply.code(StatusCodes.OK).send({
     success: true,
@@ -158,6 +162,8 @@ export async function updateCustomization(
       trail_color_right: customization.trail_color_right,
       field_color: customization.field_color,
       text_color: customization.text_color,
+      border_color: customization.border_color,
+      card_border_color: customization.card_border_color,
       winning_score: customization.winning_score,
       powerups_enabled: customization.powerups_enabled === 1,
       countdown_delay: customization.countdown_delay
