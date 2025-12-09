@@ -123,11 +123,20 @@ export class SiteManagement {
    * Initialise le bouton de déconnexion
    */
   private initLogoutButton() {
-    this._DO.parametreElement.logoutBtn.addEventListener('click', () => {
-      import('./auth/auth-manager.js').then(({ AuthManager }) => {
-        AuthManager.logout();
-        window.location.href = '/login';
-      });
+    this._DO.parametreElement.logoutBtn.addEventListener('click', async () => {
+      const { AuthManager } = await import('./auth/auth-manager.js');
+      const { activeAnotherPage } = await import('./navigation/page-manager.js');
+      const { updateUrl } = await import('./utils/url-helpers.js');
+
+      // Déconnecter l'utilisateur
+      await AuthManager.logout();
+
+      // Navigation SPA vers la page login
+      const loginPage = this._DO.pages.login;
+      activeAnotherPage(loginPage);
+      updateUrl(loginPage, '/login');
+
+      console.log('👋 Déconnexion réussie - Navigation SPA vers /login');
     });
   }
 

@@ -245,13 +245,18 @@ export class ProfileEditManager {
       };
       userSession.setUser(updatedUser);
 
+      // Mettre à jour le username affiché sur la page profile (SPA - pas de reload)
+      const usernameElement = this._DO.profile.username;
+      if (usernameElement) {
+        usernameElement.textContent = result.data.username;
+      }
+
       this.showMessage('Profil mis à jour avec succès !', 'success');
 
       // Fermer après 1.5s
       setTimeout(() => {
         this.closeModal();
-        // Recharger la page profile pour afficher les nouvelles données
-        window.location.reload();
+        console.log('✅ Profil mis à jour sans reload (SPA)');
       }, 1500);
     } catch (error: any) {
       console.error('❌ Erreur lors de la sauvegarde:', error);
