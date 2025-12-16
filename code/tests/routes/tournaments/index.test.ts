@@ -1,4 +1,4 @@
-import { buildApp } from '../../../srcs/backend/main.js';
+import { buildFastify } from '../../../srcs/backend/config/fastify.js';
 import { FastifyInstance } from 'fastify';
 import { testCreateTournament } from './create-tournament.test.js';
 import { testGetTournament } from './get-tournament.test.js';
@@ -12,7 +12,7 @@ describe('Tournament Routes', () => {
   const getApp = () => app;
 
   beforeAll(async () => {
-    app = await buildApp();
+    app = await buildFastify();
   });
 
   afterAll(async () => {

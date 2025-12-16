@@ -504,8 +504,13 @@ export class TronGame {
     const isBoosting = (playerInstance instanceof TronPlayerHuman || playerInstance instanceof TronPlayerAI) && playerInstance.getIsBoosting();
     const moveAmount = isBoosting ? 2 : 1;
 
-    // Déplacer (avec boost = 2 cases)
+    const maxX = Math.floor(this.canvas.width / this.gridSize);
+    const maxY = Math.floor(this.canvas.height / this.gridSize);
+
+    // Déplacer (avec boost = 2 cases), en vérifiant collision à chaque étape
     for (let i = 0; i < moveAmount; i++) {
+      if (!player.alive) break;
+
       // Sauvegarder position actuelle dans la trace
       player.trail.push({ x: player.x, y: player.y });
 
@@ -523,6 +528,28 @@ export class TronGame {
         case 'right':
           player.x += 1;
           break;
+      }
+
+      // Vérifier collision immédiatement après chaque déplacement (important pour le boost)
+      if (i < moveAmount - 1) {
+        // Collision avec les bords
+        if (player.x < 0 || player.x >= maxX || player.y < 0 || player.y >= maxY) {
+          player.alive = false;
+          break;
+        }
+
+        // Collision avec sa propre trace (sauf les 2 dernières positions)
+        if (this.checkTrailCollision(player, player.trail.slice(0, -2))) {
+          player.alive = false;
+          break;
+        }
+
+        // Collision avec trace de l'adversaire
+        const otherPlayer = player.id === 1 ? this.playerRight : this.playerLeft;
+        if (this.checkTrailCollision(player, otherPlayer.trail)) {
+          player.alive = false;
+          break;
+        }
       }
     }
   }

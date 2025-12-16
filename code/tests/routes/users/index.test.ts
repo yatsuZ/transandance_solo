@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify';
-import { buildApp } from '../../../srcs/backend/main.js';
+import { buildFastify } from '../../../srcs/backend/config/fastify.js';
 import { testCreateUser } from './create-user.test.js';
 import { testGetAllUsers } from './get-all-users.test.js';
 import { testGetUserById } from './get-user-by-id.test.js';
@@ -10,7 +10,7 @@ describe('Routes /api/users', () => {
   let app: FastifyInstance;
 
   beforeAll(async () => {
-    app = await buildApp();
+    app = await buildFastify();
     await app.ready();
   });
 

@@ -1,5 +1,5 @@
 import { describe } from '@jest/globals';
-import { buildApp } from '../../../srcs/backend/main.js';
+import { buildFastify } from '../../../srcs/backend/config/fastify.js';
 import { FastifyInstance } from 'fastify';
 import { testCustomization } from './customization.test.js';
 
@@ -7,7 +7,7 @@ describe('Customization Routes', () => {
   let app: FastifyInstance;
 
   beforeAll(async () => {
-    app = await buildApp();
+    app = await buildFastify();
   });
 
   afterAll(async () => {

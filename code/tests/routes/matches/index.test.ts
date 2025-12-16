@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify';
-import { buildApp } from '../../../srcs/backend/main.js';
+import { buildFastify } from '../../../srcs/backend/config/fastify.js';
 import { testCreateMatch } from './create-match.test.js';
 import { testGetAllMatches } from './get-all-matches.test.js';
 import { testGetMatchById } from './get-match-by-id.test.js';
@@ -12,7 +12,7 @@ describe('Routes /api/matches', () => {
   let app: FastifyInstance;
 
   beforeAll(async () => {
-    app = await buildApp();
+    app = await buildFastify();
     await app.ready();
   });
 

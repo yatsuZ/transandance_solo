@@ -4,6 +4,7 @@ import { ProfileAPI } from './profile-api.js';
 import { ProfileControlsManager } from './profile-controls-manager.js';
 import { ProfileEditManager } from './profile-edit-manager.js';
 import { refreshPageDescription } from '../ui/description-manager.js';
+import { activeOrHiden } from '../navigation/page-manager.js';
 
 /**
  * Interface pour les stats utilisateur
@@ -117,9 +118,10 @@ export class ProfilePageManager {
     // Cacher le bouton de retour si présent
     this.hideBackButton();
 
-    // Réafficher les sections cachées
+    // Réafficher les sections cachées et l'icône d'édition
     this.showControlsSection();
     this.showFriendsSection();
+    activeOrHiden(this._DO.icons.edit, "On");
 
     // Rafraîchir la description de la page
     refreshPageDescription();
@@ -149,9 +151,10 @@ export class ProfilePageManager {
       // Afficher l'historique de l'ami
       this.displayFriendMatchHistory(matchHistory, user.id);
 
-      // Cacher les contrôles et amis (pas besoin de cacher edit, setIconsVisibility le fait)
+      // Cacher les contrôles, amis et l'icône d'édition (on ne peut pas éditer le profil d'un ami)
       this.hideControlsSection();
       this.hideFriendsSection();
+      activeOrHiden(this._DO.icons.edit, "Off");
 
       // Ajouter un bouton de retour
       this.showBackButton();

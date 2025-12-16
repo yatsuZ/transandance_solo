@@ -9,6 +9,11 @@ import { TwoFAManager } from './auth/twofa-manager.js';
 import { DOMElements } from './core/dom-elements.js';
 
 /**
+ * Événement personnalisé pour les changements de page
+ */
+export const PAGE_CHANGE_EVENT = 'sitemanagement:pagechange';
+
+/**
  * Classe principale pour orchestrer l'application
  * Délègue les responsabilités aux controllers spécialisés
  */
@@ -30,6 +35,10 @@ export class SiteManagement {
   private authEvents: AuthEvents | null = null;
   private twofaManager: TwoFAManager | null = null;
   private customizationManager: any = null;
+
+  // Flags d'initialisation pour éviter les doublons
+  private twofaInitialized: boolean = false;
+  private customInitialized: boolean = false;
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Constructeur et Initialisation
@@ -92,61 +101,58 @@ export class SiteManagement {
 
     // Initialiser TwoFAManager (gère le 2FA dans les paramètres)
     this.twofaManager = new TwoFAManager(this._DO);
-    // Initialiser le statut 2FA quand la page paramètres est active
-    this.init2FAOnParametresPage();
 
-    // Initialiser CustomizationManager quand la page custom est active
-    this.initCustomizationOnCustomPage();
+    // Initialiser les listeners de changement de page (remplace le polling)
+    this.initPageChangeListeners();
+
+    // Vérifier la page initiale au cas où on arrive directement sur paramètres ou custom
+    this.handlePageChange(SiteManagement.currentActivePage);
 
     // APRÈS l'initialisation de la navigation, vérifier si on doit démarrer un match au chargement
     this.matchController.initMatchOnStartup(() => SiteManagement.currentActivePage);
   }
 
   /**
-   * Initialise le 2FA quand la page paramètres devient active
+   * Initialise les listeners pour les changements de page (remplace le polling)
    */
-  private init2FAOnParametresPage() {
-    let twofaInitialized = false;
+  private initPageChangeListeners() {
+    // Écouter l'événement personnalisé de changement de page
+    document.addEventListener(PAGE_CHANGE_EVENT, (event: Event) => {
+      const customEvent = event as CustomEvent<{ page: HTMLElement | null }>;
+      this.handlePageChange(customEvent.detail.page);
+    });
 
-    // Observer le changement de page
-    const checkParametresPage = () => {
-      if (SiteManagement.currentActivePage === this._DO.pages.parametre) {
-        if (!twofaInitialized) {
-          this.twofaManager?.init();
-          twofaInitialized = true;
-        }
-      } else {
-        // Reset quand on quitte la page paramètres
-        twofaInitialized = false;
-      }
-    };
-
-    // Vérifier toutes les 500ms si on est sur la page paramètres
-    setInterval(checkParametresPage, 500);
+    // Écouter aussi popstate pour la navigation browser
+    window.addEventListener('popstate', () => {
+      this.handlePageChange(SiteManagement.currentActivePage);
+    });
   }
 
   /**
-   * Initialise la customization quand la page custom devient active
+   * Gère les changements de page
    */
-  private initCustomizationOnCustomPage() {
-    let customInitialized = false;
-
-    // Observer le changement de page
-    const checkCustomPage = () => {
-      if (SiteManagement.currentActivePage === this._DO.pages.custom) {
-        if (!customInitialized) {
-          import('./customization/customization-manager.js').then(({ CustomizationManager }) => {
-            this.customizationManager = new CustomizationManager();
-            customInitialized = true;
-          });
-        }
+  private handlePageChange(newPage: HTMLElement | null) {
+    // Gestion 2FA sur page paramètres
+    if (newPage === this._DO.pages.parametre) {
+      if (!this.twofaInitialized) {
+        this.twofaManager?.init();
+        this.twofaInitialized = true;
       }
-      // NE PAS reset customInitialized pour éviter de créer plusieurs managers
-      // et d'ajouter plusieurs event listeners popstate
-    };
+    } else {
+      // Reset quand on quitte la page paramètres
+      this.twofaInitialized = false;
+    }
 
-    // Vérifier toutes les 500ms si on est sur la page custom
-    setInterval(checkCustomPage, 500);
+    // Gestion customization sur page custom
+    if (newPage === this._DO.pages.custom) {
+      if (!this.customInitialized) {
+        import('./customization/customization-manager.js').then(({ CustomizationManager }) => {
+          this.customizationManager = new CustomizationManager();
+          this.customInitialized = true;
+        });
+      }
+    }
+    // NE PAS reset customInitialized pour éviter de créer plusieurs managers
   }
 
   /**
@@ -178,6 +184,8 @@ export class SiteManagement {
   }
 
   static set activePage(newPage: HTMLElement | null) {
+    const previousPage = this.currentActivePage;
+
     if (newPage === null) {
       if (this.currentActivePage)
         activeOrHiden(this.currentActivePage, "Off");
@@ -193,6 +201,13 @@ export class SiteManagement {
         activeOrHiden(this.currentActivePage, "Off");
       this.currentActivePage = newPage;
       activeOrHiden(this.currentActivePage, "On");
+    }
+
+    // Émettre l'événement de changement de page si la page a changé
+    if (previousPage !== this.currentActivePage) {
+      document.dispatchEvent(new CustomEvent(PAGE_CHANGE_EVENT, {
+        detail: { page: this.currentActivePage }
+      }));
     }
   }
 }

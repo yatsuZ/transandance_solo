@@ -68,7 +68,7 @@ export class MatchController {
    * Démarre un match depuis le formulaire gameConfig
    * Récupère les données du formulaire et lance le match
    */
-  private startMatchFromGameConfig() {
+  private async startMatchFromGameConfig() {
     const matchPage = this._DO.pages.match;
     const iconAccueil = this._DO.icons.accueil;
 
@@ -147,10 +147,7 @@ export class MatchController {
     // IMPORTANT: Afficher la page match AVANT de créer le PongGame
     updateUrl(matchPage, '/match/pong');
 
-    // Créer le jeu avec la config personnalisée
-    this.pongGameSingleMatch = new PongGame(this._DO, config, false, () => this.onMatchEnd());
-
-    // Envoyer POST /api/matches pour créer le match en BDD
+    // Envoyer POST /api/matches pour créer le match en BDD AVANT de démarrer le jeu
     const isBotLeft = playerLeftType === "ia" ? 1 : 0;
     const isBotRight = playerRightType === "ia" ? 1 : 0;
 
@@ -158,13 +155,17 @@ export class MatchController {
     const playerLeftId = (authenticatedSide === 'left' && userData) ? userData.id : null;
     const playerRightId = (authenticatedSide === 'right' && userData) ? userData.id : null;
 
-    this.createMatchInDatabase(playerLeftName, playerRightName, playerLeftId, playerRightId, isBotLeft, isBotRight);
+    // Attendre que le match soit créé en BDD avant de démarrer le jeu
+    await this.createMatchInDatabase(playerLeftName, playerRightName, playerLeftId, playerRightId, isBotLeft, isBotRight);
+
+    // Créer le jeu avec la config personnalisée APRÈS avoir l'ID du match
+    this.pongGameSingleMatch = new PongGame(this._DO, config, false, () => this.onMatchEnd());
   }
 
   /**
    * Callback appelé quand un match se termine (naturellement ou forcé)
    */
-  private onMatchEnd(): void {
+  private async onMatchEnd(): Promise<void> {
     // Envoyer la fin du match à la BDD si on a un match ID
     if (this.currentMatchId && this.pongGameSingleMatch) {
       const matchResult = this.pongGameSingleMatch.getWinnerAndLooser();
@@ -176,7 +177,7 @@ export class MatchController {
         // Déterminer si le winner est le user connecté
         const winnerId = this.getWinnerId(winnerName);
 
-        this.matchAPI.endMatch(this.currentMatchId, winnerId, winnerName, scoreLeft, scoreRight, 'completed');
+        await this.matchAPI.endMatch(this.currentMatchId, winnerId, winnerName, scoreLeft, scoreRight, 'completed');
       }
     }
 
@@ -207,14 +208,14 @@ export class MatchController {
    * Arrête le match solo actuel (si existant)
    * @param reason - Raison de l'arrêt
    */
-  public stopMatch(reason: string): void {
+  public async stopMatch(reason: string): Promise<void> {
     if (this.pongGameSingleMatch) {
       // Si le match est quitté avant la fin, envoyer status 'leave'
       if (this.currentMatchId) {
         const scoreLeft = this.pongGameSingleMatch['playerLeft'].get_score();
         const scoreRight = this.pongGameSingleMatch['playerRight'].get_score();
 
-        this.matchAPI.endMatch(this.currentMatchId, null, null, scoreLeft, scoreRight, 'leave');
+        await this.matchAPI.endMatch(this.currentMatchId, null, null, scoreLeft, scoreRight, 'leave');
       }
 
       this.pongGameSingleMatch.stop(reason);
@@ -241,14 +242,14 @@ export class MatchController {
    * Arrête le match Tron actuel (si existant)
    * @param reason - Raison de l'arrêt
    */
-  public stopTronMatch(reason: string): void {
+  public async stopTronMatch(reason: string): Promise<void> {
     if (this.tronGameSingleMatch) {
       // Si le match est quitté avant la fin, envoyer status 'leave'
       if (this.currentMatchId) {
         const scoreLeft = this.tronGameSingleMatch.getPlayerLeftScore();
         const scoreRight = this.tronGameSingleMatch.getPlayerRightScore();
 
-        this.matchAPI.endMatch(this.currentMatchId, null, null, scoreLeft, scoreRight, 'leave');
+        await this.matchAPI.endMatch(this.currentMatchId, null, null, scoreLeft, scoreRight, 'leave');
       }
 
       this.tronGameSingleMatch.stop(reason);
@@ -316,7 +317,7 @@ export class MatchController {
   /**
    * Démarre un match Tron
    */
-  private startTronMatch(): void {
+  private async startTronMatch(): Promise<void> {
     // Arrêter un éventuel match Tron en cours avant d'en créer un nouveau
     if (this.tronGameSingleMatch) {
       this.tronGameSingleMatch.stop('Nouveau match démarré');
@@ -393,21 +394,15 @@ export class MatchController {
     // Afficher la page Tron
     updateUrl(tronPage, '/match/tron');
 
-    // Créer le jeu Tron avec la config complète
-    this.tronGameSingleMatch = new TronGame(
-      this._DO,
-      config,
-      () => this.onTronMatchEnd()
-    );
-
-    // Créer le match en BDD avec game_type='tron'
+    // Créer le match en BDD avec game_type='tron' AVANT de démarrer le jeu
     const isBotLeft = playerLeftType === "ia" ? 1 : 0;
     const isBotRight = playerRightType === "ia" ? 1 : 0;
 
     const playerLeftId = (authenticatedSide === 'left' && userData) ? userData.id : null;
     const playerRightId = (authenticatedSide === 'right' && userData) ? userData.id : null;
 
-    this.createMatchInDatabase(
+    // Attendre que le match soit créé en BDD avant de démarrer le jeu
+    await this.createMatchInDatabase(
       playerLeftName,
       playerRightName,
       playerLeftId,
@@ -416,13 +411,19 @@ export class MatchController {
       isBotRight,
       'tron' // game_type
     );
+
+    // Créer le jeu Tron avec la config complète APRÈS avoir l'ID du match
+    this.tronGameSingleMatch = new TronGame(
+      this._DO,
+      config,
+      () => this.onTronMatchEnd()
+    );
   }
 
   /**
    * Callback appelé quand un match Tron se termine
    */
-  private onTronMatchEnd(): void {
-
+  private async onTronMatchEnd(): Promise<void> {
     // Envoyer la fin du match à la BDD
     if (this.currentMatchId && this.tronGameSingleMatch) {
       const matchResult = this.tronGameSingleMatch.getWinnerAndLooser();
@@ -434,7 +435,7 @@ export class MatchController {
         // Déterminer si le winner est le user connecté
         const winnerId = this.getWinnerId(winnerName);
 
-        this.matchAPI.endMatch(this.currentMatchId, winnerId, winnerName, scoreLeft, scoreRight, 'completed');
+        await this.matchAPI.endMatch(this.currentMatchId, winnerId, winnerName, scoreLeft, scoreRight, 'completed');
       }
     }
 

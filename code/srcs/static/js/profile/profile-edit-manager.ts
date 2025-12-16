@@ -239,7 +239,8 @@ export class ProfileEditManager {
       const updatedUser = {
         id: userData.id,
         username: result.data.username,
-        email: result.data.email
+        email: result.data.email,
+        avatar_url: result.data.avatar_url
       };
       userSession.setUser(updatedUser);
 
@@ -247,6 +248,11 @@ export class ProfileEditManager {
       const usernameElement = this._DO.profile.username;
       if (usernameElement) {
         usernameElement.textContent = result.data.username;
+      }
+
+      // Mettre à jour la photo de profil affichée sur la page (SPA - pas de reload)
+      if (result.data.avatar_url) {
+        this._DO.profile.pdp.src = result.data.avatar_url;
       }
 
       this.showMessage('Profil mis à jour avec succès !', 'success');
