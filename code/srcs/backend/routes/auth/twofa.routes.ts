@@ -17,7 +17,7 @@ export default async function twofaRoutes(fastify: FastifyInstance) {
   fastify.post('/setup', {
     preHandler: authMiddleware
   }, async (request, reply) => {
-    const userId = (request as any).user.userId;
+    const userId = request.user!.userId;
     const user = userRepo.getUserById(userId);
 
     if (!user) {
@@ -50,7 +50,7 @@ export default async function twofaRoutes(fastify: FastifyInstance) {
   fastify.post('/verify', {
     preHandler: authMiddleware
   }, async (request, reply) => {
-    const userId = (request as any).user.userId;
+    const userId = request.user!.userId;
     const { token } = request.body as { token: string };
 
     if (!token) {
@@ -86,7 +86,7 @@ export default async function twofaRoutes(fastify: FastifyInstance) {
   fastify.post('/disable', {
     preHandler: authMiddleware
   }, async (request, reply) => {
-    const userId = (request as any).user.userId;
+    const userId = request.user!.userId;
     const { token } = request.body as { token: string };
 
     if (!token) {
@@ -122,7 +122,7 @@ export default async function twofaRoutes(fastify: FastifyInstance) {
   fastify.get('/status', {
     preHandler: authMiddleware
   }, async (request, reply) => {
-    const userId = (request as any).user.userId;
+    const userId = request.user!.userId;
     const isEnabled = userRepo.is2FAEnabled(userId);
 
     return reply.send({

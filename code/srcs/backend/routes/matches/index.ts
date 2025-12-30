@@ -1,4 +1,4 @@
-import { FastifyInstance } from 'fastify';
+import { FastifyInstance, RouteHandlerMethod } from 'fastify';
 import { createMatch, createMatchSchema } from './handlers/create-match.js';
 import { getAllMatches, getAllMatchesSchema } from './handlers/get-all-matches.js';
 import { getMatchById, getMatchByIdSchema } from './handlers/get-match-by-id.js';
@@ -13,8 +13,8 @@ import { authMiddleware } from '../../core/auth/auth.middleware.js';
  * Associe les routes HTTP aux handlers avec validation par schémas
  */
 export default async function matchRoutes(fastify: FastifyInstance) {
-  // POST /api/matches - Créer un nouveau match
-  fastify.post('/', { schema: createMatchSchema }, createMatch);
+  // POST /api/matches - Créer un nouveau match (protégé)
+  fastify.post('/', { schema: createMatchSchema, preHandler: [authMiddleware] }, createMatch as RouteHandlerMethod);
 
   // GET /api/matches - Récupérer tous les matchs
   fastify.get('/', { schema: getAllMatchesSchema }, getAllMatches);
@@ -23,14 +23,14 @@ export default async function matchRoutes(fastify: FastifyInstance) {
   fastify.get('/:id', { schema: getMatchByIdSchema }, getMatchById);
 
   // PUT /api/matches/:id/score - Mettre à jour le score (protégé)
-  fastify.put('/:id/score', { schema: updateScoreSchema, preHandler: [authMiddleware] }, updateScore as any);
+  fastify.put('/:id/score', { schema: updateScoreSchema, preHandler: [authMiddleware] }, updateScore as RouteHandlerMethod);
 
   // POST /api/matches/:id/end - Terminer un match (protégé)
-  fastify.post('/:id/end', { schema: endMatchSchema, preHandler: [authMiddleware] }, endMatch as any);
+  fastify.post('/:id/end', { schema: endMatchSchema, preHandler: [authMiddleware] }, endMatch as RouteHandlerMethod);
 
   // GET /api/matches/status/:status - Récupérer les matchs par statut
   fastify.get('/status/:status', { schema: getMatchesByStatusSchema }, getMatchesByStatus);
 
   // DELETE /api/matches/:id - Supprimer un match (protégé)
-  fastify.delete('/:id', { schema: deleteMatchSchema, preHandler: [authMiddleware] }, deleteMatch as any);
+  fastify.delete('/:id', { schema: deleteMatchSchema, preHandler: [authMiddleware] }, deleteMatch as RouteHandlerMethod);
 }

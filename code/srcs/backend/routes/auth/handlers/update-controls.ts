@@ -44,7 +44,7 @@ export async function updateControls(
   request: FastifyRequest<{ Body: UpdateControlsBody }>,
   reply: FastifyReply
 ): Promise<UpdateControlsResponse> {
-  const authenticatedUser = (request as any).user;
+  const authenticatedUser = request.user;
 
   if (!authenticatedUser || !authenticatedUser.userId) {
     return reply.code(StatusCodes.UNAUTHORIZED).send({

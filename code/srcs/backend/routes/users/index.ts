@@ -1,5 +1,5 @@
 import { FastifyInstance, RouteHandlerMethod } from 'fastify';
-import { createUser, createUserSchema } from './handlers/create-user.js';
+// import { createUser, createUserSchema } from './handlers/create-user.js'; // Inutile - géré par signup
 import { getAllUsers, getAllUsersSchema } from './handlers/get-all-users.js';
 import { getUserById, getUserByIdSchema } from './handlers/get-user-by-id.js';
 import { getUserByUsername, getUserByUsernameSchema } from './handlers/get-user-by-username.js';
@@ -12,7 +12,7 @@ import { authMiddleware } from '../../core/auth/auth.middleware.js';
 import { preferencesRoutes } from './preferences.routes.js';
 
 export default async function userRoutes(fastify: FastifyInstance) {
-  fastify.post('/', { schema: createUserSchema }, createUser);
+  // fastify.post('/', { schema: createUserSchema }, createUser); // inutle 
   fastify.get('/', { schema: getAllUsersSchema }, getAllUsers);
   fastify.get('/:id', { schema: getUserByIdSchema }, getUserById);
   fastify.get('/username/:username', { schema: getUserByUsernameSchema }, getUserByUsername);

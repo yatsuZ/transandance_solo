@@ -1,4 +1,4 @@
-import { FastifyInstance } from 'fastify';
+import { FastifyInstance, RouteHandlerMethod } from 'fastify';
 import fastifyOAuth2 from '@fastify/oauth2';
 import { signup, signupSchema } from './handlers/signup.js';
 import { login, loginSchema } from './handlers/login.js';
@@ -17,7 +17,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
 
   fastify.get('/me', { schema: meSchema, preHandler: [authMiddleware] }, me);
 
-  fastify.put('/controls', { schema: updateControlsSchema, preHandler: [authMiddleware] }, updateControls as any);
+  fastify.put('/controls', { schema: updateControlsSchema, preHandler: [authMiddleware] }, updateControls as RouteHandlerMethod);
 
   await fastify.register(async function googleOAuthPlugin(instance) {
     await instance.register(fastifyOAuth2, {

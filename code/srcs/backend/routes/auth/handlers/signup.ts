@@ -30,11 +30,12 @@ export const signupSchema = {
     required: ['username', 'email', 'password'],
     properties: {
       username: userSchema.properties.username,
-      email: userSchema.properties.email,
+      email: { type: 'string', format: 'email', minLength: 1, description: 'Adresse email (obligatoire)' },
       password: { type: 'string', minLength: 6, description: 'Mot de passe (min 6 caractères)' }
     }
   },
   response: {
+
     201: {
       description: 'Compte créé avec succès',
       type: 'object' as const,
@@ -58,6 +59,7 @@ export const signupSchema = {
         message: { type: 'string' }
       }
     },
+
     409: { description: 'Username ou email déjà utilisé', ...errorResponseSchema }
   }
 } as const;
@@ -66,19 +68,12 @@ export async function signup(request: FastifyRequest<{ Body: SignupBody }>, repl
   const { username, email, password } = request.body;
 
   const existingUserByUsername = userRepo.getUserByUsername(username);
-  if (existingUserByUsername) {
-    return reply.code(StatusCodes.CONFLICT).send({
-      success: false,
-      error: 'Username already exists'
-    });
-  }
+  if (existingUserByUsername)
+    return reply.code(StatusCodes.CONFLICT).send({success: false, error: 'Username already exists'});
 
-  if (!email || email.trim() === '') {
-    return reply.code(StatusCodes.BAD_REQUEST).send({
-      success: false,
-      error: 'Email is required'
-    });
-  }
+  // Validation déplacée dans le schéma (format: 'email', minLength: 1)
+  // if (!email || email.trim() === '')
+  //   return reply.code(StatusCodes.BAD_REQUEST).send({success: false, error: 'Email is required'});
 
   const existingUserByEmail = userRepo.getUserByEmail(email);
   if (existingUserByEmail) {
@@ -90,16 +85,9 @@ export async function signup(request: FastifyRequest<{ Body: SignupBody }>, repl
 
   const password_hash = await AuthService.hashPassword(password);
 
-  const user = userRepo.createUser({
-    username,
-    email,
-    password_hash
-  });
+  const user = userRepo.createUser({username, email, password_hash});
 
-  const token = AuthService.generateToken({
-    userId: user.id,
-    username: user.username
-  });
+  const token = AuthService.generateToken({userId: user.id, username: user.username});
 
   reply.setCookie('auth_token', token, {
     httpOnly: true,

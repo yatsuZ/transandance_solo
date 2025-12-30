@@ -58,8 +58,7 @@ export const meSchema = {
  * @returns 401 - Token invalide/expiré ou utilisateur inexistant
  */
 export async function me(request: FastifyRequest, reply: FastifyReply): Promise<MeResponse> {
-  // Le middleware d'auth a déjà vérifié le token et ajouté request.user
-  const authenticatedUser = (request as any).user;
+  const authenticatedUser = request.user;
 
   if (!authenticatedUser || !authenticatedUser.userId) {
     return reply.code(StatusCodes.UNAUTHORIZED).send({

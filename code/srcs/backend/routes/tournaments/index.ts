@@ -1,4 +1,4 @@
-import { FastifyInstance } from 'fastify';
+import { FastifyInstance, RouteHandlerMethod } from 'fastify';
 import { createTournament, createTournamentSchema } from './handlers/create-tournament.js';
 import { getAllTournaments, getAllTournamentsSchema } from './handlers/get-all-tournaments.js';
 import { getTournamentById, getTournamentByIdSchema } from './handlers/get-tournament-by-id.js';
@@ -29,8 +29,8 @@ export default async function tournamentRoutes(fastify: FastifyInstance) {
   fastify.get('/:id/participants', { schema: getParticipantsSchema }, getParticipants);
 
   // POST /api/tournaments/:id/end - Terminer un tournoi (protégé)
-  fastify.post('/:id/end', { schema: endTournamentSchema, preHandler: [authMiddleware] }, endTournament as any);
+  fastify.post('/:id/end', { schema: endTournamentSchema, preHandler: [authMiddleware] }, endTournament as RouteHandlerMethod);
 
   // DELETE /api/tournaments/:id - Supprimer un tournoi (protégé)
-  fastify.delete('/:id', { schema: deleteTournamentSchema, preHandler: [authMiddleware] }, deleteTournament as any);
+  fastify.delete('/:id', { schema: deleteTournamentSchema, preHandler: [authMiddleware] }, deleteTournament as RouteHandlerMethod);
 }
